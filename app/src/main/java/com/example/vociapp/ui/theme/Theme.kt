@@ -12,25 +12,55 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = ColorPalette.PrimaryDark,
+    onPrimary = ColorPalette.OnPrimaryDark,
+    primaryContainer = ColorPalette.PrimaryContainerDark,
+    onPrimaryContainer = ColorPalette.OnPrimaryContainerDark,
+    secondary = ColorPalette.SecondaryDark,
+    onSecondary = ColorPalette.OnSecondaryDark,
+    secondaryContainer = ColorPalette.SecondaryContainerDark,
+    onSecondaryContainer = ColorPalette.OnSecondaryContainerDark,
+    tertiary = ColorPalette.TertiaryDark,
+    onTertiary = ColorPalette.OnTertiaryDark,
+    tertiaryContainer = ColorPalette.TertiaryContainerDark,
+    onTertiaryContainer = ColorPalette.OnTertiaryContainerDark,
+    error = ColorPalette.ErrorDark,
+    onError = ColorPalette.OnErrorDark,
+    errorContainer = ColorPalette.ErrorContainerDark,
+    onErrorContainer = ColorPalette.OnErrorContainerDark,
+    background = ColorPalette.BackgroundDark,
+    onBackground = ColorPalette.OnBackgroundDark,
+    surface = ColorPalette.SurfaceDark,
+    onSurface = ColorPalette.OnSurfaceDark,
+    surfaceVariant = ColorPalette.SurfaceVariantDark,
+    onSurfaceVariant = ColorPalette.OnSurfaceVariantDark,
+    outline = ColorPalette.OutlineDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = ColorPalette.PrimaryLight,
+    onPrimary = ColorPalette.OnPrimaryLight,
+    primaryContainer = ColorPalette.PrimaryContainerLight,
+    onPrimaryContainer = ColorPalette.OnPrimaryContainerLight,
+    secondary = ColorPalette.SecondaryLight,
+    onSecondary = ColorPalette.OnSecondaryLight,
+    secondaryContainer = ColorPalette.SecondaryContainerLight,
+    onSecondaryContainer = ColorPalette.OnSecondaryContainerLight,
+    tertiary = ColorPalette.TertiaryLight,
+    onTertiary = ColorPalette.OnTertiaryLight,
+    tertiaryContainer = ColorPalette.TertiaryContainerLight,
+    onTertiaryContainer = ColorPalette.OnTertiaryContainerLight,
+    error = ColorPalette.ErrorLight,
+    onError = ColorPalette.OnErrorLight,
+    errorContainer = ColorPalette.ErrorContainerLight,
+    onErrorContainer = ColorPalette.OnErrorContainerLight,
+    background = ColorPalette.BackgroundLight,
+    onBackground = ColorPalette.OnBackgroundLight,
+    surface = ColorPalette.SurfaceLight,
+    onSurface = ColorPalette.OnSurfaceLight,
+    surfaceVariant = ColorPalette.SurfaceVariantLight,
+    onSurfaceVariant = ColorPalette.OnSurfaceVariantLight,
+    outline = ColorPalette.OutlineLight
 )
 
 @Composable
