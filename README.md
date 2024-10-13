@@ -30,8 +30,8 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
 - **Material Design 3**: The latest iteration of Google's Material Design system for Android. It provides a consistent and beautiful design language with pre-built components like buttons, text fields, and cards.
 - **Gradle**: A build automation tool that manages dependencies, builds your app, and packages it for distribution.
 - **Firebase**: Google's mobile app development platform. We utilize Firebase to:
-   - **Store user data and app data**: Firebase Firestore, a NoSQL cloud database, provides flexible and scalable data storage for your app.
-   - **Firebase Authentication (Auth)**: Simplifies user authentication and management, allowing users to sign in with various methods like email/password or social logins.
+    - **Store user data and app data**: Firebase Firestore, a NoSQL cloud database, provides flexible and scalable data storage for your app.
+    - **Firebase Authentication (Auth)**: Simplifies user authentication and management, allowing users to sign in with various methods like email/password or social logins.
 - **Git & GitHub**: Basic tools for version control and code sharing. We could have used GitLabs but we were more familiar with Github having used it for previous courses (Also we can't give all the data to Google, we have to share it with Microsoft as well).
 
 ## Project
