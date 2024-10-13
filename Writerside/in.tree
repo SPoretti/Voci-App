@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="in"
+                  name="Voci App Documentation" start-page="README.md">
+
+    <toc-element topic="README.md"/>
+    <toc-element toc-title="reference">
+        <toc-element toc-title="app">
+            <toc-element topic="MainActivity.md"/>
+            <toc-element toc-title="ui">
+                <toc-element toc-title="components">
+                    <toc-element topic="BottomBar.md"/>
+                </toc-element>
+                <toc-element toc-title="navigation">
+                    <toc-element topic="Screens.md"/>
+                    <toc-element topic="NavGraph.md"/>
+                </toc-element>
+                <toc-element toc-title="screens">
+                    <toc-element topic="UserProfileScreen.md"/>
+                    <toc-element topic="HomeScreen.md"/>
+                </toc-element>
+                <toc-element toc-title="theme">
+                    <toc-element topic="Type.md"/>
+                    <toc-element topic="Theme.md"/>
+                    <toc-element topic="Colors.md"/>
+                </toc-element>
+            </toc-element>
+        </toc-element>
+    </toc-element>
+</instance-profile>

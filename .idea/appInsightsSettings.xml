@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.vociapp" />
+                  <option name="mobileSdkAppId" value="1:419361277278:android:6dc287109c341c65edfbcf" />
+                  <option name="projectId" value="provaandroid1-f19cd" />
+                  <option name="projectNumber" value="419361277278" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

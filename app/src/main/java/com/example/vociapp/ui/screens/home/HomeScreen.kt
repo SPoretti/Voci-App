@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.screens
+package com.example.vociapp.ui.screens.home
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
