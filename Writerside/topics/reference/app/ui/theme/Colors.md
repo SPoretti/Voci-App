@@ -32,7 +32,7 @@ This file defines the color palette used throughout the app. It provides color v
 
 ## Usage
 
-These color values can be accessed through the `ColorPalette` object in your code:
+These color values can be accessed through the `ColorPalette` object in the `Colors.kt` file:
 
 ```kotlin
 val primaryColor = ColorPalette.PrimaryLight // For light theme

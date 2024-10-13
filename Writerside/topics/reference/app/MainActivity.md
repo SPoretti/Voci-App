@@ -1,68 +1,86 @@
-# MainActivity
+# Main Activity (MainActivity.kt)
 
 ## Overview
 
-This file contains the `MainActivity` class, which is the entry point of the application. It is responsible for setting up the main UI and handling the navigation between different screens.
+This file defines the main activity of the application, which serves as the entry point. It sets up the main UI scaffold, applies the theme, and integrates the navigation graph. The activity utilizes Jetpack Compose to define a composable layout.
 
 ## Code Explanation
 
+### Breakdown
+- **`class MainActivity : ComponentActivity()`**
+   - Main entry point of the application.
+   - Inherits from `ComponentActivity`.
+
+- **`override fun onCreate(savedInstanceState: Bundle?)`**
+   - Lifecycle method called when the activity is created.
+   - Sets up edge-to-edge display using `enableEdgeToEdge()`.
+   - Applies the overall theme using `setContent`.
+
+- **`setContent { VociAppTheme { ... } }`**
+   - Applies the custom theme for the app.
+   - Sets up the composable content within the theme.
+
+- **`val navController = rememberNavController()`**
+   - Initializes the `NavController` to manage navigation between composables.
+   - `rememberNavController` ensures that the controller state is remembered across recompositions.
+
+- **[`Scaffold`](https://developer.android.com/reference/kotlin/androidx/compose/material3/Scaffold)**
+   - Provides the basic material design visual layout structure.
+   - Parameters:
+      - `bottomBar`: Sets the bottom bar component if the current route is not `signIn` or `signUp`.
+      - `content`: Lambda function that sets up the `NavGraph` and passes padding values to ensure consistent layout spacing.
+
+- **`currentRoute(navController)`**
+   - Helper function to retrieve the current navigation route.
+   - Used to conditionally render the `BottomBar`.
+
+- **`NavGraph(navController = navController, paddingValues = innerPadding)`**
+   - Integrates the navigation graph into the main activity.
+   - Passes the `NavController` and padding values to manage navigation and layout spacing.
+
+## Related Files
+
+- **[NavGraph.kt](NavGraph.md):** Defines the navigation graph and individual routes for each screen.
+- **[Screens.kt](Screens.md):** Defines the screen routes and related properties such as `route`, `title`, and `icon`.
+- **[BottomBar.kt](BottomBar.md):** Bottom navigation component used to navigate between different sections of the app.
+
+## Usage
+
+The `MainActivity` is responsible for setting up the primary structure and navigation of the app. Here's a simplified overview of how it integrates different components:
+
+### Theme Setup
+Applies the custom theme to the entire composable layout:
+
 ```kotlin
-package com.example.vociapp // Package declaration
-
-// Imports for necessary classes and components
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Scaffold
-import androidx.navigation.compose.rememberNavController
-import com.example.vociapp.ui.components.BottomBar
-import com.example.vociapp.ui.navigation.NavGraph
-import com.example.vociapp.ui.theme.VociAppTheme
-
-class MainActivity : ComponentActivity() { // Class declaration extending ComponentActivity
-    override fun onCreate(savedInstanceState: Bundle?) { // onCreate method, called when activity is created
-        super.onCreate(savedInstanceState) // Call to superclass onCreate
-        enableEdgeToEdge() // Enables edge-to-edge display
-        setContent { // Sets content of the activity using Jetpack Compose
-            VociAppTheme { // Applies the app's theme
-                val navController = rememberNavController() // Creates a NavHostController for navigation
-                Scaffold( // Creates a Scaffold layout with a bottom bar
-                    bottomBar = { BottomBar(navController) } // Sets the BottomBar component
-                ) { innerPadding -> // Provides padding values for the content
-                    NavGraph(navController = navController, paddingValues = innerPadding) // Sets up the navigation graph
-                }
-            }
-        }
+setContent {
+    VociAppTheme {
+        // Composable content...
     }
 }
 ```
 
-**Breakdown:**
+### Navigation Setup
+Initializes the `NavController` and sets up the navigation graph wrapped within the `Scaffold`:
 
-1. **Package Declaration:** `package com.example.vociapp` defines the package the class belongs to.
-2. **Imports:** The `import` statements bring in necessary classes and components from various libraries, such as Jetpack Compose and Navigation.
-3. **Class Declaration:** `class MainActivity : ComponentActivity()` declares the `MainActivity` class, inheriting from `ComponentActivity`, which is the base class for activities in Android.
-4. **onCreate() method:** This method is called when the activity is first created. It's responsible for initializing the UI and setting up the navigation.
-   - `super.onCreate(savedInstanceState)` calls the superclass's `onCreate()` method to perform default initialization.
-   - `enableEdgeToEdge()` enables edge-to-edge display for the activity, making the content extend to the edges of the screen.
-   - `setContent { ... }` sets the content of the activity using Jetpack Compose.
-   - `VociAppTheme { ... }` applies the app's custom theme.
-   - `val navController = rememberNavController()` creates a `NavHostController` to manage navigation between screens.
-   - `Scaffold { ... }` creates a Scaffold layout, providing a structure for the app's UI with a bottom bar.
-   - `bottomBar = { BottomBar(navController) }` sets the `BottomBar` component as the bottom bar of the Scaffold.
-   - `NavGraph(navController = navController, paddingValues = innerPadding)` sets up the navigation graph, defining the screens and their routes.
+```kotlin
+val navController = rememberNavController()
+Scaffold(
+    bottomBar = {
+        if (currentRoute(navController) != "signIn" && currentRoute(navController) != "signUp") {
+            BottomBar(navController)
+        }
+    }
+) { innerPadding ->
+    NavGraph(navController = navController, paddingValues = innerPadding)
+}
+```
 
-## Related Files
-
-- **[BottomBar.kt](../ui/components/BottomBar.kt):** Defines the bottom navigation bar component.
-- **[NavGraph.kt](../ui/navigation/NavGraph.kt):** Sets up the navigation graph for the app.
-- **[VociAppTheme.kt](../ui/theme/Theme.kt):** Defines the app's custom theme.
+### Bottom Navigation
+Conditionally renders the `BottomBar` based on the current route, ensuring it's not displayed on `signIn` and `signUp` screens.
 
 ## Additional Notes
 
-- `MainActivity` is the entry point of the application and is responsible for initializing the UI and navigation.
-- It uses Jetpack Compose to define the UI and Navigation component to manage navigation between screens.
-- The `Scaffold` component provides a structure for the UI with a bottom bar.
-- The `BottomBar` component is used for navigation between screens.
-- The `NavGraph` component defines the screens and their routes.
+- The main activity orchestrates the setup of theme, scaffold, navigation graph, and bottom bar.
+- Edge-to-edge display is enabled for a more immersive user experience.
+- Proper initialization and usage of `NavController` ensure smooth navigation transitions throughout the app.
+- Conditional rendering of the `BottomBar` enhances the user experience by providing relevant navigation options based on the current screen.
