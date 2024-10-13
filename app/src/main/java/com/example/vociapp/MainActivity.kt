@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.ui.components.BottomBar
 import com.example.vociapp.ui.navigation.NavGraph
+import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.theme.VociAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,7 +26,11 @@ class MainActivity : ComponentActivity() {
                 // Scaffold : composable function to set up the main layout of the app
                 // Fondamental design structure
                 Scaffold(
-                    bottomBar = { BottomBar(navController) }
+                    bottomBar = {
+                        if (currentRoute(navController) != "signIn" && currentRoute(navController) != "signUp") {
+                            BottomBar(navController)
+                        }
+                    }
                 ) { innerPadding ->
                     // NavGraph : composable function to set up the navigation graph
                     // renders the app's navigation structure
