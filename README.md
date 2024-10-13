@@ -38,7 +38,7 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
 
 ### Folder structure
 
-<code-block>
+```
     vociapp/
     ├── MainActivity.kt
     ├── ui/
@@ -59,7 +59,7 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
     │       └── AuthState.kt
     └── di/
         └── AppModule.kt
-</code-block>
+```
 
 ## Screens and Navigation
 
