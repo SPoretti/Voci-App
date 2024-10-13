@@ -34,7 +34,9 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
                 navController.navigate(Screens.SignIn.route)
             }
 
-            AuthState.Uninitialized -> TODO()
+            AuthState.Uninitialized -> {
+                // Handle uninitialized state if needed
+            }
         }
     }
 

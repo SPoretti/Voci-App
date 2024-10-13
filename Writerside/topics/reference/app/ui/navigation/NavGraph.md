@@ -6,72 +6,68 @@ This file defines the navigation graph for the application, which controls the n
 
 ## Code Explanation
 
-```kotlin
-package com.example.vociapp.ui.navigation
+### Breakdown
+- **`@Composable fun NavGraph(navController: NavHostController, paddingValues: PaddingValues)`**
+   - This composable function sets up the navigation graph using `NavHost`.
+   - Parameters:
+      - `navController`: Receives the original NavHostController created in the [Main Activity](MainActivity.md).
+      - `paddingValues`: Receives the padding values that are default from the [Scaffold](https://https://developer.android.com/develop/ui/compose/components/scaffold).
+- **`val authViewModel = remember { AuthViewModel() }`**
+   - TODO.
+- **`val authState by authViewModel.authState.collectAsState()`**
+   - TODO.
+- **`LaunchedEffect(authState)`**
+   - The LaunchedEffect 
+- **`when (authState)`**
+   - Defines a list of actions that depend on the state of the user authentication:
+     - `AuthState.Authenticated`: The user gets routed to the Home screen.
+     - `AuthState.Unauthenticated`: The user gets routed to the SignIn screen.
+- **`NavHost( navController = navController, startDestination = Screens.Home.route, modifier = Modifier.padding(paddingValues) )`**
+   - This function sets up the navigation graph with all the possible routes and the according [Screens](Screens.md).
+   - Parameters: 
+     - `navController`: Receives the original NavHostController created in the [Main Activity](MainActivity.md).
+     - `modifier`: Applies the padding values.
+     - `startDestination` parameter specifies the initial screen to be displayed when the app launches.
+- **`composable(route = Screens.Example.route) { ExampleScreen(navController) }` functions:**
+   - Inside the `NavHost` scope, `composable` functions define routes for each screen.
+   - List:
+     - `HomeScreen`
+     - `SignInScreen`
+     - `SignUpScreen`
+     - `UserProfileScreen`
+     - `UpdateUserProfileScreen`
 
-// ... IMPORTS 
+- **Authentication Logic:**
+   - The `LaunchedEffect` block within `NavGraph` observes the authentication state and navigates to the appropriate screen based on whether the user is authenticated or not.
+   - The `authState` is managed by the `AuthViewModel` and can be `Authenticated`, `Unauthenticated`, or `Uninitialized`.
 
-@Composable
-fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
-   NavHost(
-      navController = navController,
-      startDestination = Screens.Home.route, // Sets the initial screen
-      modifier = Modifier.padding(paddingValues) // Applies padding to the content
-   ) {
-      composable(route = Screens.Home.route) {
-         HomeScreen(navController)
-      } // Defines the Home screen route
-      composable(route = Screens.UserProfile.route) {
-         UserProfileScreen(navController)
-      } // Defines the UserProfile screen route
-      // Add more composable routes for other screens here...
-   }
-}
-
-@Composable
-fun currentRoute(navController: NavHostController): String? {
-   val navBackStackEntry by navController.currentBackStackEntryAsState()
-   return navBackStackEntry?.destination?.route
-}
-```
-
-**Breakdown:**
-
-1. **NavGraph function:**
-    - This composable function sets up the navigation graph using `NavHost`.
-    - It takes a `NavHostController` and `PaddingValues` as parameters.
-    - `startDestination` specifies the initial screen to be displayed.
-    - `modifier` applies padding to the content of the navigation graph.
-2. **Composable Routes:**
-    - Inside the `NavHost` scope, `composable` functions are used to define routes for each screen.
-    - Each `composable` function takes a route string as a parameter and a content lambda that defines the screen's UI.
-    - The `HomeScreen` and `UserProfileScreen` composables are examples of screen content.
-3. **currentRoute function:**
-    - Helper function to obtain the current route from anywhere inside the navigation graph.
-    - Uses the passed in navController and `currentBackStackEntryAsState()` to get the current route.
-    - Used by the bottomBar for highlighting the current screen.
+- **Helper function:**
+   - `@Composable fun currentRoute(navController: NavHostController): String?`
+      - This helper function retrieves the current route from anywhere inside the navigation graph.
+      - It uses the passed in `navController` and `currentBackStackEntryAsState()` to get the current route and can be leveraged by UI components like the BottomBar for navigation state awareness.
 
 ## Related Files
 
-- **[Screens.kt](./Screens.kt):** Defines the screen routes and navigation arguments (if any).
+- **[Screens.kt](Screens.md):** Defines the screen routes and related properties such as `route`, `title`, and `icon`.
 - **[HomeScreen.kt](../screens/HomeScreen.kt):** Defines the UI and logic for the Home screen.
 - **[UserProfileScreen.kt](../screens/UserProfileScreen.kt):** Defines the UI and logic for the User Profile screen.
 
 ## Usage
 
-The `NavGraph` is typically used in your main activity's `setContent` block to set up the navigation structure:
+The `NavGraph` setup would typically be called from your main activity's `setContent` block to establish the structure of navigation in your app:
 
 ```kotlin
+import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.ui.navigation.NavGraph
+
 val navController = rememberNavController()
 NavGraph(navController = navController, paddingValues = innerPadding)
 ```
 
 ## Additional Notes
 
-- The navigation graph defines the flow of screens in your application.
-- Each screen is represented by a `composable` route.
-- You can add more screens and routes as needed.
-- Navigation arguments can be used to pass data between screens (see `Screens.kt`).
-- The `NavHostController` is used to control navigation actions.
-- Custom transitions and animations can be added to enhance the navigation experience (see Navigation component documentation for more details).
+- The navigation graph organizes the flow of screens within your application.
+- Each screen is represented by a `composable` route, allowing easy additions and modifications of navigation paths.
+- Navigation arguments can be used to pass data between different screens by modifying the `Screens.kt` definitions.
+- The `NavHostController` facilitates navigation actions like moving between screens and managing the back stack.
+- You can implement custom transitions and animations to enhance the navigation experience (refer to Navigation component documentation for more details).
