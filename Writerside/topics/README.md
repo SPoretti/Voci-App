@@ -1,8 +1,8 @@
 # Voci app Documentation
 
-## Introduction
-
 ![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
+
+## Introduction
 
 ### Overview
 This project was created as an assignment for the University of Milano Bicocca course "Dispositivi Mobili".
