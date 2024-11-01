@@ -1,8 +1,8 @@
 # Voci app Documentation
 
-## Introduction
-
 ![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
+
+## Introduction
 
 ### Overview
 This project was created as an assignment for the University of Milano Bicocca course "Dispositivi Mobili".
@@ -30,8 +30,8 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
 - **Material Design 3**: The latest iteration of Google's Material Design system for Android. It provides a consistent and beautiful design language with pre-built components like buttons, text fields, and cards.
 - **Gradle**: A build automation tool that manages dependencies, builds your app, and packages it for distribution.
 - **Firebase**: Google's mobile app development platform. We utilize Firebase to:
-    - **Store user data and app data**: Firebase Firestore, a NoSQL cloud database, provides flexible and scalable data storage for your app.
-    - **Firebase Authentication (Auth)**: Simplifies user authentication and management, allowing users to sign in with various methods like email/password or social logins.
+   - **Store user data and app data**: Firebase Firestore, a NoSQL cloud database, provides flexible and scalable data storage for your app.
+   - **Firebase Authentication (Auth)**: Simplifies user authentication and management, allowing users to sign in with various methods like email/password or social logins.
 - **Git & GitHub**: Basic tools for version control and code sharing. We could have used GitLabs but we were more familiar with Github having used it for previous courses (Also we can't give all the data to Google, we have to share it with Microsoft as well).
 
 ## Project
@@ -57,35 +57,9 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
     │   └── viewmodels/
     │       ├── AuthViewModel.kt
     │       └── AuthState.kt
-    └── di/
-        └── AppModule.kt
+    └── data/
+        └── Data.kt
 ```
-
-## Screens and Navigation
-
-### Authentication Screens
-
-#### Sign-In Screen
-The `SignInScreen` allows users to sign in using their email and password. It integrates with `AuthViewModel` to handle the sign-in process. The screen layout includes input fields for email and password, and a button to submit the sign-in request.
-
-#### Sign-Up Screen
-The `SignUpScreen` allows users to create a new account. It includes input fields for email, password, and confirmation password. The `AuthViewModel` manages user registration and handles any errors during the process.
-
-### Profile Screens
-
-#### User Profile Screen
-The `UserProfileScreen` displays the profile information of the logged-in user. It retrieves data from `AuthViewModel` and shows details like display name and profile picture.
-
-#### Update Profile Screen
-The `UpdateProfileScreen` allows users to update their profile information, such as their display name and profile picture. Changes are processed and stored using the `AuthViewModel`.
-
-## Dependencies and Modules
-
-### Dependency Injection (DI)
-We use [Dagger](https://dagger.dev/) for dependency injection to provide the app's components with necessary dependencies. Configuration is done in `AppModule.kt` under the `di` directory.
-
-### Gradle Configuration
-Our `build.gradle` files are configured to include necessary dependencies for Android development, Jetpack libraries, Firebase services, and other essential libraries.
 
 ## Getting Started
 

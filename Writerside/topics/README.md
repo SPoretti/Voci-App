@@ -11,6 +11,13 @@ This project was created as an assignment for the University of Milano Bicocca c
 The idea is to create an app that would help catalog and manage requests and updates about homeless people in Milan. It was born because of a member of the team who is also a member of the VoCi ONLUS, an organization that aims to aid the homeless people of their city.
 Website: [VoCi ONLUS](https://www.volontaricittadini.it)
 
+### List of pages
+- Login Page: Login form + link to sign up page
+- Sign Up: Signup form + link to sign in page
+- User Page: Details 
+- Home: Search bar + list of recent homeless
+- Requests: List of requests
+
 ### Team
 We are students of the University of [Milano Bicocca](https://www.unimib.it/), and we are interested in making an app that not only will get us a good mark but that can be used and can be helpful to a good cause.
 - Samuele "DreoX" - 904280
@@ -57,35 +64,9 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
     │   └── viewmodels/
     │       ├── AuthViewModel.kt
     │       └── AuthState.kt
-    └── di/
-        └── AppModule.kt
+    └── data/
+        └── Data.kt
 ```
-
-## Screens and Navigation
-
-### Authentication Screens
-
-#### Sign-In Screen
-The `SignInScreen` allows users to sign in using their email and password. It integrates with `AuthViewModel` to handle the sign-in process. The screen layout includes input fields for email and password, and a button to submit the sign-in request.
-
-#### Sign-Up Screen
-The `SignUpScreen` allows users to create a new account. It includes input fields for email, password, and confirmation password. The `AuthViewModel` manages user registration and handles any errors during the process.
-
-### Profile Screens
-
-#### User Profile Screen
-The `UserProfileScreen` displays the profile information of the logged-in user. It retrieves data from `AuthViewModel` and shows details like display name and profile picture.
-
-#### Update Profile Screen
-The `UpdateProfileScreen` allows users to update their profile information, such as their display name and profile picture. Changes are processed and stored using the `AuthViewModel`.
-
-## Dependencies and Modules
-
-### Dependency Injection (DI)
-We use [Dagger](https://dagger.dev/) for dependency injection to provide the app's components with necessary dependencies. Configuration is done in `AppModule.kt` under the `di` directory.
-
-### Gradle Configuration
-Our `build.gradle` files are configured to include necessary dependencies for Android development, Jetpack libraries, Firebase services, and other essential libraries.
 
 ## Getting Started
 
