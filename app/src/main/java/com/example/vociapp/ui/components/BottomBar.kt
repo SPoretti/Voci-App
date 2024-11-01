@@ -14,7 +14,9 @@ import com.example.vociapp.ui.navigation.currentRoute
 fun BottomBar(navController: NavHostController) {
     val items = listOf(
         Screens.Home,
-        Screens.UserProfile
+        Screens.Requests,
+        Screens.UserProfile,
+        //Screens.
     )
     val currentRoute = currentRoute(navController)
 

@@ -18,6 +18,7 @@ import com.example.vociapp.ui.screens.userProfile.UserProfileScreen
 import com.example.vociapp.ui.screens.userProfile.UpdateUserProfileScreen
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
+import com.example.vociapp.ui.screens.requests.RequestsScreen
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.AuthState
 
@@ -49,6 +50,7 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
         composable(route = Screens.Home.route) { HomeScreen(navController) }
         composable(route = Screens.SignIn.route) { SignInScreen(navController, authViewModel) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController, authViewModel) }
+        composable(route = Screens.Requests.route) { RequestsScreen(navController, authViewModel) }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController, authViewModel) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController, authViewModel) }
     }
