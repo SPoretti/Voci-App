@@ -11,6 +11,7 @@ sealed class Screens(val route: String, val title: String, val icon: ImageVector
     object SignIn : Screens("signIn", "Sign In", Icons.Filled.Person)
     object SignUp : Screens("signUp", "Sign Up", Icons.Filled.Person)
     object Requests : Screens("requests", "Requests", Icons.Filled.ShoppingCart)
+    object AddRequest : Screens("addRequest", "Add Request", Icons.Filled.ShoppingCart)
     object UserProfile : Screens("userProfile", "Profile", Icons.Filled.Person)
     object UpdateUserProfile : Screens("updateUserProfile", "Update User Profile", Icons.Filled.Person)
 }
