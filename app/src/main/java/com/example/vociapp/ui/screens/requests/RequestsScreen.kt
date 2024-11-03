@@ -1,7 +1,6 @@
 package com.example.vociapp.ui.screens.requests
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -11,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.get
 import androidx.navigation.NavHostController
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthViewModel
