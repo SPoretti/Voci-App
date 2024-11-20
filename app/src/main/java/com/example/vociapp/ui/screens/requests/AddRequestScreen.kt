@@ -21,6 +21,10 @@ fun AddRequestScreen(
             .padding(16.dp)
 
     ){
-        RequestForm {  }
+        RequestForm(
+            onAddItemClick = {},
+            navController = navController
+        )
     }
+
 }

@@ -1,11 +1,18 @@
 package com.example.vociapp.ui.components
 
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,12 +22,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.vociapp.data.Request
 
 @Composable
 fun RequestForm(
-    onAddItemClick: (Request) -> Unit
+    onAddItemClick: (Request) -> Unit,
+    navController: NavHostController
+
 ) {
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }
@@ -68,18 +79,35 @@ fun RequestForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                val newRequest = Request(
-                    title = requestTitle,
-                    description = requestDescription,
-                    homelessID = requestHomelessID
-                )
-                onAddItemClick(newRequest)
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Add request")
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ){
+            OutlinedButton(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Black,
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onPrimary)
+            ) {
+                Text("Annulla")
+            }
+
+
+
+            Button(
+                onClick = {
+                    val newRequest = Request(
+                        title = requestTitle,
+                        description = requestDescription,
+                        homelessID = requestHomelessID
+                    )
+                    onAddItemClick(newRequest)
+                },
+            ) {
+                Text("Aggiungi")
+            }
         }
     }
 }
