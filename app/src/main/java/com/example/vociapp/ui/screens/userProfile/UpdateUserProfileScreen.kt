@@ -47,6 +47,12 @@ fun UpdateUserProfileScreen(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isUpdating by remember { mutableStateOf(false) }
+    var isNavigatingBack by remember { mutableStateOf(false) }
+
+    /*LaunchedEffect(key1 = "updateUserProfile") {
+        isNavigatingBack = false
+        isUpdating = false
+    }*/
 
     Box(
         modifier = Modifier
@@ -55,7 +61,11 @@ fun UpdateUserProfileScreen(
     ) {
 
         IconButton(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                isNavigatingBack = true
+                navController.popBackStack()
+            },
+            enabled = !isNavigatingBack,
             modifier = Modifier
                 .padding(16.dp)
                 .align(Alignment.TopStart)
