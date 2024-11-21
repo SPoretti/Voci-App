@@ -1,6 +1,7 @@
 package com.example.vociapp.ui.screens.userProfile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.ui.components.shapes.CurvedDownwardShape
+import com.example.vociapp.ui.components.shapes.CurvedUpwardsShape
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 
@@ -47,7 +50,7 @@ fun UserProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -66,34 +69,42 @@ fun UserProfileScreen(
                     // Edit button
                     IconButton(
                         onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
-                        modifier = Modifier.align(Alignment.TopStart)
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .size(64.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit Profile",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(8.dp)
+                                .padding(6.dp)
+                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
+                                .padding(4.dp)
                         )
                     }
 
                     // Logout button
                     IconButton(
                         onClick = { authViewModel.signOut() },
-                        modifier = Modifier.align(Alignment.TopEnd)
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(64.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = "Logout",
-                            tint = MaterialTheme.colorScheme.error,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(8.dp)
+                                .padding(6.dp)
+                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
+                                .padding(4.dp)
                         )
                     }
+
+
 
                     Column(
                         modifier = Modifier

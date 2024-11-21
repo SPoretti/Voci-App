@@ -53,6 +53,7 @@ fun UpdateUserProfileScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+
         IconButton(
             onClick = { navController.popBackStack() },
             modifier = Modifier
@@ -65,6 +66,8 @@ fun UpdateUserProfileScreen(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
+
+
 
         Column(
             modifier = Modifier
