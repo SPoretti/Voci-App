@@ -4,16 +4,15 @@ import java.util.UUID
 
 data class Request(
     val id: String = UUID.randomUUID().toString(),
-    val userId: String? = null,
+    val creatorId: String? = null,
     val homelessID: String? = null,
     val title: String = "",
     val description: String = "",
-    val status: RequestStatus = RequestStatus.PENDING,
+    val status: RequestStatus = RequestStatus.TODO,
     val timestamp: Long = System.currentTimeMillis()
 )
 
 enum class RequestStatus {
-    PENDING,
-    APPROVED,
-    REJECTED
+    TODO,
+    DONE,
 }

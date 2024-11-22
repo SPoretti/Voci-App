@@ -62,8 +62,9 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
             RequestsScreen(navController, viewModel)
         }
         composable(route = Screens.AddRequest.route) {
-            val viewModel = remember { RequestViewModel(requestRepository) }
-            AddRequestScreen(navController, viewModel)
+            val requestViewModel = remember { RequestViewModel(requestRepository) }
+            val authViewModel = remember { AuthViewModel() }
+            AddRequestScreen(navController, requestViewModel, authViewModel)
         }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController, authViewModel) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController, authViewModel) }
