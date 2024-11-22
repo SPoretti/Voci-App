@@ -8,13 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.ui.components.RequestForm
+import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 
 @Composable
 fun AddRequestScreen(
     navController: NavHostController,
-    viewModel: RequestViewModel
-) {
+    requestViewModel: RequestViewModel,
+    authViewModel: AuthViewModel,
+
+    ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -23,10 +26,11 @@ fun AddRequestScreen(
     ){
         RequestForm(
             onAddItemClick = { request ->
-                viewModel.addRequest(request) // Call the ViewModel's addRequest function
+                requestViewModel.addRequest(request) // Call the ViewModel's addRequest function
                 navController.popBackStack() // Navigate back after adding
             },
-            navController = navController
+            navController = navController,
+            authViewModel = authViewModel,
         )
     }
 
