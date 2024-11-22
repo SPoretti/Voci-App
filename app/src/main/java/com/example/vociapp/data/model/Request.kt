@@ -1,9 +1,9 @@
-package com.example.vociapp.data
+package com.example.vociapp.data.model
 
 import java.util.UUID
 
 data class Request(
-    val id: String = UUID.randomUUID().toString(), // Generate UUID in constructor
+    val id: String = UUID.randomUUID().toString(),
     val userId: String? = null,
     val homelessID: String? = null,
     val title: String = "",
