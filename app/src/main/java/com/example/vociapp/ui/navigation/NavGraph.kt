@@ -22,7 +22,7 @@ import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.requests.AddRequestScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
 import com.example.vociapp.ui.viewmodels.AuthViewModel
-import com.example.vociapp.ui.viewmodels.AuthState
+import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 

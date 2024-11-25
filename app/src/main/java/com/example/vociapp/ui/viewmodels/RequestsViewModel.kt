@@ -2,7 +2,7 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vociapp.data.model.Request
+import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow

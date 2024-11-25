@@ -1,6 +1,6 @@
 package com.example.vociapp.data.remote
 
-import com.example.vociapp.data.model.Request
+import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

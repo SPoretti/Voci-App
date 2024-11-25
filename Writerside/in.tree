@@ -9,6 +9,20 @@
     <toc-element toc-title="reference">
         <toc-element toc-title="app">
             <toc-element topic="MainActivity.md"/>
+            <toc-element topic="Data.md">
+                <toc-element topic="Utils.md">
+                    <toc-element topic="Resource.md"/>
+                </toc-element>
+                <toc-element topic="Repositories.md">
+                    <toc-element topic="RequestRepository.md"/>
+                </toc-element>
+                <toc-element topic="Remote.md">
+                    <toc-element topic="FirestoreDataSource.md"/>
+                </toc-element>
+                <toc-element topic="Model.md">
+                    <toc-element topic="Request.md"/>
+                </toc-element>
+            </toc-element>
             <toc-element toc-title="ui">
                 <toc-element toc-title="components">
                     <toc-element topic="BottomBar.md"/>
@@ -32,8 +46,9 @@
                     <toc-element topic="Theme.md"/>
                     <toc-element topic="Colors.md"/>
                 </toc-element>
-                <toc-element toc-title="vieModels">
+                <toc-element toc-title="viewModels">
                     <toc-element topic="AuthViewModel.md"/>
+                    <toc-element topic="RequestsViewModel.md"/>
                 </toc-element>
             </toc-element>
         </toc-element>
