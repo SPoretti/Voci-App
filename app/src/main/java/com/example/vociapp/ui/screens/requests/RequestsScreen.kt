@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,8 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.model.RequestStatus
-import com.example.vociapp.data.model.RequestTab
+import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.types.RequestTab
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.ui.components.RequestCard
 import com.example.vociapp.ui.navigation.Screens
@@ -38,7 +39,7 @@ fun RequestsScreen(
 ) {
     val requests by viewModel.requests.collectAsState()
     val tabs = listOf(RequestTab.ToDo, RequestTab.Done)
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         viewModel.getRequests()

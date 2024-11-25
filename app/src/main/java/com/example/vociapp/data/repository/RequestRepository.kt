@@ -1,6 +1,6 @@
 package com.example.vociapp.data.repository
 
-import com.example.vociapp.data.model.Request
+import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.Flow
