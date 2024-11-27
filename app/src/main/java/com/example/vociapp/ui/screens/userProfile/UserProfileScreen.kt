@@ -79,7 +79,6 @@ fun UserProfileScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .padding(6.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
                                 .padding(4.dp)
                         )
@@ -98,9 +97,9 @@ fun UserProfileScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .padding(6.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
                                 .padding(4.dp)
+
                         )
                     }
 
