@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.viewmodels
+package com.example.vociapp.data.types
 
 import com.google.firebase.auth.FirebaseUser
 
