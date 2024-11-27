@@ -22,7 +22,7 @@ fun RequestChip(text: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline), // Add outline
+        border = BorderStroke(width = 0.4.dp, color = MaterialTheme.colorScheme.onSurface), // Add outline
         color = if (isSelected) {
             MaterialTheme.colorScheme.primary
         } else {

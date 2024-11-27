@@ -119,7 +119,11 @@ fun RequestForm(
                     )
                     onAddItemClick(newRequest)
                 },
-                enabled = !isAddingRequest and requestTitle.isNotEmpty() and requestDescription.isNotEmpty() and requestHomelessID.isNotEmpty(),
+                enabled =
+                    !isAddingRequest and
+                    requestTitle.isNotEmpty() and
+                    requestDescription.isNotEmpty() and
+                    requestHomelessID.isNotEmpty(),
             ) {
                 Text("Aggiungi")
             }
