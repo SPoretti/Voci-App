@@ -1,14 +1,18 @@
 package com.example.vociapp.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,65 +40,82 @@ fun RequestListItem(request: Request, navController: NavHostController) {
             .fillMaxWidth()
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = MaterialTheme.colorScheme.surface
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxHeight()
-                .padding(8.dp)
-        ) {
-            IconButton(
-                onClick = { request.status = RequestStatus.DONE },
-                modifier = Modifier
-                    .padding(8.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = CircleShape
-                    )
-                    .align(Alignment.CenterVertically)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = "Request icon",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(
+                .fillMaxSize()
+                .height(100.dp)
+        ){
+            Row(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(8.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column {
-                        Text(
-                            text = request.title,
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                IconButton(
+                    onClick = { request.status = RequestStatus.DONE },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = CircleShape
                         )
-                        Text(text = request.description, style = MaterialTheme.typography.bodySmall)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Request icon",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column {
+                            Text(
+                                text = request.title,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = request.description,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    Row {
+                        RequestChip(
+                            text = request.creatorId.toString(),
+                            isSelected = request.status == RequestStatus.DONE,
+                            onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
+
+                            )
+                        RequestChip(
+                            text = request.homelessID.toString(),
+                            isSelected = request.status == RequestStatus.DONE,
+                            onClick = { navController.navigate("profileHomeless/${request.homelessID}") }
+                        )
                     }
                 }
-                Row {
-                    RequestChip(
-                        text = request.creatorId.toString(),
-                        isSelected = request.status == RequestStatus.DONE,
-                        onClick = { navController.navigate("profileVolontario/${request.creatorId}") }
-                    )
-                    RequestChip(
-                        text = request.homelessID.toString(),
-                        isSelected = request.status == RequestStatus.DONE,
-                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") }
-                    )
-                }
+                Spacer(modifier = Modifier.weight(1f))
+
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = formatTimestamp(request.timestamp),
-                style = MaterialTheme.typography.bodySmall,
+
+            Box(
                 modifier = Modifier
-                    .align(Alignment.Bottom)
-            )
+                    .wrapContentWidth()
+                    .align(Alignment.TopEnd)
+                    .padding(3.dp)
+            ) {
+                Text(
+                    text = formatTimestamp(request.timestamp),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
 
     }

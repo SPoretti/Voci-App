@@ -90,8 +90,7 @@ fun RequestsScreen(
                 // History button
                 IconButton(
                     onClick = { navController.navigate(Screens.RequestsHistory.route) },
-                    modifier = Modifier
-                        .size(38.dp),
+                    modifier = Modifier.size(38.dp),
                     colors = IconButtonColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -106,7 +105,7 @@ fun RequestsScreen(
                         modifier = Modifier
                             .padding(6.dp)
                             .clip(CircleShape)
-                            .size(100.dp)
+                            .size(150.dp)
 
                     )
                 }
