@@ -1,7 +1,6 @@
 package com.example.vociapp.ui.screens.requests
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,14 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -41,8 +39,8 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
-import com.example.vociapp.ui.components.RequestCard
 import com.example.vociapp.ui.components.SortButtons
+import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 
@@ -64,13 +62,11 @@ fun RequestsScreen(
         viewModel.getRequests()
     }
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
 
 
         Column (
@@ -114,7 +110,6 @@ fun RequestsScreen(
 
                     )
                 }
-
             }
 
 
@@ -129,9 +124,12 @@ fun RequestsScreen(
                             Text("Non ci sono richieste attive", modifier = Modifier.align(Alignment.Center))
                         } else {
                             todoRequests = todoRequests.sortedWith(selectedSortOption.comparator)
-                            LazyColumn {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(1),
+                                modifier = Modifier.fillMaxSize()
+                            ) {
                                 items(todoRequests) { request ->
-                                    RequestCard(request = request)
+                                    RequestListItem(request = request, navController)
                                 }
                             }
                         }
@@ -143,17 +141,6 @@ fun RequestsScreen(
             }
 
         }
-
-//        Button(
-//            onClick = { navController.navigate(Screens.AddRequest.route) },
-//            elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
-//            modifier = Modifier
-//                .align(Alignment.BottomEnd)
-//                .padding(18.dp)
-//        ) {
-//            Text(text = "Aggiungi")
-//        }
-
 
         FloatingActionButton(
             onClick = { navController.navigate(Screens.AddRequest.route) },

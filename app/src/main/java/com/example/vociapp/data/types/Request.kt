@@ -8,7 +8,7 @@ data class Request(
     val homelessID: String? = null,
     val title: String = "",
     val description: String = "",
-    val status: RequestStatus = RequestStatus.TODO,
+    var status: RequestStatus = RequestStatus.TODO,
     val timestamp: Long = System.currentTimeMillis()
 )
 
