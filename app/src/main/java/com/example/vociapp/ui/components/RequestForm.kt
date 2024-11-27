@@ -25,13 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.Request
+import com.example.vociapp.data.types.Request
+import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun RequestForm(
     onAddItemClick: (Request) -> Unit,
-    navController: NavHostController
-
+    navController: NavHostController,
+    authViewModel: AuthViewModel,
 ) {
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }
@@ -113,11 +114,16 @@ fun RequestForm(
                     val newRequest = Request(
                         title = requestTitle,
                         description = requestDescription,
-                        homelessID = requestHomelessID
+                        homelessID = requestHomelessID,
+                        creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
                     )
                     onAddItemClick(newRequest)
                 },
-                enabled = !isAddingRequest,
+                enabled =
+                    !isAddingRequest and
+                    requestTitle.isNotEmpty() and
+                    requestDescription.isNotEmpty() and
+                    requestHomelessID.isNotEmpty(),
             ) {
                 Text("Aggiungi")
             }

@@ -1,7 +1,6 @@
-package com.example.vociapp.ui.screens.userProfile
+package com.example.vociapp.ui.screens.profiles.userProfile
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +35,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.ui.components.shapes.CurvedDownwardShape
-import com.example.vociapp.ui.components.shapes.CurvedUpwardsShape
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 
@@ -71,17 +69,24 @@ fun UserProfileScreen(
                         onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .size(64.dp)
+                            .size(38.dp),
+                        colors = IconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit Profile",
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(6.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
-                                .padding(4.dp)
+                                .size(40.dp)
+
+
                         )
                     }
 
@@ -90,17 +95,23 @@ fun UserProfileScreen(
                         onClick = { authViewModel.signOut() },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(64.dp)
+                            .size(38.dp),
+                        colors = IconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = "Logout",
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .padding(6.dp)
-                                .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                                 .clip(CircleShape)
-                                .padding(4.dp)
+                                .size(40.dp)
+
                         )
                     }
 
