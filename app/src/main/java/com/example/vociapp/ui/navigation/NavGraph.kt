@@ -23,6 +23,7 @@ import com.example.vociapp.ui.screens.requests.AddRequestScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.ui.screens.requests.RequestsHistoryScreen
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -65,6 +66,10 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
             val requestViewModel = remember { RequestViewModel(requestRepository) }
             val authViewModel = remember { AuthViewModel() }
             AddRequestScreen(navController, requestViewModel, authViewModel)
+        }
+        composable(route = Screens.RequestsHistory.route) {
+            val requestViewModel = remember { RequestViewModel(requestRepository) }
+            RequestsHistoryScreen(navController, requestViewModel)
         }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController, authViewModel) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController, authViewModel) }
