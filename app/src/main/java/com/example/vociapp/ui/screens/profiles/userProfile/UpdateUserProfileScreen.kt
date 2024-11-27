@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.screens.userProfile
+package com.example.vociapp.ui.screens.profiles.userProfile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

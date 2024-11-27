@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.screens.userProfile
+package com.example.vociapp.ui.screens.profiles.userProfile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,8 +35,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.ui.components.shapes.CurvedDownwardShape
-import com.example.vociapp.ui.components.shapes.CurvedUpwardsShape
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 
