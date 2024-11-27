@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,36 +60,37 @@ fun RequestsHistoryScreen(navController: NavHostController, viewModel: RequestVi
 
         Column {
 
-                Box(modifier = Modifier.fillMaxSize()) {
 
-                    when (requests) {
-                        is Resource.Loading -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-                        is Resource.Success -> {
-                            if (doneRequests.isEmpty()) {
-                                Text("Non ci sono richieste completate", modifier = Modifier.align(
-                                    Alignment.Center))
-                            } else {
-                                doneRequests = doneRequests.sortedWith(selectedSortOption.comparator)
-                                LazyColumn {
-                                    items(doneRequests) { request ->
-                                        RequestCard(request = request)
-                                    }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                when (requests) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    is Resource.Success -> {
+                        if (doneRequests.isEmpty()) {
+                            Text("Non ci sono richieste completate", modifier = Modifier.align(
+                                Alignment.Center))
+                        } else {
+                            doneRequests = doneRequests.sortedWith(selectedSortOption.comparator)
+                            LazyColumn {
+                                items(doneRequests) { request ->
+                                    RequestCard(request = request)
                                 }
                             }
                         }
-                        is Resource.Error -> {
-                            Text(
-                                text = "Error: ${requests.message}",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
+                    }
+                    is Resource.Error -> {
+                        Text(
+                            text = "Error: ${requests.message}",
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     }
                 }
             }
-
         }
 
+    }
 
 }

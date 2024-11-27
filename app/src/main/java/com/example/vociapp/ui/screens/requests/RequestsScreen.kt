@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,12 +13,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -66,35 +71,47 @@ fun RequestsScreen(
             .padding(16.dp)
     ) {
 
-        SortButtons(
-            sortOptions = sortOptions,
-            selectedSortOption = selectedSortOption,
-            onSortOptionSelected = { selectedSortOption = it }
-        )
+
 
         Column (
             modifier = Modifier.fillMaxWidth()
         ){
 
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                SortButtons(
+                    sortOptions = sortOptions,
+                    selectedSortOption = selectedSortOption,
+                    onSortOptionSelected = { selectedSortOption = it }
+                )
+
                 // History button
                 IconButton(
                     onClick = { navController.navigate(Screens.RequestsHistory.route) },
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(64.dp)
+                        .size(38.dp),
+                    colors = IconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.Filled.History,
                         contentDescription = "Requests history",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .padding(6.dp)
-                            .border(1.dp, MaterialTheme.colorScheme.primary, CircleShape)
                             .clip(CircleShape)
-                            .padding(4.dp)
+                            .size(100.dp)
+
                     )
                 }
 
@@ -127,15 +144,27 @@ fun RequestsScreen(
 
         }
 
-        Button(
+//        Button(
+//            onClick = { navController.navigate(Screens.AddRequest.route) },
+//            elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
+//            modifier = Modifier
+//                .align(Alignment.BottomEnd)
+//                .padding(18.dp)
+//        ) {
+//            Text(text = "Aggiungi")
+//        }
+
+
+        FloatingActionButton(
             onClick = { navController.navigate(Screens.AddRequest.route) },
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 10.dp),
+            elevation = FloatingActionButtonDefaults.elevation(10.dp) ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(18.dp)
+                .padding(16.dp), // Add padding
         ) {
-            Text(text = "Aggiungi")
+            Icon(Icons.Filled.Add, contentDescription = "Add")
         }
+
 
     }
 }
