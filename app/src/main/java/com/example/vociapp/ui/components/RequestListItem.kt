@@ -89,11 +89,13 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row {
                         RequestChip(
                             text = request.creatorId.toString(),
                             onClick = { navController.navigate("profileVolontario/${request.creatorId}") }
                             )
+                        Spacer(modifier = Modifier.width(8.dp))
                         RequestChip(
                             text = request.homelessID.toString(),
                             onClick = { navController.navigate("profileHomeless/${request.homelessID}") }

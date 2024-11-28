@@ -23,9 +23,7 @@ fun RequestChip(text: String, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier
-            .padding(4.dp)
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
