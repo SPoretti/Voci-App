@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class RequestRepository @Inject constructor(
+class RequestRepositoryImpl @Inject constructor(
     private val firestoreDataSource: FirestoreDataSource
 ) {
 

@@ -10,7 +10,9 @@ import com.example.vociapp.ui.components.BottomBar
 import com.example.vociapp.ui.navigation.NavGraph
 import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.theme.VociAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

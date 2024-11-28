@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.requests
 
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
@@ -43,6 +45,8 @@ import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.RequestViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory
 
 
 @Composable
@@ -50,6 +54,7 @@ fun RequestsScreen(
     navController: NavHostController,
     viewModel: RequestViewModel
 ) {
+    val viewModel: RequestViewModel = viewModels()
     val requests by viewModel.requests.collectAsState()
     var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
     val sortOptions = listOf(

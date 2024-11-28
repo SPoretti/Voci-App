@@ -15,7 +15,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.vociapp.data.remote.FirestoreDataSource
-import com.example.vociapp.data.repository.RequestRepository
+import com.example.vociapp.data.repository.RequestRepositoryImpl
 import com.example.vociapp.ui.screens.home.HomeScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UserProfileScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UpdateUserProfileScreen
@@ -35,7 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
     val firestore = remember { FirebaseFirestore.getInstance() }
     val firestoreDataSource = remember { FirestoreDataSource(firestore) }
-    val requestRepository = remember { RequestRepository(firestoreDataSource) }
+    val requestRepositoryImpl = remember { RequestRepositoryImpl(firestoreDataSource) }
     val authViewModel = remember { AuthViewModel() }
     val authState by authViewModel.authState.collectAsState()
 
@@ -63,16 +63,16 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
         composable(route = Screens.SignIn.route) { SignInScreen(navController, authViewModel) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController, authViewModel) }
         composable(route = Screens.Requests.route) {
-            val viewModel = remember { RequestViewModel(requestRepository) }
+            val viewModel = remember { RequestViewModel(requestRepositoryImpl) }
             RequestsScreen(navController, viewModel)
         }
         composable(route = Screens.AddRequest.route) {
-            val requestViewModel = remember { RequestViewModel(requestRepository) }
+            val requestViewModel = remember { RequestViewModel(requestRepositoryImpl) }
             val authViewModel = remember { AuthViewModel() }
             AddRequestScreen(navController, requestViewModel, authViewModel)
         }
         composable(route = Screens.RequestsHistory.route) {
-            val requestViewModel = remember { RequestViewModel(requestRepository) }
+            val requestViewModel = remember { RequestViewModel(requestRepositoryImpl) }
             RequestsHistoryScreen(navController, requestViewModel)
         }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController, authViewModel) }
