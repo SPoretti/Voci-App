@@ -1,7 +1,7 @@
 package com.example.vociapp.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,17 +30,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.example.vociapp.data.util.DateTimeFormatter
+import com.example.vociapp.data.util.DateTimeFormatterImpl
 
 @Composable
-fun RequestListItem(request: Request, navController: NavHostController) {
+fun RequestListItem(request: Request, navController: NavHostController, onClick: () -> Unit) {
+    val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.surface,
     ) {
         Box(
             modifier = Modifier
@@ -90,13 +92,10 @@ fun RequestListItem(request: Request, navController: NavHostController) {
                     Row {
                         RequestChip(
                             text = request.creatorId.toString(),
-                            isSelected = request.status == RequestStatus.DONE,
-                            onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
-
+                            onClick = { navController.navigate("profileVolontario/${request.creatorId}") }
                             )
                         RequestChip(
                             text = request.homelessID.toString(),
-                            isSelected = request.status == RequestStatus.DONE,
                             onClick = { navController.navigate("profileHomeless/${request.homelessID}") }
                         )
                     }
@@ -109,10 +108,10 @@ fun RequestListItem(request: Request, navController: NavHostController) {
                 modifier = Modifier
                     .wrapContentWidth()
                     .align(Alignment.TopEnd)
-                    .padding(3.dp)
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = formatTimestamp(request.timestamp),
+                    text = dateTimeFormatter.formatDate(request.timestamp),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -121,7 +120,4 @@ fun RequestListItem(request: Request, navController: NavHostController) {
     }
 }
 
-fun formatTimestamp(timestamp: Long): String {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    return dateFormat.format(timestamp)
-}
+

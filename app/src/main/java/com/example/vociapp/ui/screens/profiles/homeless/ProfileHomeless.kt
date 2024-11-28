@@ -21,7 +21,7 @@ fun ProfileHomelessScreen(homelessId: String?) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Creator ID: ${homelessId ?: "Not available"}",
+            text = "Homeless name: ${homelessId ?: "Not available"}",
             style = MaterialTheme.typography.headlineMedium
         )
     }
