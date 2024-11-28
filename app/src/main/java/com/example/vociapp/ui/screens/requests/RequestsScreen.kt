@@ -35,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
@@ -43,6 +45,7 @@ import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.RequestViewModel
+import com.example.vociapp.ui.components.RequestDetails
 
 
 @Composable
@@ -57,6 +60,8 @@ fun RequestsScreen(
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedRequest: Request by remember { mutableStateOf(Request(id = "null", title = "", description = "", timestamp = 0)) }
 
     LaunchedEffect(Unit) {
         viewModel.getRequests()
@@ -128,7 +133,10 @@ fun RequestsScreen(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 items(todoRequests) { request ->
-                                    RequestListItem(request = request, navController)
+                                    RequestListItem(request = request, navController) {
+                                        showDialog = true
+                                        selectedRequest = request
+                                    }
                                 }
                             }
                         }
@@ -141,12 +149,20 @@ fun RequestsScreen(
 
         }
 
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false }
+            ) {
+                RequestDetails(request = selectedRequest, onDismiss = { showDialog = false }, navController)
+            }
+        }
+
         FloatingActionButton(
             onClick = { navController.navigate(Screens.AddRequest.route) },
             elevation = FloatingActionButtonDefaults.elevation(10.dp) ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp), // Add padding
+                .padding(16.dp),
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add")
         }
