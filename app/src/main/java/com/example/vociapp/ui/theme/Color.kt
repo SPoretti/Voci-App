@@ -19,6 +19,11 @@ object ColorPalette {
     val OnSurfaceLight = Color(0xFF212121)
     val OutlineLight = Color(0xFFFFFFFF)
 
+    val BackgroundNavBarColor = Color(0xFF7BABFF)
+    val BackgroundIconColor = Color(0xFFD7E6FF)
+    val IconColor = Color(0xFF4A4459)
+    val SelectedIconColor = Color(0xFF377CF8)
+
     // Dark Theme
     val PrimaryDark = Color(0xFF6A97FF) // Lightened blue for better contrast
     val OnPrimaryDark = Color(0xFF000000)
