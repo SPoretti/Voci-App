@@ -143,10 +143,11 @@ fun RequestsScreen(
 
         FloatingActionButton(
             onClick = { navController.navigate(Screens.AddRequest.route) },
-            elevation = FloatingActionButtonDefaults.elevation(10.dp) ,
+            elevation = FloatingActionButtonDefaults.elevation(50.dp) ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp), // Add padding
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add")
         }
