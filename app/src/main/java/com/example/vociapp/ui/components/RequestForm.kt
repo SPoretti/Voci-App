@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -51,10 +52,19 @@ fun RequestForm(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
+
+        Text(
+            text = "Aggiunta richiesta",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+                .align(CenterHorizontally)
+                .padding(bottom = 16.dp)
+        )
+
         OutlinedTextField(
             value = requestTitle,
             onValueChange = { requestTitle = it },
-            label = { Text("Title") },
+            label = { Text("Titolo") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -63,7 +73,7 @@ fun RequestForm(
         OutlinedTextField(
             value = requestDescription,
             onValueChange = { requestDescription = it },
-            label = { Text("Description") },
+            label = { Text("Descrizione") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -72,7 +82,7 @@ fun RequestForm(
         OutlinedTextField(
             value = requestHomelessID,
             onValueChange = { requestHomelessID = it },
-            label = { Text("Homeless") },
+            label = { Text("Senzatetto") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -81,7 +91,7 @@ fun RequestForm(
         SearchBar(
             modifier = Modifier.fillMaxWidth(),
             onSearch = { /* TODO() Handle search query */ },
-            placeholderText = "Homeless..."
+            placeholderText = "Cerca un senzatetto..."
         )
 
         Spacer(modifier = Modifier.height(16.dp))

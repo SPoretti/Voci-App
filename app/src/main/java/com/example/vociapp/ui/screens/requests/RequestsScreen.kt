@@ -44,8 +44,8 @@ import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.navigation.Screens
-import com.example.vociapp.ui.viewmodels.RequestViewModel
 import com.example.vociapp.ui.components.RequestDetails
+import com.example.vociapp.ui.viewmodels.RequestViewModel
 
 
 @Composable
@@ -168,7 +168,7 @@ fun RequestsScreen(
             containerColor = MaterialTheme.colorScheme.primary
          
         ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add")
+            Icon(Icons.Filled.Add, contentDescription = "Add request")
         }
 
 

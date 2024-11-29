@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +16,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.vociapp.data.remote.FirestoreDataSource
+import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.ui.screens.home.HomeScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UserProfileScreen
@@ -25,17 +27,20 @@ import com.example.vociapp.ui.screens.requests.AddRequestScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.ui.screens.homelesses.AddHomelessScreen
 import com.example.vociapp.ui.screens.profiles.homeless.ProfileHomelessScreen
 import com.example.vociapp.ui.screens.profiles.volontario.ProfileVolontarioScreen
 import com.example.vociapp.ui.screens.requests.RequestsHistoryScreen
+import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
+fun NavGraph(navController: NavHostController, paddingValues: PaddingValues, snackbarHostState: SnackbarHostState) {
     val firestore = remember { FirebaseFirestore.getInstance() }
     val firestoreDataSource = remember { FirestoreDataSource(firestore) }
     val requestRepository = remember { RequestRepository(firestoreDataSource) }
+    val homelessRepository = remember { HomelessRepository(firestoreDataSource) }
     val authViewModel = remember { AuthViewModel() }
     val authState by authViewModel.authState.collectAsState()
 
@@ -59,9 +64,17 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues) {
         startDestination = Screens.Home.route,
         modifier = Modifier.padding(paddingValues)
     ) {
-        composable(route = Screens.Home.route) { HomeScreen(navController, authViewModel) }
+        composable(route = Screens.Home.route) {
+            val homelessViewModel = remember { HomelessViewModel(homelessRepository) }
+            HomeScreen(navController, authViewModel, homelessViewModel)
+        }
         composable(route = Screens.SignIn.route) { SignInScreen(navController, authViewModel) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController, authViewModel) }
+        composable(route = Screens.AddHomeless.route) {
+            val homelessViewModel = remember { HomelessViewModel(homelessRepository) }
+            val authViewModel = remember { AuthViewModel() }
+            AddHomelessScreen(navController, homelessViewModel, authViewModel)
+        }
         composable(route = Screens.Requests.route) {
             val viewModel = remember { RequestViewModel(requestRepository) }
             RequestsScreen(navController, viewModel)
