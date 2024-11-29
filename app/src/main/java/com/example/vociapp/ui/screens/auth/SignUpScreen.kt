@@ -37,39 +37,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.ui.components.AuthButtonWithIcon
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.components.DatePickerExamples
-
-
-@Composable
-fun AuthButtonWithIcon(
-    value: String,
-    label: String,
-    icon: ImageVector,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Text(
-            text = value.ifEmpty { label },
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-        )
-    }
-}
-
 
 @Composable
 fun SignUpScreen(
@@ -135,7 +108,6 @@ fun SignUpScreen(
                             label = "Cognome",
                             icon = Icons.Default.PersonOutline
                         )
-
 
                         AuthButtonWithIcon(
                             value = birth.ifEmpty { "Data di nascita" },
