@@ -19,7 +19,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    placeholderText: String,
 ) {
     var searchText by remember { mutableStateOf("") }
 
@@ -36,7 +37,7 @@ fun SearchBar(
                 contentDescription = "Search"
             )
         },
-        placeholder = { Text("Cerca...") },
+        placeholder = { Text(placeholderText) },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,

@@ -78,11 +78,10 @@ fun RequestForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DropdownTextField(
-            value = selectedOption,
-            onValueChange = { selectedOption = it },
-            options = listOf("Option 1", "Option 2", "Option 3"),
-            label = "Select an option"
+        SearchBar(
+            modifier = Modifier.fillMaxWidth(),
+            onSearch = { /* TODO() Handle search query */ },
+            placeholderText = "Homeless..."
         )
 
         Spacer(modifier = Modifier.height(16.dp))
