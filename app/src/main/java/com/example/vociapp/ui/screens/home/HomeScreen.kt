@@ -73,9 +73,10 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    SearchBar(modifier = Modifier
-                        .fillMaxWidth(),
-                        onSearch = { /* TODO() Handle search query */ }
+                    SearchBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        onSearch = { /* TODO() Handle search query */ },
+                        placeholderText = "Cerca..."
                     )
 
                 }
