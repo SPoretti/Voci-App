@@ -165,7 +165,7 @@ fun RequestsScreen(
                 .padding(16.dp),
 
 
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.primary
          
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add")

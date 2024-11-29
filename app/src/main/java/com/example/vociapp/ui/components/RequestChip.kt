@@ -33,7 +33,7 @@ fun RequestChip(text: String, onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.Person,
                 contentDescription = "Person Icon",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             )
