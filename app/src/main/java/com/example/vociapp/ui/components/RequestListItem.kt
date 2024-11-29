@@ -69,7 +69,7 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
@@ -127,6 +127,7 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
                 Text(
                     text = dateTimeFormatter.formatDate(request.timestamp),
                     style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
