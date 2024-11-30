@@ -19,26 +19,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.vociapp.data.types.Gender
-import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.types.Request
 
 @Composable
-fun AddHomelessDialog(
+fun AddRequestDialog(
     onDismiss: () -> Unit,
-    onAdd: (Homeless) -> Unit
+    onAdd: (Request) -> Unit
 ) {
-    var homelessName by remember { mutableStateOf("") }
-    var homelessLocation by remember { mutableStateOf("") }
-    var selectedGender by remember { mutableStateOf(Gender.Unspecified) }
-    var isAddingHomeless by remember { mutableStateOf(false) }
+    var requestTitle by remember { mutableStateOf("") }
+    var requestDescription by remember { mutableStateOf("") }
+    var homelessID by remember { mutableStateOf("") }
+    var isAddingRequest by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Aggiungi SenzaTetto") },
+        title = { Text("Aggiungi Richiesta") },
         text = {
             Column(
                 modifier = Modifier
@@ -47,9 +45,9 @@ fun AddHomelessDialog(
             ) {
 
                 OutlinedTextField(
-                    value = homelessName,
-                    onValueChange = { homelessName = it },
-                    label = { Text("Nome") },
+                    value = requestTitle,
+                    onValueChange = { requestTitle = it },
+                    label = { Text("Titolo") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -59,16 +57,10 @@ fun AddHomelessDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //TODO(): birth date picker with fish's DatePicker
-//        DatePicker()
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-
-                //Temporary
                 OutlinedTextField(
-                    value = homelessLocation,
-                    onValueChange = { homelessLocation = it },
-                    label = { Text("Luogo") },
+                    value = requestDescription,
+                    onValueChange = { requestDescription = it },
+                    label = { Text("Descrizione") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -78,26 +70,42 @@ fun AddHomelessDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                GenderSelector(
-                    selectedGender = selectedGender,
-                    onGenderSelected = { selectedGender = it }
+                OutlinedTextField(
+                    value = homelessID,
+                    onValueChange = { homelessID = it },
+                    label = { Text("Senzatetto") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    ),
                 )
-        }},
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SearchBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    onSearch = { /* TODO() Handle search query */ },
+                    placeholderText = "Cerca un senzatetto...",
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground
+                )
+
+            }},
         confirmButton = {
             Button(
                 onClick = {
-                    isAddingHomeless = true
-                    val newHomeless = Homeless(
-                        name = homelessName,
-                        gender = selectedGender,
-                        location = homelessLocation,
+                    isAddingRequest = true
+                    val newRequest = Request(
+                        title = requestTitle,
+                        description = requestDescription,
+                        homelessID = requestDescription,
                     )
-                    onAdd(newHomeless)
+                    onAdd(newRequest)
                 },
                 enabled =
-                    !isAddingHomeless and
-                    homelessName.isNotEmpty() and
-                    homelessLocation.isNotEmpty(),
+                !isAddingRequest and
+                        requestTitle.isNotEmpty() and
+                        requestDescription.isNotEmpty(),
             ) {
                 Text("Aggiungi")
             }
@@ -110,7 +118,7 @@ fun AddHomelessDialog(
                     contentColor = MaterialTheme.colorScheme.onBackground,
                 ),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground)
-           ) {
+            ) {
                 Text("Annulla")
             }
         },

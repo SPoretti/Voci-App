@@ -38,7 +38,6 @@ fun RequestForm(
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }
     var requestHomelessID by remember { mutableStateOf("") }
-    var selectedOption by remember { mutableStateOf("") }
     var isNavigatingBack by remember { mutableStateOf(false) }
     var isAddingRequest by remember { mutableStateOf(false) }
 
@@ -91,7 +90,8 @@ fun RequestForm(
         SearchBar(
             modifier = Modifier.fillMaxWidth(),
             onSearch = { /* TODO() Handle search query */ },
-            placeholderText = "Cerca un senzatetto..."
+            placeholderText = "Cerca un senzatetto...",
+            unfocusedBorderColor = Color.Transparent,
         )
 
         Spacer(modifier = Modifier.height(16.dp))

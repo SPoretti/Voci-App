@@ -21,7 +21,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
     placeholderText: String,
-) {
+    unfocusedBorderColor: androidx.compose.ui.graphics.Color) {
     var searchText by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -44,7 +44,7 @@ fun SearchBar(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            unfocusedBorderColor = unfocusedBorderColor,
             unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
         ),
         shape = RoundedCornerShape(35.dp)

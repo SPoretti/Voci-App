@@ -52,7 +52,7 @@ class HomelessViewModel @Inject constructor(
             }
 
             // You might want to refresh the homelesses list after adding
-            // getHomelesses()
+            getHomelesses()
         }
     }
 
