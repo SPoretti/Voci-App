@@ -14,6 +14,7 @@ activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 lifecycleViewmodelKtx = "2.8.7"
 material = "1.12.0"
+material3 = "1.3.1"
 materialIconsExtended = "35"
 materialIconsExtendedVersion = "1.7.5"
 navigationCompose = "2.8.4"
@@ -48,6 +49,7 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
