@@ -17,6 +17,9 @@ class RequestViewModel @Inject constructor(
     private val requestRepository: RequestRepository
 ) : ViewModel() {
 
+    private val _snackbarMessage = MutableStateFlow("")
+    val snackbarMessage: StateFlow<String> = _snackbarMessage
+
     private val _requests = MutableStateFlow<Resource<List<Request>>>(Resource.Loading())
     val requests: StateFlow<Resource<List<Request>>> = _requests.asStateFlow()
 
@@ -36,9 +39,26 @@ class RequestViewModel @Inject constructor(
         viewModelScope.launch {
             // Handle the result of addRequest if needed
             val result = requestRepository.addRequest(request)
+
+            if (result is Resource.Success) {
+
+                _snackbarMessage.value = "Richiesta aggiunta con successo!"
+
+            } else if (result is Resource.Error) {
+
+                _snackbarMessage.value = "Errore durante l'aggiunta della richiesta: ${result.message}"
+
+            }
+
             // ... (e.g., show a success message or handle errors)
             // You might want to refresh the requests list after adding
-            // getRequests()
+            getRequests()
+
+
         }
+    }
+
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = ""
     }
 }
