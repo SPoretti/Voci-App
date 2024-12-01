@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -20,33 +21,35 @@ import androidx.compose.ui.unit.dp
 fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
-    placeholderText: String,
+    placeholderText: String
 ) {
     var searchText by remember { mutableStateOf("") }
 
-    OutlinedTextField(
-        value = searchText,
-        onValueChange = { newText ->
-            searchText = newText
-            onSearch(newText) // Trigger search when text changes
-        },
-        modifier = modifier,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = "Search"
-            )
-        },
-        placeholder = { Text(placeholderText) },
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = RoundedCornerShape(35.dp)
-    )
+    Column {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { newText ->
+                searchText = newText
+                onSearch(newText)
+            },
+            modifier = modifier,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Search"
+                )
+            },
+            placeholder = { Text(placeholderText) },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(35.dp)
+        )
+    }
 }

@@ -133,7 +133,8 @@ fun RequestsScreen(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 items(todoRequests) { request ->
-                                    RequestListItem(request = request, navController) {
+                                    RequestListItem(
+                                        request = request, navController, viewModel ) {
                                         showDialog = true
                                         selectedRequest = request
                                     }
@@ -159,18 +160,13 @@ fun RequestsScreen(
 
         FloatingActionButton(
             onClick = { navController.navigate(Screens.AddRequest.route) },
-            elevation = FloatingActionButtonDefaults.elevation(50.dp) ,
+            elevation = FloatingActionButtonDefaults.elevation(50.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
-
-
             containerColor = MaterialTheme.colorScheme.primary
-         
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add")
         }
-
-
     }
 }
