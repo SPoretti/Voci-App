@@ -58,6 +58,24 @@ class RequestViewModel @Inject constructor(
         }
     }
 
+    fun updateRequest(request: Request) {
+        viewModelScope.launch {
+            val result = requestRepository.updateRequest(request)
+            when (result) {
+                is Resource.Success -> {
+                    // Request updated successfully, you might want to refresh the requests list
+                    getRequests()
+                }
+                is Resource.Error -> {
+                    // Handle error, e.g., show an error message to the user
+                    println("Error updating request: ${result.message}")
+                }
+
+                is Resource.Loading -> TODO()
+            }
+        }
+    }
+
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }

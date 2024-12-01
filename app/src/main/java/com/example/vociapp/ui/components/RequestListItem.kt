@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AssignmentInd
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,13 +32,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import androidx.compose.ui.text.style.TextOverflow
+import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.ui.viewmodels.RequestViewModel
 
 @Composable
-fun RequestListItem(request: Request, navController: NavHostController, onClick: () -> Unit) {
+fun RequestListItem(request: Request, navController: NavHostController, requestViewModel: RequestViewModel, onClick: () -> Unit)  {
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     Surface(
         modifier = Modifier
@@ -56,21 +59,23 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
                     .fillMaxHeight()
                     .padding(8.dp)
             ) {
-                IconButton(
-                    onClick = { request.status = RequestStatus.DONE },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = CircleShape
+                if(request.status == RequestStatus.TODO){
+                    IconButton(
+                        onClick = { requestDone(request, requestViewModel) },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = CircleShape
+                            )
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Request icon",
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(
@@ -104,13 +109,9 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
                     Spacer(modifier = Modifier.height(8.dp))
                     Row {
                         RequestChip(
-                            text = request.creatorId.toString(),
-                            onClick = { navController.navigate("profileVolontario/${request.creatorId}") }
-                            )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        RequestChip(
                             text = request.homelessID.toString(),
-                            onClick = { navController.navigate("profileHomeless/${request.homelessID}") }
+                            onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
+                            imageVector = Icons.Filled.AssignmentInd
                         )
                     }
                 }
@@ -135,4 +136,7 @@ fun RequestListItem(request: Request, navController: NavHostController, onClick:
     }
 }
 
-
+fun requestDone(request: Request, viewModel: RequestViewModel){
+    request.status = RequestStatus.DONE
+    viewModel.updateRequest(request)
+}
