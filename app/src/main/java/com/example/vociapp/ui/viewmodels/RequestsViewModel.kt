@@ -36,9 +36,27 @@ class RequestViewModel @Inject constructor(
         viewModelScope.launch {
             // Handle the result of addRequest if needed
             val result = requestRepository.addRequest(request)
-            // ... (e.g., show a success message or handle errors)
-            // You might want to refresh the requests list after adding
-            // getRequests()
+//             ... (e.g., show a success message or handle errors)
+//             You might want to refresh the requests list after adding
+//             getRequests()
+        }
+    }
+
+    fun updateRequest(request: Request) {
+        viewModelScope.launch {
+            val result = requestRepository.updateRequest(request)
+            when (result) {
+                is Resource.Success -> {
+                    // Request updated successfully, you might want to refresh the requests list
+                    getRequests()
+                }
+                is Resource.Error -> {
+                    // Handle error, e.g., show an error message to the user
+                    println("Error updating request: ${result.message}")
+                }
+
+                is Resource.Loading -> TODO()
+            }
         }
     }
 }
