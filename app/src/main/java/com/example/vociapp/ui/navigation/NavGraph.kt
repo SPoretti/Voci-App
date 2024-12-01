@@ -76,8 +76,9 @@ fun NavGraph(navController: NavHostController, paddingValues: PaddingValues, sna
             AddHomelessScreen(navController, homelessViewModel, authViewModel)
         }
         composable(route = Screens.Requests.route) {
-            val viewModel = remember { RequestViewModel(requestRepository) }
-            RequestsScreen(navController, viewModel)
+            val requestViewModel = remember { RequestViewModel(requestRepository) }
+            val authViewModel = remember { AuthViewModel() }
+            RequestsScreen(navController, requestViewModel, authViewModel)
         }
         composable(route = Screens.AddRequest.route) {
             val requestViewModel = remember { RequestViewModel(requestRepository) }

@@ -52,6 +52,7 @@ import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.components.RequestDetails
+import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 import kotlinx.coroutines.launch
 
@@ -59,7 +60,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun RequestsScreen(
     navController: NavHostController,
-    requestViewModel: RequestViewModel
+    requestViewModel: RequestViewModel,
+    authViewModel: AuthViewModel,
 ) {
     val requests by requestViewModel.requests.collectAsState()
     var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
@@ -222,7 +224,8 @@ fun RequestsScreen(
                     onAdd = {
                         requestViewModel.addRequest(it)
                         showAddRequestDialog = false
-                    }
+                    },
+                    authViewModel = authViewModel,
                 )
             }
 

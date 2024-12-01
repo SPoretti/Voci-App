@@ -23,11 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun AddRequestDialog(
     onDismiss: () -> Unit,
-    onAdd: (Request) -> Unit
+    onAdd: (Request) -> Unit,
+    authViewModel: AuthViewModel,
 ) {
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }
@@ -99,6 +101,7 @@ fun AddRequestDialog(
                         title = requestTitle,
                         description = requestDescription,
                         homelessID = requestDescription,
+                        creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
                     )
                     onAdd(newRequest)
                 },
