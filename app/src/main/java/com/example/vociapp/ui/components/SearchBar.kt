@@ -21,35 +21,33 @@ import androidx.compose.ui.unit.dp
 fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
-    placeholderText: String
-) {
+    placeholderText: String,
+    unfocusedBorderColor: androidx.compose.ui.graphics.Color) {
     var searchText by remember { mutableStateOf("") }
 
-    Column {
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { newText ->
-                searchText = newText
-                onSearch(newText)
-            },
-            modifier = modifier,
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Search"
-                )
-            },
-            placeholder = { Text(placeholderText) },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.background,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(35.dp)
-        )
-    }
+    OutlinedTextField(
+        value = searchText,
+        onValueChange = { newText ->
+            searchText = newText
+            onSearch(newText) // Trigger search when text changes
+        },
+        modifier = modifier,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Filled.Search,
+                contentDescription = "Search"
+            )
+        },
+        placeholder = { Text(placeholderText) },
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedBorderColor = unfocusedBorderColor,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
+        ),
+        shape = RoundedCornerShape(35.dp)
+    )
 }
