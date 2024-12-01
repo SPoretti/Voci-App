@@ -20,4 +20,8 @@ class RequestRepository @Inject constructor(
         val result = firestoreDataSource.getRequests() // Get the result from FirestoreDataSource
         emit(result) // Emit the result (Success or Error)
     }
+
+    suspend fun updateRequest(request: Request): Resource<Unit> {
+        return firestoreDataSource.updateRequest(request)
+    }
 }

@@ -22,7 +22,7 @@ object ColorPalette {
     // Dark Theme
     val PrimaryDark = Color(0xFF6A97FF) // Lightened blue for better contrast
     val OnPrimaryDark = Color(0xFF000000)
-    val PrimaryContainerDark = Color(0x806A97FF)
+    val PrimaryContainerDark = Color(0xFF148AFF)// TODO: choose better color if needed
     val SecondaryDark = Color(0xFFFF8533) // Lightened orange for better contrast
     val OnSecondaryDark = Color(0xFFFFFFFF)
     val SecondaryContainerDark = Color(0xFFFF6B00)
