@@ -2,6 +2,7 @@ package com.example.vociapp.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -40,7 +41,8 @@ fun AuthButtonWithIcon(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(56.dp)
+            .offset(y = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Icon(

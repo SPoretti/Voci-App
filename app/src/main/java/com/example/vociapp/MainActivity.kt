@@ -18,9 +18,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             VociAppTheme {
                 val navController = rememberNavController()
+                val currentRoute = currentRoute(navController)
                 Scaffold(
                     bottomBar = {
-                        if (currentRoute(navController) != "signIn" && currentRoute(navController) != "signUp") {
+                        if (currentRoute !in listOf("signIn", "signUp")) {
                             BottomBar(navController)
                         }
                     }
