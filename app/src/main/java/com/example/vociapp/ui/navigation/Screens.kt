@@ -7,9 +7,10 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screens(val route: String, val title: String, val icon: ImageVector) {
-    object Home : Screens("home", title = "Home" , icon = Icons.Filled.Home)
+    object Home : Screens("home","Home" , Icons.Filled.Home)
     object SignIn : Screens("signIn", "Sign In", Icons.Filled.Person)
     object SignUp : Screens("signUp", "Sign Up", Icons.Filled.Person)
+    object AddHomeless : Screens("addHomeless", "Add Homeless", Icons.Filled.Person)
     object Requests : Screens("requests", "Requests", Icons.Filled.ShoppingCart)
     object AddRequest : Screens("requests/addRequest", "Add Request", Icons.Filled.ShoppingCart)
     object RequestsHistory : Screens("requestsHistory", "Requests History", Icons.Filled.ShoppingCart)
