@@ -1,11 +1,14 @@
 package com.example.vociapp.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -36,21 +39,22 @@ fun BottomBar(navController: NavHostController) {
     NavigationBar(
         containerColor = ColorPalette.BackgroundNavBarColor,
         modifier = Modifier
-            .padding(vertical = 0.dp)
+            .offset(y = 0.dp)
     ) {
         items.forEach { screen ->
             NavigationBarItem(
+                modifier = Modifier
+                    .padding(top = 10.dp),
                 icon = {
                     Box(
                         modifier = Modifier
-                            .offset(y = 5.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 color =
                                 if (currentRoute == screen.route)
-                                    ColorPalette.SelectedIconColor
+                                    MaterialTheme.colorScheme.primary
                                 else
-                                    ColorPalette.BackgroundIconColor
+                                    MaterialTheme.colorScheme.inverseOnSurface
                             )
                             .padding(10.dp)
                     ){
