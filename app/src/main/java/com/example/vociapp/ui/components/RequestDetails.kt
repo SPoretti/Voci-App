@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AssignmentInd
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +35,7 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
@@ -48,6 +51,11 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     fontSize = 16.sp,
                     lineHeight = 1.5.em
                 )
+                Text(
+                    text = request.status.toString(),
+                    fontSize = 16.sp,
+                    lineHeight = 1.5.em
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -57,7 +65,8 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     Text("Created by:", fontSize = 14.sp)
                     RequestChip(
                         text = request.creatorId.toString(),
-                        onClick = { navController.navigate("profileVolontario/${request.creatorId}") }
+                        onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
+                        imageVector = Icons.Filled.Person
                     )
                 }
                 Row(
@@ -70,6 +79,7 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     RequestChip(
                         text = request.homelessID.toString(),
                         onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
+                        imageVector = Icons.Filled.AssignmentInd
                     )
                 }
             }
