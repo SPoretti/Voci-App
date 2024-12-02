@@ -32,21 +32,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun SignInScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isSigningIn by remember { mutableStateOf(false) }
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
+
+    LaunchedEffect(isSigningIn) {
+        if (isSigningIn) {
+            val result = authViewModel.signInWithEmailAndPassword(email, password)
+            if (result is AuthResult.Failure) {
+                showError = true
+                errorMessage = result.message
+            } else {
+                navController.navigate(Screens.Home.route) {
+                    popUpTo(Screens.SignIn.route) { inclusive = true }
+                }
+            }
+            isSigningIn = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -131,21 +147,6 @@ fun SignInScreen(
             ) {
                 Text("Don't have an account? Sign Up", color = MaterialTheme.colorScheme.primary)
             }
-        }
-    }
-
-    LaunchedEffect(isSigningIn) {
-        if (isSigningIn) {
-            val result = authViewModel.signInWithEmailAndPassword(email, password)
-            if (result is AuthResult.Failure) {
-                showError = true
-                errorMessage = result.message
-            } else {
-                navController.navigate(Screens.Home.route) {
-                    popUpTo(Screens.SignIn.route) { inclusive = true }
-                }
-            }
-            isSigningIn = false
         }
     }
 }
