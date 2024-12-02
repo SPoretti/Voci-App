@@ -35,14 +35,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.Screens
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun UserProfileScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
     val userProfile = authViewModel.getCurrentUserProfile()
 
     Box(
