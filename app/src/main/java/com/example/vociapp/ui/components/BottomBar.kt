@@ -63,8 +63,7 @@ fun BottomBar(navController: NavHostController) {
                      },
                 label = {
                     Text(screen.title,
-                        style = TextStyle(fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium)
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium, fontSize = 16.sp)
                     )},
                 selected = currentRoute == screen.route,
                 onClick = {
@@ -83,10 +82,10 @@ fun BottomBar(navController: NavHostController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    unselectedTextColor = ColorPalette.IconColor,
-                    selectedTextColor = ColorPalette.IconColor,
-                    selectedIconColor = ColorPalette.BackgroundIconColor,
-                    unselectedIconColor = ColorPalette.IconColor,
+                    unselectedTextColor = MaterialTheme.colorScheme.inverseOnSurface,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    selectedIconColor = MaterialTheme.colorScheme.inversePrimary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurface,
                     indicatorColor = Color.Transparent
                 )
             )
