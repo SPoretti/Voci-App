@@ -34,27 +34,6 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-
-    suspend fun addHomeless(homeless: Homeless): Resource<String> {
-        return try {
-            val documentReference = firestore.collection("homelesses").add(homeless).await()
-            Resource.Success(documentReference.id)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-    suspend fun getHomelesses(): Resource<List<Homeless>> {
-        return try {
-            val homelesses = firestore.collection("homelesses").get().await()
-                .toObjects(Homeless::class.java)
-            Resource.Success(homelesses)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-
     suspend fun updateRequest(request: Request): Resource<Unit> {
         return try {
             val querySnapshot = firestore.collection("requests")
@@ -76,4 +55,25 @@ class FirestoreDataSource @Inject constructor(
             Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
+
+
+    suspend fun addHomeless(homeless: Homeless): Resource<String> {
+        return try {
+            val documentReference = firestore.collection("homelesses").add(homeless).await()
+            Resource.Success(documentReference.id)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun getHomelesses(): Resource<List<Homeless>> {
+        return try {
+            val homelesses = firestore.collection("homelesses").get().await()
+                .toObjects(Homeless::class.java)
+            Resource.Success(homelesses)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
 }
