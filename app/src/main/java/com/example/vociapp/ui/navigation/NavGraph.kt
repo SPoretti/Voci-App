@@ -59,7 +59,7 @@ fun NavGraph(
         composable(route = Screens.SignIn.route) { SignInScreen(navController) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController) }
         composable(route = Screens.Requests.route) { RequestsScreen(navController) }
-        composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen() }
+        composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen(navController) }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
         composable(

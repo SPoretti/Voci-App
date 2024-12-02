@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentInd
@@ -40,12 +39,36 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
     ) {
         Box(modifier = Modifier.padding(16.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = request.title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(bottom = 8.dp).widthIn(max = 160.dp),
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Box(
+                        modifier = Modifier.weight(1f)
+                    ){
+                        Text(
+                            text = request.title,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            ),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+
+                    Text(
+                        text =  dateTimeFormatter.formatDate(request.timestamp) + '\n' +
+                                dateTimeFormatter.formatTime(request.timestamp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(6.dp)
+                    )
+
+                }
                 Text(
                     text = request.description,
                     fontSize = 16.sp,
@@ -83,13 +106,6 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     )
                 }
             }
-            Text(
-                text = dateTimeFormatter.formatTimestamp(request.timestamp),
-                modifier = Modifier
-                    .align(Alignment.TopEnd),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
