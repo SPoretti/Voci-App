@@ -33,14 +33,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun UpdateUserProfileScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
     val currentProfile = authViewModel.getCurrentUserProfile()
     var displayName by remember { mutableStateOf(currentProfile?.displayName ?: "") }
     var photoUrl by remember { mutableStateOf(currentProfile?.photoUrl ?: "") }
