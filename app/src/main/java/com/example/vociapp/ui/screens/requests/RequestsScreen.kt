@@ -46,10 +46,11 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
-import com.example.vociapp.ui.components.AddHomelessDialog
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddRequestDialog
-import com.example.vociapp.ui.components.SortButtons
+import com.example.vociapp.ui.components.RequestDetails
 import com.example.vociapp.ui.components.RequestListItem
+import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.components.RequestDetails
 import com.example.vociapp.ui.viewmodels.AuthViewModel
@@ -59,10 +60,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RequestsScreen(
-    navController: NavHostController,
-    requestViewModel: RequestViewModel,
-    authViewModel: AuthViewModel,
+    navController: NavHostController
 ) {
+    val serviceLocator = LocalServiceLocator.current
+    val requestViewModel = serviceLocator.getRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
     var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
     val sortOptions = listOf(
