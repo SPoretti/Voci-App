@@ -32,22 +32,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.vociapp.R
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddHomelessDialog
 import com.example.vociapp.ui.components.SearchBar
-import com.example.vociapp.ui.viewmodels.AuthViewModel
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel,
-    homelessViewModel: HomelessViewModel,
-) {
-
-    val userProfile = authViewModel.getCurrentUserProfile()
+fun HomeScreen() {
+    val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val userProfile = serviceLocator.getAuthViewModel().getCurrentUserProfile()
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }

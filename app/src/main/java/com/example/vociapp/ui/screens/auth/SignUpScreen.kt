@@ -32,15 +32,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun SignUpScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel
+    navController: NavHostController
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -48,6 +47,8 @@ fun SignUpScreen(
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isSigningUp by remember { mutableStateOf(false) }
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
 
     Box(
         modifier = Modifier
