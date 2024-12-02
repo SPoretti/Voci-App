@@ -52,9 +52,6 @@ import com.example.vociapp.ui.components.RequestDetails
 import com.example.vociapp.ui.components.RequestListItem
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
-import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.viewmodels.AuthViewModel
-import com.example.vociapp.ui.viewmodels.RequestViewModel
 import kotlinx.coroutines.launch
 
 
@@ -64,6 +61,8 @@ fun RequestsScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.getRequestViewModel()
+    val authViewModel = serviceLocator.getAuthViewModel()
+
     val requests by requestViewModel.requests.collectAsState()
     var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
     val sortOptions = listOf(
@@ -174,7 +173,7 @@ fun RequestsScreen(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     items(todoRequests) { request ->
-                                        RequestListItem(request = request, navController) {
+                                        RequestListItem(request = request, navController, requestViewModel) {
                                             showDialog = true
                                             selectedRequest = request
                                         }
@@ -192,34 +191,6 @@ fun RequestsScreen(
 
                     }
                 }
-                when (requests) {
-                    is Resource.Loading -> {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                    is Resource.Success -> {
-                        if (todoRequests.isEmpty()) {
-                            Text("Non ci sono richieste attive", modifier = Modifier.align(Alignment.Center))
-                        } else {
-                            todoRequests = todoRequests.sortedWith(selectedSortOption.comparator)
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(1),
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                items(todoRequests) { request ->
-                                    RequestListItem(
-                                        request = request, navController, requestViewModel ) {
-                                        showDialog = true
-                                        selectedRequest = request
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    is Resource.Error -> {
-                        Text(text = "Error: ${requests.message}", modifier = Modifier.align(Alignment.Center))
-                    }
-                }
-            }
 
             }
 
@@ -258,24 +229,6 @@ fun RequestsScreen(
                 )
             }
 
-        }
-        if (showDialog) {
-            Dialog(
-                onDismissRequest = { showDialog = false }
-            ) {
-                RequestDetails(request = selectedRequest, onDismiss = { showDialog = false }, navController)
-            }
-        }
-
-        FloatingActionButton(
-            onClick = { navController.navigate(Screens.AddRequest.route) },
-            elevation = FloatingActionButtonDefaults.elevation(50.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add")
         }
     }
 }
