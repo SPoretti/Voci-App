@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.components
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
