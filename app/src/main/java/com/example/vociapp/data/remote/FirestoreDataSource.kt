@@ -87,15 +87,18 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getVolunteers(): Resource<List<Volunteer>> {
-        return try {
-            val volunteers = firestore.collection("volunteers").get().await()
-                .toObjects(Volunteer::class.java)
-            Resource.Success(volunteers)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
+    suspend fun getVolunteerById(id: String): Volunteer? {
+        val volunteerDoc = firestore.collection("volunteers")
+            .whereEqualTo("id", id)
+            .get()
+            .await()
+            .documents
+            .firstOrNull()
+
+        return volunteerDoc?.toObject(Volunteer::class.java)
     }
+
+
 
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return try {

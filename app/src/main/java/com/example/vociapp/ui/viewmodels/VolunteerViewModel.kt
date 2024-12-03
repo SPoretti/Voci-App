@@ -23,41 +23,49 @@ class VolunteerViewModel @Inject constructor(
     private val _snackbarMessage = MutableStateFlow("")
     val snackbarMessage: StateFlow<String> = _snackbarMessage
 
-    private val _volunteers = MutableStateFlow<Resource<List<Volunteer>>>(Resource.Loading())
-    val volunteers: StateFlow<Resource<List<Volunteer>>> = _volunteers.asStateFlow()
+    private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
+    val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
+
+    private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
+    val currentVolunteer: StateFlow<Volunteer?> = _currentVolunteer.asStateFlow()
 
     init {
-        getVolunteers()
+        getVolunteerById(id = "")
     }
 
-    fun getVolunteers() {
-        volunteerRepository.getVolunteer()
+    fun getCurrentVolunteerId(): String? {
+        return _currentVolunteer.value?.id
+    }
+
+    fun getVolunteerById(id: String) {
+        volunteerRepository.getVolunteerById(id)
             .onEach { result ->
                 _volunteers.value = result
+                if (result is Resource.Success && result.data != null) {
+                    _currentVolunteer.value = result.data
+                }
             }
             .launchIn(viewModelScope)
     }
 
+    fun getVolunteerName(): String? {
+        return _currentVolunteer.value?.name
+    }
+
+
+
     fun addVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
-            // Handle the result of addVolunteer if needed
             val result = volunteerRepository.addVolunteer(volunteer)
-            // ... (e.g., show a success message or handle errors)
-
             if (result is Resource.Success) {
-
                 _snackbarMessage.value = "Registrazione effettuata"
-
+                _currentVolunteer.value = volunteer
             } else if (result is Resource.Error) {
-
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"
-
             }
-
-            // You might want to refresh the volunteers list after adding
-            getVolunteers()
         }
     }
+
 
     fun updateVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
@@ -65,7 +73,7 @@ class VolunteerViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     // Request updated successfully, you might want to refresh the requests list
-                    getVolunteers()
+                    getVolunteerById(volunteer.id)
                 }
                 is Resource.Error -> {
                     // Handle error, e.g., show an error message to the user

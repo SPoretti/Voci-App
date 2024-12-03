@@ -14,12 +14,21 @@ class VolunteerRepository @Inject constructor(
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return firestoreDataSource.addVolunteer(volunteer)
     }
-
-    fun getVolunteer(): Flow<Resource<List<Volunteer>>> = flow {
-        emit(Resource.Loading()) // Indicate loading state
-        val result = firestoreDataSource.getVolunteers() // Get the result from FirestoreDataSource
-        emit(result) // Emit the result (Success or Error)
+    fun getVolunteerById(id: String): Flow<Resource<Volunteer>> = flow {
+        emit(Resource.Loading())
+        try {
+            val volunteer = firestoreDataSource.getVolunteerById(id)
+            if (volunteer != null) {
+                emit(Resource.Success(volunteer))
+            } else {
+                emit(Resource.Error("Volontario non trovato"))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Errore durante il recupero dei dati: ${e.localizedMessage}"))
+        }
     }
+
+
 
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return firestoreDataSource.updateVolunteer(volunteer)

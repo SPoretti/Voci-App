@@ -45,6 +45,9 @@ fun UserProfileScreen(
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
     val userProfile = authViewModel.getCurrentUserProfile()
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val userId = volunteerViewModel.getCurrentVolunteerId()
+    val volunteerName = volunteerViewModel.getVolunteerName()
 
     Box(
         modifier = Modifier
@@ -159,7 +162,7 @@ fun UserProfileScreen(
                             ProfileInfoItem(
                                 icon = Icons.Default.Person,
                                 label = "Username",
-                                value = profile.displayName ?: "Not set"
+                                value = volunteerName ?: "Unknown Volunteer"
                             )
                         }
                     }
