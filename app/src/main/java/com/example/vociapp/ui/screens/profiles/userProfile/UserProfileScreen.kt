@@ -46,7 +46,6 @@ fun UserProfileScreen(
     val authViewModel = serviceLocator.getAuthViewModel()
     val userProfile = authViewModel.getCurrentUserProfile()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val userId = volunteerViewModel.getCurrentVolunteerId()
     val volunteerName = volunteerViewModel.getVolunteerName()
 
     Box(

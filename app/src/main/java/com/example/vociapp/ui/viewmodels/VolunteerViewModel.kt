@@ -33,9 +33,9 @@ class VolunteerViewModel @Inject constructor(
         getVolunteerById(id = "")
     }
 
-    fun getCurrentVolunteerId(): String? {
-        return _currentVolunteer.value?.id
-    }
+//    fun getCurrentVolunteerId(): String? {
+//        return _currentVolunteer.value?.id
+//    }
 
     fun getVolunteerById(id: String) {
         volunteerRepository.getVolunteerById(id)
