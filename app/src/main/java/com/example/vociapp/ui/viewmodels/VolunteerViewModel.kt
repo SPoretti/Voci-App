@@ -48,11 +48,19 @@ class VolunteerViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    // ritorna il valore "name" del volontario
     fun getVolunteerName(): String? {
         return _currentVolunteer.value?.name
     }
 
+    // ritorna il volontario corrente
+    fun getVolunteerSurname(): String? {
+        return _currentVolunteer.value?.surname
+    }
 
+    fun getCurrentVolunteer(): Volunteer? {
+        return _currentVolunteer.value
+    }
 
     fun addVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
