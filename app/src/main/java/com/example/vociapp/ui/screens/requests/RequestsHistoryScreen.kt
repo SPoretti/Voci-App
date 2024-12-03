@@ -44,6 +44,7 @@ fun RequestsHistoryScreen(
     val requests by requestViewModel.requests.collectAsState()
     var doneRequests = requests.data.orEmpty().filter { it.status == RequestStatus.DONE }
 
+
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
