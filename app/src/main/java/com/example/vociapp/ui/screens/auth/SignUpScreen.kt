@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,13 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthButtonWithIcon
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.components.DatePickerExamples
+import com.example.vociapp.ui.viewmodels.VolunteerViewModel
+import java.util.UUID
 
 @Composable
 fun SignUpScreen(
@@ -49,8 +52,12 @@ fun SignUpScreen(
 ) {
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
-    var birth by remember { mutableStateOf("") }
-    var showModal by remember { mutableStateOf(false) }
+    var nickname by remember { mutableStateOf("") }
+    var phone_number by remember { mutableStateOf("") }
+
+//    var birth by remember { mutableStateOf("") }
+//    var showModal by remember { mutableStateOf(false) }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -59,6 +66,7 @@ fun SignUpScreen(
     var isSigningUp by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
 
     Box(
         modifier = Modifier
@@ -109,20 +117,34 @@ fun SignUpScreen(
                             icon = Icons.Default.PersonOutline
                         )
 
-                        AuthButtonWithIcon(
-                            value = birth.ifEmpty { "Data di nascita" },
-                            label = "Data di nascita",
-                            icon = Icons.Default.DateRange,
-                            onClick = { showModal = true }
+                        AuthTextField(
+                            value = nickname,
+                            onValueChange = { nickname = it },
+                            label = "Nickname",
+                            icon = Icons.Default.PersonOutline
                         )
 
-                        DatePickerExamples(
-                            showModalCheck = showModal,
-                            onShowModalChange = { showModal = it },
-                            onDateSelected = { selectedDate ->
-                                birth = selectedDate
-                            }
+                        AuthTextField(
+                            value = phone_number,
+                            onValueChange = { phone_number = it },
+                            label = "Numero di telefono",
+                            icon = Icons.Default.Phone
                         )
+
+//                        AuthButtonWithIcon(
+//                            value = birth.ifEmpty { "Data di nascita" },
+//                            label = "Data di nascita",
+//                            icon = Icons.Default.DateRange,
+//                            onClick = { showModal = true }
+//                        )
+//
+//                        DatePickerExamples(
+//                            showModalCheck = showModal,
+//                            onShowModalChange = { showModal = it },
+//                            onDateSelected = { selectedDate ->
+//                                birth = selectedDate
+//                            }
+//                        )
 
                         AuthTextField(
                             value = email,
@@ -201,6 +223,10 @@ fun SignUpScreen(
                 showError = true
                 errorMessage = result.message
             } else {
+                val id: String = UUID.randomUUID().toString()
+                val volunteer = Volunteer(id, name, surname, nickname, password, phone_number, email)
+                volunteerViewModel.addVolunteer(volunteer)
+
                 navController.navigate(Screens.UserProfile.route) {
                     popUpTo(Screens.SignUp.route) { inclusive = true }
                 }
