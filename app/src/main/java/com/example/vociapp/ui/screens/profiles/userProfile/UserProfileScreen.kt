@@ -15,9 +15,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -37,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.Screens
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun UserProfileScreen(
@@ -46,7 +52,18 @@ fun UserProfileScreen(
     val authViewModel = serviceLocator.getAuthViewModel()
     val userProfile = authViewModel.getCurrentUserProfile()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val volunteerName = volunteerViewModel.getVolunteerName()
+
+    // NON serve più
+    // val volunteerName = volunteerViewModel.getVolunteerName()
+
+    // oggetto che contiene i dati del volontario corrente
+    val CurrentVolunteer = volunteerViewModel.getCurrentVolunteer()
+
+    val volunteerNickname = CurrentVolunteer?.nickname
+    val volunteerName = CurrentVolunteer?.name
+    val volunteerSurname = CurrentVolunteer?.surname
+    val volunteerEmail = CurrentVolunteer?.email
+    val volunteerPhoneNumber = CurrentVolunteer?.phone_number
 
     Box(
         modifier = Modifier
@@ -67,6 +84,7 @@ fun UserProfileScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+
                     // Edit button
                     IconButton(
                         onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
@@ -118,8 +136,6 @@ fun UserProfileScreen(
                         )
                     }
 
-
-
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -128,6 +144,7 @@ fun UserProfileScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         userProfile?.let { profile ->
+
                             // Profile picture placeholder
                             Box(
                                 modifier = Modifier
@@ -143,26 +160,67 @@ fun UserProfileScreen(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
-
                             Text(
-                                text = profile.displayName ?: "User",
+                                text = volunteerNickname?: "User",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold
                             )
 
+                            // division line
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
+                            // Username (name + surname all in one line)
+//                            ProfileInfoItem(
+//                                icon = Icons.Default.Person,
+//                                label = "Username",
+//                                value = ("$volunteerName $volunteerSurname") ?: "Unknown Volunteer"
+//                            )
+
+                            // name
+                            ProfileInfoItem(
+                                icon = Icons.Default.Person,
+                                label = "Name",
+                                value = volunteerName ?: "Unknown Volunteer"
+                            )
+
+                            // surname
+                            ProfileInfoItem(
+                                icon = Icons.Default.Person,
+                                label = "Surname",
+                                value = volunteerSurname ?: "Unknown Volunteer"
+                            )
+
+                            // email
                             ProfileInfoItem(
                                 icon = Icons.Default.Email,
                                 label = "Email",
-                                value = authViewModel.getCurrentUser()?.email ?: "Not set"
+                                value = volunteerEmail ?: "Unknown Volunteer"
                             )
 
+                            // phone number
                             ProfileInfoItem(
-                                icon = Icons.Default.Person,
-                                label = "Username",
-                                value = volunteerName ?: "Unknown Volunteer"
+                                icon = Icons.Default.Phone,
+                                label = "Phone Number",
+                                value = volunteerPhoneNumber ?: "Unknown Volunteer"
                             )
+
+                            // data di nascita
+//                            ProfileInfoItem(
+//                                icon = Icons.Default.CalendarMonth,
+//                                label = "Data di Nascita",
+//                                value = navController.currentBackStackEntry?.arguments?.getString("birth") ?: "Not set"
+//                            )
+
+                            // Edit Profile Section
+                            Button(
+                                onClick = { navController.navigate(Screens.UpdateUserProfile.route)},
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Edit Profile")
+                            }
                         }
                     }
                 }
