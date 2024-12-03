@@ -22,7 +22,7 @@ import com.example.vociapp.ui.screens.home.HomeScreen
 import com.example.vociapp.ui.screens.profiles.homeless.ProfileHomelessScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UpdateUserProfileScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UserProfileScreen
-import com.example.vociapp.ui.screens.profiles.volontario.ProfileVolontarioScreen
+import com.example.vociapp.ui.screens.profiles.volunteer.ProfileVolunteerScreen
 import com.example.vociapp.ui.screens.requests.RequestsHistoryScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
 
@@ -68,7 +68,7 @@ fun NavGraph(
         ) {
             backStackEntry ->
             val creatorId = backStackEntry.arguments?.getString("creatorId")
-            ProfileVolontarioScreen(creatorId)
+            ProfileVolunteerScreen(creatorId)
         }
         composable(
             route = "ProfileHomeless/{homelessId}",

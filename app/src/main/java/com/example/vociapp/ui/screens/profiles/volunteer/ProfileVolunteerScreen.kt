@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.screens.profiles.volontario
+package com.example.vociapp.ui.screens.profiles.volunteer
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProfileVolontarioScreen(creatorId: String?) {
+fun ProfileVolunteerScreen(creatorId: String?) {
     Column(
         modifier = Modifier
             .fillMaxSize()

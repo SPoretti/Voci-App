@@ -2,6 +2,7 @@ package com.example.vociapp.data.remote
 
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -71,6 +72,48 @@ class FirestoreDataSource @Inject constructor(
             val homelesses = firestore.collection("homelesses").get().await()
                 .toObjects(Homeless::class.java)
             Resource.Success(homelesses)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    //Query volontari
+    suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
+        return try {
+            val documentReference = firestore.collection("volunteers").add(volunteer).await()
+            Resource.Success(documentReference.id)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun getVolunteers(): Resource<List<Volunteer>> {
+        return try {
+            val volunteers = firestore.collection("volunteers").get().await()
+                .toObjects(Volunteer::class.java)
+            Resource.Success(volunteers)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
+        return try {
+            val querySnapshot = firestore.collection("volunteers")
+                .whereEqualTo("id", volunteer.id) // Query by "id" field
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id // Get the document ID
+                firestore.collection("volunteers")
+                    .document(documentId) // Use the document ID for update
+                    .set(volunteer, SetOptions.merge())
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Volunteer not found") // Handle case where request is not found
+            }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }

@@ -57,7 +57,7 @@ fun SignInScreen(
                 errorMessage = result.message
             } else {
                 navController.navigate(Screens.Home.route) {
-                    popUpTo(Screens.SignIn.route) { inclusive = true }
+                        popUpTo(Screens.SignIn.route) { inclusive = true }
                 }
             }
             isSigningIn = false
