@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PersonOutline
@@ -38,12 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AuthButtonWithIcon
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.components.DatePickerExamples
-import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 import java.util.UUID
 
 @Composable
@@ -53,7 +49,7 @@ fun SignUpScreen(
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
-    var phone_number by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
 
 //    var birth by remember { mutableStateOf("") }
 //    var showModal by remember { mutableStateOf(false) }
@@ -125,8 +121,8 @@ fun SignUpScreen(
                         )
 
                         AuthTextField(
-                            value = phone_number,
-                            onValueChange = { phone_number = it },
+                            value = phoneNumber,
+                            onValueChange = { phoneNumber = it },
                             label = "Numero di telefono",
                             icon = Icons.Default.Phone
                         )
@@ -224,7 +220,7 @@ fun SignUpScreen(
                 errorMessage = result.message
             } else {
                 val id: String = UUID.randomUUID().toString()
-                val volunteer = Volunteer(id, name, surname, nickname, password, phone_number, email)
+                val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
                 volunteerViewModel.getVolunteerById(id)
 
