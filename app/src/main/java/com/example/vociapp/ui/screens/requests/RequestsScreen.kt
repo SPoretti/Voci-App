@@ -8,14 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -26,7 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,16 +39,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddRequestDialog
 import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestListItem
+import com.example.vociapp.ui.components.RequestList
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun RequestsScreen(
@@ -64,7 +57,6 @@ fun RequestsScreen(
     val authViewModel = serviceLocator.getAuthViewModel()
 
     val requests by requestViewModel.requests.collectAsState()
-    var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
@@ -93,26 +85,17 @@ fun RequestsScreen(
             }
         }
     }
-
-    LaunchedEffect(Unit) {
-        requestViewModel.getRequests()
-    }
-
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ){ padding ->
-
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-
-
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -139,7 +122,7 @@ fun RequestsScreen(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.History,
+                            imageVector = Icons.Filled.Checklist,
                             contentDescription = "Requests history",
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
@@ -151,47 +134,17 @@ fun RequestsScreen(
                     }
                 }
 
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-
-                    when (requests) {
-                        is Resource.Loading -> {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        is Resource.Success -> {
-                            if (todoRequests.isEmpty()) {
-                                Text(
-                                    "Non ci sono richieste attive",
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            } else {
-                                todoRequests =
-                                    todoRequests.sortedWith(selectedSortOption.comparator)
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(1),
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    items(todoRequests) { request ->
-                                        RequestListItem(request = request, navController, requestViewModel) {
-                                            showDialog = true
-                                            selectedRequest = request
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        is Resource.Error -> {
-                            Text(
-                                text = "Error: ${requests.message}",
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-
-                    }
-                }
-
+                RequestList(
+                    requests = requests,
+                    filterOption = RequestStatus.TODO,
+                    sortOption = selectedSortOption,
+                    onItemClick = { request ->
+                        showDialog = true
+                        selectedRequest = request
+                    },
+                    navController = navController,
+                    requestViewModel = requestViewModel,
+                )
             }
 
             FloatingActionButton(
@@ -228,7 +181,6 @@ fun RequestsScreen(
                     authViewModel = authViewModel,
                 )
             }
-
         }
     }
 }

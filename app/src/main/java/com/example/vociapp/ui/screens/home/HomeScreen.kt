@@ -3,6 +3,7 @@ package com.example.vociapp.ui.screens.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,17 +33,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.vociapp.R
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddHomelessDialog
+import com.example.vociapp.ui.components.HomelessList
 import com.example.vociapp.ui.components.SearchBar
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavHostController
+) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.getHomelessViewModel()
     val userProfile = serviceLocator.getAuthViewModel().getCurrentUserProfile()
+
+    val homelesses by homelessViewModel.homelesses.collectAsState()
+
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -112,7 +120,7 @@ fun HomeScreen() {
                             .fillMaxSize()
                             .padding(
                                 top = 0.dp,
-                                bottom = 16.dp,
+                                bottom = 8.dp,
                             ),
                         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -120,7 +128,7 @@ fun HomeScreen() {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .padding(8.dp)
                         ) {
                             SearchBar(
                                 modifier = Modifier.fillMaxWidth(),
@@ -128,8 +136,16 @@ fun HomeScreen() {
                                 placeholderText = "Cerca...",
                                 unfocusedBorderColor = Color.Transparent,
                             )
-
                         }
+
+                        Spacer(modifier = Modifier.padding(8.dp))
+
+                        HomelessList(
+                            homelesses = homelesses,
+                            homelessViewModel = homelessViewModel,
+                            navController = navController
+                        )
+
                     }
                 }
             }
