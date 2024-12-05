@@ -1,6 +1,7 @@
 package com.example.vociapp.ui.screens.requests
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,7 +51,9 @@ fun RequestsHistoryScreen(
                 id = "null",
                 title = "",
                 description = "",
-                timestamp = 0
+                timestamp = 0,
+                creatorId = "",
+                homelessID = "",
             )
         )
     }
@@ -74,7 +77,7 @@ fun RequestsHistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 

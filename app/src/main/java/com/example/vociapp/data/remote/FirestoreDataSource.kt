@@ -76,4 +76,29 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun getHomeless(homelessID: String): Homeless? {
+        return try {
+            val querySnapshot = firestore.collection("homelesses")
+                .whereEqualTo("id", homelessID)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id
+                val homeless = firestore.collection("homelesses")
+                    .document(documentId)
+                    .get()
+                    .await()
+                    .toObject(Homeless::class.java)
+                homeless // Return the Homeless object if found
+            } else {
+                null // Return null if homeless not found
+            }
+        } catch (e: Exception) {
+            // Handle exception, e.g., log the error
+            // and return null or throw an exception
+            null
+        }
+    }
+
 }

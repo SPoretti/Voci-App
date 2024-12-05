@@ -22,6 +22,8 @@ fun HomelessList(
     homelesses: Resource<List<Homeless>>,
     homelessViewModel: HomelessViewModel,
     navController: NavHostController,
+    showPreferredIcon: Boolean,
+    onListItemClick: (Homeless) -> Unit = {},
 ) {
 
     LaunchedEffect(Unit) {
@@ -45,7 +47,10 @@ fun HomelessList(
                         HomelessListItem(
                             homeless = homeless,
                             navController = navController,
-                            homelessViewModel = homelessViewModel)
+                            homelessViewModel = homelessViewModel,
+                            showPreferredIcon = showPreferredIcon,
+                            onClick = onListItemClick,
+                        )
                     }
                 }
             }

@@ -5,7 +5,7 @@ import java.util.UUID
 data class Request(
     val id: String = UUID.randomUUID().toString(),
     val creatorId: String? = null,
-    val homelessID: String? = null,
+    val homelessID: String = "",
     val title: String = "",
     val description: String = "",
     var status: RequestStatus = RequestStatus.TODO,
