@@ -8,6 +8,7 @@ data class Homeless(
     val birthDate: String = "",
     val gender: Gender = Gender.Unspecified,
     val location: String = "",
+    val pets: String = "No",
     val needs: List<Request> = emptyList(),
     // ... other properties ...
 )

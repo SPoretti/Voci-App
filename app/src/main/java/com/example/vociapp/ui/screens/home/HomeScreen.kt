@@ -17,7 +17,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,15 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.R
+import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddHomelessDialog
 import com.example.vociapp.ui.components.HomelessList
 import com.example.vociapp.ui.components.SearchBar
 import kotlinx.coroutines.launch
+import kotlin.text.isBlank
 
 @Composable
 fun HomeScreen(
@@ -47,9 +47,10 @@ fun HomeScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val userProfile = serviceLocator.getAuthViewModel().getCurrentUserProfile()
 
     val homelesses by homelessViewModel.homelesses.collectAsState()
+    val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
+    val searchQuery by homelessViewModel.searchQuery.collectAsState()
 
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
@@ -83,7 +84,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -96,21 +97,6 @@ fun HomeScreen(
                         .fillMaxWidth(),
                     contentScale = ContentScale.Fit
                 )
-
-                userProfile?.let { profile ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp)
-                    ) {
-                        Text(
-                            text = "Ciao, ${profile.displayName}!",
-                            modifier = Modifier.align(Alignment.Center),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
 
                 Box(
                     modifier = Modifier.fillMaxWidth()
@@ -132,7 +118,7 @@ fun HomeScreen(
                         ) {
                             SearchBar(
                                 modifier = Modifier.fillMaxWidth(),
-                                onSearch = { /* TODO() Handle search query */ },
+                                onSearch = { homelessViewModel.updateSearchQuery(it)},
                                 placeholderText = "Cerca...",
                                 unfocusedBorderColor = Color.Transparent,
                             )
@@ -140,21 +126,27 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.padding(8.dp))
 
-                        HomelessList(
-                            homelesses = homelesses,
-                            homelessViewModel = homelessViewModel,
-                            navController = navController
-                        )
+                        val listToDisplay = if (searchQuery.isBlank()) {
+                            homelesses
+                        } else {
+                            filteredHomelesses
+                        }
 
+                        HomelessList(
+                            homelesses = listToDisplay,
+                            homelessViewModel = homelessViewModel,
+                            navController = navController,
+                            showPreferredIcon = true,
+                            onListItemClick = {homeless ->
+                                navController.navigate("profileHomeless/${homeless.name}")
+                            },
+                        )
                     }
                 }
             }
 
             FloatingActionButton(
-                onClick = {
-                    showAddHomelessDialog = true
-                    // navController.navigate(Screens.AddHomeless.route)
-                },
+                onClick = {showAddHomelessDialog = true},
                 elevation = FloatingActionButtonDefaults.elevation(50.dp),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -174,6 +166,10 @@ fun HomeScreen(
                 )
             }
         }
+    }
+
+    fun navigateToProfile(homeless: Homeless) {
+        navController.navigate("profileHomeless/${homeless.name}")
     }
 
 }

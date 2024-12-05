@@ -1,10 +1,13 @@
 package com.example.vociapp.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.util.Resource
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +26,40 @@ class HomelessViewModel @Inject constructor(
     private val _homelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
     val homelesses: StateFlow<Resource<List<Homeless>>> = _homelesses.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("") // Use MutableStateFlow
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _filteredHomelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
+    val filteredHomelesses: StateFlow<Resource<List<Homeless>>> = _filteredHomelesses.asStateFlow()
+
     init {
         getHomelesses()
+    }
+
+    private var searchJob: Job? = null
+
+    fun updateSearchQuery(query: String) {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(500)
+            _searchQuery.value = query
+            // Filter the list and update the filteredHomelessPeople state
+            _homelesses.value.data?.let { homelessList ->
+                val filteredList = filterHomelessPeople(query, homelessList)
+                _filteredHomelesses.value = filteredList
+            }
+        }
+    }
+
+    private fun filterHomelessPeople(query: String, homelessList: List<Homeless>): Resource<List<Homeless>> {
+        return if (homelessList.isEmpty()) {
+            Resource.Error("Nessun senzatetto trovato") // Handle empty list as an error
+        } else {
+            val filteredList = homelessList.filter { homeless ->
+                homeless.name.contains(query, ignoreCase = true)
+            }
+            Resource.Success(filteredList) // Wrap the filtered list in Resource.Success
+        }
     }
 
     fun getHomelesses() {
@@ -33,6 +68,10 @@ class HomelessViewModel @Inject constructor(
                 _homelesses.value = result
             }
             .launchIn(viewModelScope)
+    }
+
+    suspend fun getHomeless(homelessID: String): Homeless? {
+        return homelessRepository.getHomeless(homelessID)
     }
 
     fun addHomeless(homeless: Homeless) {

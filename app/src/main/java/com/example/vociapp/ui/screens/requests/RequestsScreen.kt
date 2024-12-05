@@ -63,7 +63,7 @@ fun RequestsScreen(
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
     var showDialog by remember { mutableStateOf(false) }
-    var selectedRequest: Request by remember { mutableStateOf(Request(id = "null", title = "", description = "", timestamp = 0)) }
+    var selectedRequest: Request by remember { mutableStateOf(Request(id = "null", title = "", description = "", timestamp = 0, homelessID = "", creatorId = "")) }
 
     var showAddRequestDialog by remember { mutableStateOf(false) }
 
@@ -179,6 +179,7 @@ fun RequestsScreen(
                         showAddRequestDialog = false
                     },
                     authViewModel = authViewModel,
+                    navController = navController,
                 )
             }
         }
