@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.viewmodels.AuthViewModel
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
 fun AddRequestDialog(
@@ -51,6 +51,8 @@ fun AddRequestDialog(
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
+
+    var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
 
     var isAddingRequest by remember { mutableStateOf(false) }
 
@@ -101,9 +103,10 @@ fun AddRequestDialog(
 
                 SearchBar(
                     modifier = Modifier.fillMaxWidth(),
-                    onSearch = { },
+                    onSearch = { homelessViewModel.updateSearchQuery(it)},
                     placeholderText = "Cerca un senzatetto...",
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    onClick = { }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -119,10 +122,13 @@ fun AddRequestDialog(
                     homelessViewModel = homelessViewModel,
                     navController = navController,
                     showPreferredIcon = false,
-                    onListItemClick = {homeless ->
+                    onListItemClick = { homeless ->
                         homelessID = homeless.id
-                    }
+                        selectedHomeless = homeless
+                    },
+                    selectedHomeless = selectedHomeless
                 )
+
             }
         },
         confirmButton = {
@@ -152,7 +158,7 @@ fun AddRequestDialog(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onBackground,
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground)
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
             ) {
                 Text("Annulla")
             }

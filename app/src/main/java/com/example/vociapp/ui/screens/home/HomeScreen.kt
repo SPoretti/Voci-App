@@ -33,13 +33,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.R
-import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddHomelessDialog
 import com.example.vociapp.ui.components.HomelessList
 import com.example.vociapp.ui.components.SearchBar
 import kotlinx.coroutines.launch
-import kotlin.text.isBlank
 
 @Composable
 fun HomeScreen(
@@ -121,6 +119,7 @@ fun HomeScreen(
                                 onSearch = { homelessViewModel.updateSearchQuery(it)},
                                 placeholderText = "Cerca...",
                                 unfocusedBorderColor = Color.Transparent,
+                                onClick = { /* TODO() Handle click on search bar */ }
                             )
                         }
 
@@ -167,11 +166,6 @@ fun HomeScreen(
             }
         }
     }
-
-    fun navigateToProfile(homeless: Homeless) {
-        navController.navigate("profileHomeless/${homeless.name}")
-    }
-
 }
 
 

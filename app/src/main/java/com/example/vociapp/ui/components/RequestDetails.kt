@@ -17,6 +17,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,10 +32,18 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
+import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
-fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHostController) {
+fun RequestDetails(
+    request: Request,
+    onDismiss: () -> Unit,
+    navController: NavHostController,
+    homelessViewModel: HomelessViewModel
+) {
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
+    val names = homelessViewModel.homelessNames.collectAsState().value
+
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
@@ -98,11 +110,18 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
+                    val homelessName by remember(request.homelessID) {
+                        derivedStateOf {
+                            names[request.homelessID] ?: "Unknown"
+                        }
+                    }
+
                     Text("Homeless:", fontSize = 14.sp)
                     RequestChip(
-                        text = request.homelessID.toString(),
-                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
-                        imageVector = Icons.Filled.AssignmentInd
+                        text = homelessName,
+                        onClick = { navController.navigate("profileHomeless/${homelessName}") },
+                        imageVector = Icons.Filled.AssignmentInd,
                     )
                 }
             }

@@ -55,6 +55,7 @@ fun RequestsScreen(
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.getRequestViewModel()
     val authViewModel = serviceLocator.getAuthViewModel()
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
 
     val requests by requestViewModel.requests.collectAsState()
     val sortOptions = listOf(
@@ -91,7 +92,7 @@ fun RequestsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -144,6 +145,7 @@ fun RequestsScreen(
                     },
                     navController = navController,
                     requestViewModel = requestViewModel,
+                    homeLessViewModel = homelessViewModel
                 )
             }
 
@@ -166,7 +168,8 @@ fun RequestsScreen(
                     RequestDetails(
                         request = selectedRequest,
                         onDismiss = { showDialog = false },
-                        navController
+                        navController = navController,
+                        homelessViewModel = homelessViewModel
                     )
                 }
             }

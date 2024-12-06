@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -21,7 +22,8 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit,
     placeholderText: String,
-    unfocusedBorderColor: androidx.compose.ui.graphics.Color) {
+    unfocusedBorderColor: androidx.compose.ui.graphics.Color,
+    onClick: () -> Unit) {
     var searchText by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -30,7 +32,7 @@ fun SearchBar(
             searchText = newText
             onSearch(newText) // Trigger search when text changes
         },
-        modifier = modifier,
+        modifier = modifier.clickable { onClick() },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,

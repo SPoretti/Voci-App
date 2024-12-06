@@ -32,8 +32,12 @@ class HomelessViewModel @Inject constructor(
     private val _filteredHomelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
     val filteredHomelesses: StateFlow<Resource<List<Homeless>>> = _filteredHomelesses.asStateFlow()
 
+    private val _homelessNames = MutableStateFlow<Map<String, String>>(emptyMap())
+    val homelessNames: StateFlow<Map<String, String>> = _homelessNames.asStateFlow()
+
     init {
         getHomelesses()
+        fetchHomelessNames()
     }
 
     private var searchJob: Job? = null
@@ -56,7 +60,8 @@ class HomelessViewModel @Inject constructor(
             Resource.Error("Nessun senzatetto trovato") // Handle empty list as an error
         } else {
             val filteredList = homelessList.filter { homeless ->
-                homeless.name.contains(query, ignoreCase = true)
+                homeless.name.contains(query, ignoreCase = true) or
+                homeless.location.contains(query, ignoreCase = true)
             }
             Resource.Success(filteredList) // Wrap the filtered list in Resource.Success
         }
@@ -92,6 +97,21 @@ class HomelessViewModel @Inject constructor(
 
             // You might want to refresh the homelesses list after adding
             getHomelesses()
+        }
+    }
+
+    private fun fetchHomelessNames() {
+        viewModelScope.launch {
+            homelessRepository.getHomelesses()
+                .collect { resource -> // Collect the flow
+                    if (resource is Resource.Success) { // Check for success
+                        val namesMap = resource.data?.associate { it.id to it.name }
+                        if (namesMap != null)
+                            _homelessNames.value = namesMap // Update state
+                    } else if (resource is Resource.Error) {
+                        Log.e("HomelessViewModel", "Error fetching homeless names: ${resource.message}")
+                    }
+                }
         }
     }
 
