@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.repository.RequestRepository
+import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -73,6 +74,28 @@ class RequestViewModel @Inject constructor(
 
                 is Resource.Loading -> TODO()
             }
+        }
+    }
+
+    fun requestDone(
+        request: Request,
+    ){
+        request.status = RequestStatus.DONE
+        updateRequest(request)
+    }
+
+    fun deleteRequest(request: Request) {
+        viewModelScope.launch {
+            val result = requestRepository.deleteRequest(request)
+
+            if (result is Resource.Success) {
+                _snackbarMessage.value = "Richiesta eliminata con successo!"
+            } else if (result is Resource.Error) {
+                _snackbarMessage.value = "Errore durante l'eliminazione della richiesta: ${result.message}"
+            }
+
+            // Refresh the requests list
+            getRequests()
         }
     }
 
