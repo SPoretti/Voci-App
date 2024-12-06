@@ -33,6 +33,7 @@ fun AddHomelessDialog(
 ) {
     var homelessName by remember { mutableStateOf("") }
     var homelessLocation by remember { mutableStateOf("") }
+    var homelessPets by remember { mutableStateOf("No") }
     var selectedGender by remember { mutableStateOf(Gender.Unspecified) }
     var isAddingHomeless by remember { mutableStateOf(false) }
 
@@ -78,6 +79,19 @@ fun AddHomelessDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                OutlinedTextField(
+                    value = homelessPets,
+                    onValueChange = { homelessPets = it},
+                    label = {Text("Animali")},
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    ),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 GenderSelector(
                     selectedGender = selectedGender,
                     onGenderSelected = { selectedGender = it }
@@ -91,6 +105,7 @@ fun AddHomelessDialog(
                         name = homelessName,
                         gender = selectedGender,
                         location = homelessLocation,
+                        pets = homelessPets,
                     )
                     onAdd(newHomeless)
                 },

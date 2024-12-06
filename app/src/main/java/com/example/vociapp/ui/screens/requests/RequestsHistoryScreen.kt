@@ -1,6 +1,7 @@
 package com.example.vociapp.ui.screens.requests
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,11 +42,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestListItem
+import com.example.vociapp.ui.components.RequestList
 import com.example.vociapp.ui.components.SortButtons
 
 @Composable
@@ -54,9 +54,9 @@ fun RequestsHistoryScreen(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
     val requestViewModel = serviceLocator.getRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
-    var doneRequests = requests.data.orEmpty().filter { it.status == RequestStatus.DONE }
 
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
@@ -70,7 +70,9 @@ fun RequestsHistoryScreen(
                 id = "null",
                 title = "",
                 description = "",
-                timestamp = 0
+                timestamp = 0,
+                creatorId = "",
+                homelessID = "",
             )
         )
     }
@@ -83,9 +85,9 @@ fun RequestsHistoryScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-    ) {
+            .padding(horizontal = 16.dp)
 
+    ) {
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -95,7 +97,7 @@ fun RequestsHistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
@@ -108,6 +110,19 @@ fun RequestsHistoryScreen(
             }
 
 
+
+            RequestList(
+                requests = requests,
+                filterOption = RequestStatus.DONE,
+                sortOption = selectedSortOption,
+                onItemClick = { request ->
+                    showDialog = true
+                    selectedRequest = request
+                },
+                navController = navController,
+                requestViewModel = requestViewModel,
+                homeLessViewModel = homelessViewModel
+            )
             Box(modifier = Modifier.fillMaxWidth()) {
 
                 when (requests) {
@@ -202,7 +217,6 @@ fun RequestsHistoryScreen(
                     }
                 }
             }
-
         }
 
         if (showDialog) {
@@ -212,7 +226,8 @@ fun RequestsHistoryScreen(
                 RequestDetails(
                     request = selectedRequest,
                     onDismiss = { showDialog = false },
-                    navController
+                    navController = navController,
+                    homelessViewModel = homelessViewModel
                 )
             }
         }

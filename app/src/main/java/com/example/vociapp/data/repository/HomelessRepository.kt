@@ -22,6 +22,10 @@ class HomelessRepository @Inject constructor(
 
     }
 
+    suspend fun getHomeless(homelessID: String): Homeless?{
+        return firestoreDataSource.getHomeless(homelessID)
+    }
+
 //    fun observeHomelesses(): Flow<Resource<List<Homeless>>> {
 //        return getHomelesses()
 //    }

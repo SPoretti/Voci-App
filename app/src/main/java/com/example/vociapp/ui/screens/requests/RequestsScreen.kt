@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
@@ -56,16 +57,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AddRequestDialog
 import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestListItem
+import com.example.vociapp.ui.components.RequestList
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun RequestsScreen(
@@ -74,16 +73,16 @@ fun RequestsScreen(
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.getRequestViewModel()
     val authViewModel = serviceLocator.getAuthViewModel()
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
 
     val requests by requestViewModel.requests.collectAsState()
-    var todoRequests = requests.data.orEmpty().filter { it.status == RequestStatus.TODO }
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
     var showDialog by remember { mutableStateOf(false) }
-    var selectedRequest: Request by remember { mutableStateOf(Request(id = "null", title = "", description = "", timestamp = 0)) }
+    var selectedRequest: Request by remember { mutableStateOf(Request(id = "null", title = "", description = "", timestamp = 0, homelessID = "", creatorId = "")) }
 
     var showAddRequestDialog by remember { mutableStateOf(false) }
 
@@ -105,26 +104,17 @@ fun RequestsScreen(
             }
         }
     }
-
-    LaunchedEffect(Unit) {
-        requestViewModel.getRequests()
-    }
-
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ){ padding ->
-
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
-
-
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -151,7 +141,7 @@ fun RequestsScreen(
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.History,
+                            imageVector = Icons.Filled.Checklist,
                             contentDescription = "Requests history",
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
@@ -162,6 +152,19 @@ fun RequestsScreen(
                         )
                     }
                 }
+
+                RequestList(
+                    requests = requests,
+                    filterOption = RequestStatus.TODO,
+                    sortOption = selectedSortOption,
+                    onItemClick = { request ->
+                        showDialog = true
+                        selectedRequest = request
+                    },
+                    navController = navController,
+                    requestViewModel = requestViewModel,
+                    homeLessViewModel = homelessViewModel
+                )
 
 
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -263,6 +266,7 @@ fun RequestsScreen(
                     }
                 }
 
+
             }
 
             FloatingActionButton(
@@ -284,7 +288,8 @@ fun RequestsScreen(
                     RequestDetails(
                         request = selectedRequest,
                         onDismiss = { showDialog = false },
-                        navController
+                        navController = navController,
+                        homelessViewModel = homelessViewModel
                     )
                 }
             }
@@ -297,9 +302,9 @@ fun RequestsScreen(
                         showAddRequestDialog = false
                     },
                     authViewModel = authViewModel,
+                    navController = navController,
                 )
             }
-
         }
     }
 }
