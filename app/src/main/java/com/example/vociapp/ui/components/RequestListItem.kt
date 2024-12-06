@@ -56,7 +56,6 @@ fun RequestListItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable { onClick() }
             .height(100.dp),
         shape = RoundedCornerShape(16.dp),
@@ -71,7 +70,7 @@ fun RequestListItem(
 
             if (request.status == RequestStatus.TODO) {
                 IconButton(
-                    onClick = { requestDone(request, requestViewModel) },
+                    onClick = { requestViewModel.requestDone(request) },
                     modifier = Modifier
                         .padding(8.dp)
                         .background(
@@ -152,10 +151,3 @@ fun RequestListItem(
     }
 }
 
-fun requestDone(
-    request: Request,
-    requestViewModel: RequestViewModel
-){
-    request.status = RequestStatus.DONE
-    requestViewModel.updateRequest(request)
-}
