@@ -74,7 +74,7 @@ fun RequestListItem(
                     modifier = Modifier
                         .padding(8.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.primary,
                             shape = CircleShape
                         )
                         .align(Alignment.CenterVertically)
@@ -82,7 +82,7 @@ fun RequestListItem(
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }else{

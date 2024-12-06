@@ -25,13 +25,14 @@ fun HomelessList(
     showPreferredIcon: Boolean,
     onListItemClick: (Homeless) -> Unit = {},
     selectedHomeless: Homeless? = null,
+    modifier: Modifier = Modifier
 ) {
 
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = modifier.fillMaxWidth()) {
 
         when (homelesses) {
             is Resource.Loading -> {
