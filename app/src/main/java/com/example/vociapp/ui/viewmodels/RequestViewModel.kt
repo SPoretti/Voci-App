@@ -84,6 +84,21 @@ class RequestViewModel @Inject constructor(
         updateRequest(request)
     }
 
+    fun deleteRequest(request: Request) {
+        viewModelScope.launch {
+            val result = requestRepository.deleteRequest(request)
+
+            if (result is Resource.Success) {
+                _snackbarMessage.value = "Richiesta eliminata con successo!"
+            } else if (result is Resource.Error) {
+                _snackbarMessage.value = "Errore durante l'eliminazione della richiesta: ${result.message}"
+            }
+
+            // Refresh the requests list
+            getRequests()
+        }
+    }
+
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }
