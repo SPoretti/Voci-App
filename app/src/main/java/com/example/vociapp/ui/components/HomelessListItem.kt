@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CrueltyFree
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,11 +27,16 @@ import com.example.vociapp.ui.viewmodels.HomelessViewModel
 @Composable
 fun HomelessListItem(
     homeless: Homeless,
-    navController: NavHostController,
-    homelessViewModel: HomelessViewModel,
     showPreferredIcon: Boolean,
-    onClick:(Homeless) -> Unit
+    onClick:(Homeless) -> Unit,
+    isSelected: Boolean = false,
 ){
+
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer // Or any desired color
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
 
     Surface(
         modifier = Modifier
@@ -41,6 +45,8 @@ fun HomelessListItem(
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         onClick = {onClick(homeless)},
+        shadowElevation = 4.dp,
+        color = backgroundColor,
     ){
 
         Row(

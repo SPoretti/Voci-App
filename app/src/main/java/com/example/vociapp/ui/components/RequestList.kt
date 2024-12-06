@@ -16,6 +16,7 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
+import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 
 @Composable
@@ -25,13 +26,14 @@ fun RequestList(
     sortOption: SortOption,
     onItemClick: (Request) -> Unit,
     navController: NavHostController,
-    requestViewModel: RequestViewModel
+    requestViewModel: RequestViewModel,
+    homeLessViewModel: HomelessViewModel,
 ) {
     val filteredRequests = remember(requests, sortOption) { // Remember to avoid recalculation
         requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
     }
 
-    Box(){
+    Box{
         when (requests) {
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -49,7 +51,12 @@ fun RequestList(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(filteredRequests) { request ->
-                            RequestListItem(request = request, navController, requestViewModel) {
+                            RequestListItem(
+                                request = request,
+                                navController = navController,
+                                requestViewModel = requestViewModel,
+                                homelessViewModel = homeLessViewModel
+                            ) {
                                 onItemClick(request)
                             }
                         }

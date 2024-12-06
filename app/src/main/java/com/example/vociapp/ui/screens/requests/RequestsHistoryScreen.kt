@@ -35,9 +35,9 @@ fun RequestsHistoryScreen(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
     val requestViewModel = serviceLocator.getRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
-    var doneRequests = requests.data.orEmpty().filter { it.status == RequestStatus.DONE }
 
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
@@ -66,7 +66,8 @@ fun RequestsHistoryScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
+
     ) {
 
         Column(
@@ -100,6 +101,7 @@ fun RequestsHistoryScreen(
                 },
                 navController = navController,
                 requestViewModel = requestViewModel,
+                homeLessViewModel = homelessViewModel
             )
 
         }
@@ -111,7 +113,8 @@ fun RequestsHistoryScreen(
                 RequestDetails(
                     request = selectedRequest,
                     onDismiss = { showDialog = false },
-                    navController
+                    navController = navController,
+                    homelessViewModel = homelessViewModel
                 )
             }
         }

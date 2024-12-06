@@ -24,6 +24,7 @@ fun HomelessList(
     navController: NavHostController,
     showPreferredIcon: Boolean,
     onListItemClick: (Homeless) -> Unit = {},
+    selectedHomeless: Homeless? = null,
 ) {
 
     LaunchedEffect(Unit) {
@@ -46,10 +47,9 @@ fun HomelessList(
                     items(homelesses.data.orEmpty()) { homeless ->
                         HomelessListItem(
                             homeless = homeless,
-                            navController = navController,
-                            homelessViewModel = homelessViewModel,
                             showPreferredIcon = showPreferredIcon,
                             onClick = onListItemClick,
+                            isSelected = (homeless.id == selectedHomeless?.id)
                         )
                     }
                 }
