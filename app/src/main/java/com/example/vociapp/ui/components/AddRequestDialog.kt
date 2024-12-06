@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -101,6 +102,13 @@ fun AddRequestDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 SearchBar(
                     modifier = Modifier.fillMaxWidth(),
                     onSearch = { homelessViewModel.updateSearchQuery(it)},
@@ -126,7 +134,8 @@ fun AddRequestDialog(
                         homelessID = homeless.id
                         selectedHomeless = homeless
                     },
-                    selectedHomeless = selectedHomeless
+                    selectedHomeless = selectedHomeless,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
             }
