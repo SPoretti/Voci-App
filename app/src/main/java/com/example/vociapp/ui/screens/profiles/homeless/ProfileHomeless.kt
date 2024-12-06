@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProfileHomelessScreen(homelessName: String?) {
+fun ProfileHomelessScreen(homelessID: String?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -21,7 +21,7 @@ fun ProfileHomelessScreen(homelessName: String?) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Homeless name: ${homelessName ?: "Not available"}",
+            text = "Homeless name: ${homelessID ?: "Not available"}",
             style = MaterialTheme.typography.headlineMedium
         )
     }
