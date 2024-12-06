@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.repository.RequestRepository
+import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,6 +75,13 @@ class RequestViewModel @Inject constructor(
                 is Resource.Loading -> TODO()
             }
         }
+    }
+
+    fun requestDone(
+        request: Request,
+    ){
+        request.status = RequestStatus.DONE
+        updateRequest(request)
     }
 
     fun clearSnackbarMessage() {
