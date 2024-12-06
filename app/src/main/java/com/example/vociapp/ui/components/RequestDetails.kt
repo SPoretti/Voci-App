@@ -120,7 +120,7 @@ fun RequestDetails(
                     Text("Homeless:", fontSize = 14.sp)
                     RequestChip(
                         text = homelessName,
-                        onClick = { navController.navigate("profileHomeless/${homelessName}") },
+                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
                         imageVector = Icons.Filled.AssignmentInd,
                     )
                 }

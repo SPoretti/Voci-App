@@ -142,7 +142,7 @@ fun RequestListItem(
 
                     RequestChip(
                         text = homelessName,
-                        onClick = { navController.navigate("profileHomeless/${homelessName}") },
+                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
                         imageVector = Icons.Filled.AssignmentInd
                     )
 
