@@ -24,4 +24,8 @@ class RequestRepository @Inject constructor(
     suspend fun updateRequest(request: Request): Resource<Unit> {
         return firestoreDataSource.updateRequest(request)
     }
+
+    suspend fun deleteRequest(request: Request): Resource<Unit> {
+        return firestoreDataSource.deleteRequest(request)
+    }
 }

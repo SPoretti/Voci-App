@@ -9,7 +9,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.collections.get
 import kotlin.text.get
-import kotlin.text.set
 
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -46,6 +45,28 @@ class FirestoreDataSource @Inject constructor(
                 firestore.collection("requests")
                     .document(documentId) // Use the document ID for update
                     .set(request, SetOptions.merge())
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Request not found") // Handle case where request is not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun deleteRequest(request: Request): Resource<Unit> {
+        return try {
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("id", request.id) // Query by "id" field
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id // Get the document ID
+                firestore.collection("requests")
+                    .document(documentId) // Use the document ID for deletion
+                    .delete()
                     .await()
                 Resource.Success(Unit)
             } else {
