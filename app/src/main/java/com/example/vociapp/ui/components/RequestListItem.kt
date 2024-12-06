@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +36,7 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
+import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 
 @Composable
@@ -38,9 +44,14 @@ fun RequestListItem(
     request: Request,
     navController: NavHostController,
     requestViewModel: RequestViewModel,
+    homelessViewModel: HomelessViewModel,
     onClick: () -> Unit
 ){
+
+    val names = homelessViewModel.homelessNames.collectAsState().value
+
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
+
 
     Surface(
         modifier = Modifier
@@ -49,6 +60,7 @@ fun RequestListItem(
             .height(100.dp),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 4.dp,
 
     ) {
 
@@ -73,6 +85,8 @@ fun RequestListItem(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
+            }else{
+                Spacer(modifier = Modifier.padding(8.dp))
             }
 
             Column(
@@ -118,11 +132,19 @@ fun RequestListItem(
                     )
                 }
                 Row (verticalAlignment = Alignment.CenterVertically) {
+
+                    val homelessName by remember(request.homelessID) {
+                        derivedStateOf {
+                            names[request.homelessID] ?: "Unknown"
+                        }
+                    }
+
                     RequestChip(
-                        text = request.homelessID.toString(),
+                        text = homelessName,
                         onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
                         imageVector = Icons.Filled.AssignmentInd
                     )
+
                 }
             }
         }

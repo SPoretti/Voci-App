@@ -92,6 +92,7 @@ fun RequestForm(
             onSearch = { /* TODO() Handle search query */ },
             placeholderText = "Cerca un senzatetto...",
             unfocusedBorderColor = Color.Transparent,
+            onClick = { /* TODO() Handle click on search bar */ }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
