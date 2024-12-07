@@ -24,18 +24,15 @@ class VolunteerViewModel @Inject constructor(
     val snackbarMessage: StateFlow<String> = _snackbarMessage
 
     private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
-    val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
+
+    private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
+    val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
 
     private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
-    val currentVolunteer: StateFlow<Volunteer?> = _currentVolunteer.asStateFlow()
 
     init {
         getVolunteerById(id = "")
     }
-
-//    fun getCurrentVolunteerId(): String? {
-//        return _currentVolunteer.value?.id
-//    }
 
     fun getVolunteerById(id: String) {
         volunteerRepository.getVolunteerById(id)
@@ -48,12 +45,24 @@ class VolunteerViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    // ritorna il valore "name" del volontario
+    //Ritorna un volontario tramite nickname
+    fun getSpecificVolunteer(nickname: String): StateFlow<Resource<Volunteer>> {
+        _specificVolunteer.value = Resource.Loading()
+        viewModelScope.launch {
+            volunteerRepository.getSpecificVolunteer(nickname)
+                .collect { result ->
+                    _specificVolunteer.value = result
+                }
+        }
+        return _specificVolunteer.asStateFlow()
+    }
+
+    // ritorna il valore "name" del volontario corrente
     fun getVolunteerName(): String? {
         return _currentVolunteer.value?.name
     }
 
-    // ritorna il volontario corrente
+    // ritorna il valore "surname" del volontario corrente
     fun getVolunteerSurname(): String? {
         return _currentVolunteer.value?.surname
     }
