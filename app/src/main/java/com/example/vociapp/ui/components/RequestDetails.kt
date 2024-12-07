@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,10 +43,11 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ){
                     Box(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                     ){
                         Text(
                             text = request.title,
@@ -59,14 +61,26 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                         )
                     }
 
+                    Box(
+                        contentAlignment = Alignment.TopEnd // Allinea il contenuto a destra
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End, // Allinea i testi a destra
+                            verticalArrangement = Arrangement.spacedBy(6.dp) // Spazio tra le righe
+                        ) {
+                            Text(
+                                text = dateTimeFormatter.formatDate(request.timestamp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
 
-                    Text(
-                        text =  dateTimeFormatter.formatDate(request.timestamp) + '\n' +
-                                dateTimeFormatter.formatTime(request.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(6.dp)
-                    )
+                            Text(
+                                text = dateTimeFormatter.formatTime(request.timestamp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
 
                 }
                 Text(
@@ -85,7 +99,7 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Created by:", fontSize = 14.sp)
+                    Text("Creato da:", fontSize = 14.sp)
                     RequestChip(
                         text = request.creatorId.toString(),
                         onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
@@ -98,7 +112,7 @@ fun RequestDetails(request: Request, onDismiss: () -> Unit, navController: NavHo
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Homeless:", fontSize = 14.sp)
+                    Text("Senzatetto:", fontSize = 14.sp)
                     RequestChip(
                         text = request.homelessID.toString(),
                         onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
