@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.ProfileInfoItem
 import com.example.vociapp.ui.navigation.Screens
 import com.google.firebase.auth.FirebaseAuth
 
@@ -53,17 +54,14 @@ fun UserProfileScreen(
     val userProfile = authViewModel.getCurrentUserProfile()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
 
-    // NON serve più
-    // val volunteerName = volunteerViewModel.getVolunteerName()
-
     // oggetto che contiene i dati del volontario corrente
-    val CurrentVolunteer = volunteerViewModel.getCurrentVolunteer()
+    val currentVolunteer = volunteerViewModel.getCurrentVolunteer()
 
-    val volunteerNickname = CurrentVolunteer?.nickname
-    val volunteerName = CurrentVolunteer?.name
-    val volunteerSurname = CurrentVolunteer?.surname
-    val volunteerEmail = CurrentVolunteer?.email
-    val volunteerPhoneNumber = CurrentVolunteer?.phone_number
+    val volunteerNickname = currentVolunteer?.nickname
+    val volunteerName = currentVolunteer?.name
+    val volunteerSurname = currentVolunteer?.surname
+    val volunteerEmail = currentVolunteer?.email
+    val volunteerPhoneNumber = currentVolunteer?.phone_number
 
     Box(
         modifier = Modifier
@@ -166,15 +164,7 @@ fun UserProfileScreen(
                                 fontWeight = FontWeight.Bold
                             )
 
-                            // division line
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                            // Username (name + surname all in one line)
-//                            ProfileInfoItem(
-//                                icon = Icons.Default.Person,
-//                                label = "Username",
-//                                value = ("$volunteerName $volunteerSurname") ?: "Unknown Volunteer"
-//                            )
 
                             // name
                             ProfileInfoItem(
@@ -204,13 +194,6 @@ fun UserProfileScreen(
                                 value = volunteerPhoneNumber ?: "Unknown Volunteer"
                             )
 
-                            // data di nascita
-//                            ProfileInfoItem(
-//                                icon = Icons.Default.CalendarMonth,
-//                                label = "Data di Nascita",
-//                                value = navController.currentBackStackEntry?.arguments?.getString("birth") ?: "Not set"
-//                            )
-
                             // Edit Profile Section
                             Button(
                                 onClick = { navController.navigate(Screens.UpdateUserProfile.route)},
@@ -225,25 +208,6 @@ fun UserProfileScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun ProfileInfoItem(icon: ImageVector, label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(text = label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = value, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }

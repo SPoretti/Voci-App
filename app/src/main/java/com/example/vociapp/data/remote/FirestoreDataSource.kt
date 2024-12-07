@@ -98,6 +98,17 @@ class FirestoreDataSource @Inject constructor(
         return volunteerDoc?.toObject(Volunteer::class.java)
     }
 
+    suspend fun getSpecificVolunteer(nickname: String): Volunteer? {
+        val volunteerNickname = firestore.collection("volunteers")
+            .whereEqualTo("nickname", nickname)
+            .get()
+            .await()
+            .documents
+            .firstOrNull()
+
+        return volunteerNickname?.toObject(Volunteer::class.java)
+    }
+
 
 
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
