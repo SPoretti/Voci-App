@@ -2,10 +2,7 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.VolunteerRepository
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
