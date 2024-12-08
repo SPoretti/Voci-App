@@ -20,9 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
 fun HomelessListItem(
@@ -56,7 +54,10 @@ fun HomelessListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
 
-            Column {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
 
                 Text(
                     text = homeless.name,
