@@ -43,10 +43,21 @@ class VolunteerViewModel @Inject constructor(
     }
 
     //Ritorna un volontario tramite nickname
-    fun getSpecificVolunteer(nickname: String): StateFlow<Resource<Volunteer>> {
+    fun getVolunteerByNickname(nickname: String): StateFlow<Resource<Volunteer>> {
         _specificVolunteer.value = Resource.Loading()
         viewModelScope.launch {
-            volunteerRepository.getSpecificVolunteer(nickname)
+            volunteerRepository.getVolunteerByNickname(nickname)
+                .collect { result ->
+                    _specificVolunteer.value = result
+                }
+        }
+        return _specificVolunteer.asStateFlow()
+    }
+
+    fun getVolunteerByEmail(email: String): StateFlow<Resource<Volunteer>> {
+        _specificVolunteer.value = Resource.Loading()
+        viewModelScope.launch {
+            volunteerRepository.getVolunteerByEmail(email)
                 .collect { result ->
                     _specificVolunteer.value = result
                 }

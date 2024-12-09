@@ -1,5 +1,6 @@
 package com.example.vociapp.data.remote
 
+import android.util.Log
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.Volunteer
@@ -8,9 +9,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.collections.get
-import kotlin.text.get
-import kotlin.text.set
 
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -98,9 +96,22 @@ class FirestoreDataSource @Inject constructor(
         return volunteerDoc?.toObject(Volunteer::class.java)
     }
 
-    suspend fun getSpecificVolunteer(nickname: String): Volunteer? {
+    suspend fun getVolunteerByNickname(nickname: String): Volunteer? {
+        Log.d("Firestore", "Eseguo la query per il nickname: $nickname") // Aggiungi log per il nickname
         val volunteerNickname = firestore.collection("volunteers")
             .whereEqualTo("nickname", nickname)
+            .get()
+            .await()
+
+        Log.d("Firestore", "Risultati query: ${volunteerNickname.size()} documenti trovati") // Log per il numero di documenti trovati
+
+        return volunteerNickname.documents
+            .firstOrNull()?.toObject(Volunteer::class.java)
+    }
+
+    suspend fun getVolunteerByEmail(email: String): Volunteer? {
+        val volunteerNickname = firestore.collection("volunteers")
+            .whereEqualTo("email", email)
             .get()
             .await()
             .documents

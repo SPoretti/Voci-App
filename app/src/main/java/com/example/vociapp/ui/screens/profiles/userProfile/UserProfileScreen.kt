@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +27,10 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileInfoItem
 import com.example.vociapp.ui.navigation.Screens
@@ -43,17 +49,28 @@ fun UserProfileScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
-    val userProfile = authViewModel.getCurrentUserProfile()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
 
-    // oggetto che contiene i dati del volontario corrente
-    val currentVolunteer = volunteerViewModel.getCurrentVolunteer()
+    val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
 
-    val volunteerNickname = currentVolunteer?.nickname
-    val volunteerName = currentVolunteer?.name
-    val volunteerSurname = currentVolunteer?.surname
-    val volunteerEmail = currentVolunteer?.email
-    val volunteerPhoneNumber = currentVolunteer?.phone_number
+    if (volunteerLoggedEmail == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Errore: Nessun utente loggato.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+        return
+    }
+
+    val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
+        .collectAsState(initial = Resource.Loading())
 
     Box(
         modifier = Modifier
@@ -96,8 +113,6 @@ fun UserProfileScreen(
                                 .padding(6.dp)
                                 .clip(CircleShape)
                                 .size(40.dp)
-
-
                         )
                     }
 
@@ -133,68 +148,82 @@ fun UserProfileScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        userProfile?.let { _ ->
+                        when (val resource = volunteerResource) {
+                            is Resource.Loading -> {
+                                CircularProgressIndicator()
+                            }
 
-                            // Profile picture placeholder
-                            Box(
-                                modifier = Modifier
-                                    .size(120.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surface),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile Picture",
-                                    modifier = Modifier.size(64.dp),
-                                    tint = MaterialTheme.colorScheme.primary
+                            is Resource.Error -> {
+                                Text(
+                                    text = "Errore: ${resource.message}",
+                                    color = MaterialTheme.colorScheme.error
                                 )
                             }
-                            Text(
-                                text = volunteerNickname?: "User",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
-                            )
 
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            is Resource.Success -> {
+                                val volunteer = resource.data
+                                // Profile picture placeholder
+                                Box(
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Profile Picture",
+                                        modifier = Modifier.size(64.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                Text(
+                                    text = volunteer?.nickname ?: "User",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                            // name
-                            ProfileInfoItem(
-                                icon = Icons.Default.Person,
-                                label = "Name",
-                                value = volunteerName ?: "Unknown Volunteer"
-                            )
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                            // surname
-                            ProfileInfoItem(
-                                icon = Icons.Default.Person,
-                                label = "Surname",
-                                value = volunteerSurname ?: "Unknown Volunteer"
-                            )
+                                // name
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Person,
+                                    label = "Name",
+                                    value = volunteer?.name ?: "Unknown Volunteer"
+                                )
 
-                            // email
-                            ProfileInfoItem(
-                                icon = Icons.Default.Email,
-                                label = "Email",
-                                value = volunteerEmail ?: "Unknown Volunteer"
-                            )
+                                // surname
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Person,
+                                    label = "Surname",
+                                    value = volunteer?.surname ?: "Unknown Volunteer"
+                                )
 
-                            // phone number
-                            ProfileInfoItem(
-                                icon = Icons.Default.Phone,
-                                label = "Phone Number",
-                                value = volunteerPhoneNumber ?: "Unknown Volunteer"
-                            )
+                                // email
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Email,
+                                    label = "Email",
+                                    value = volunteer?.email ?: "Unknown Volunteer"
+                                )
 
-                            // Edit Profile Section
-                            Button(
-                                onClick = { navController.navigate(Screens.UpdateUserProfile.route)},
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("Edit Profile")
+                                // phone number
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Phone,
+                                    label = "Phone Number",
+                                    value = volunteer?.phone_number ?: "Unknown Volunteer"
+                                )
+
+                                // Edit Profile Section
+                                Button(
+                                    onClick =
+                                    { navController.navigate(Screens.UpdateUserProfile.route) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Modifica profilo")
+                                }
                             }
                         }
                     }

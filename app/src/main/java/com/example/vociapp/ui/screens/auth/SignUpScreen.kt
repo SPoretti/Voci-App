@@ -127,21 +127,6 @@ fun SignUpScreen(
                             icon = Icons.Default.Phone
                         )
 
-//                        AuthButtonWithIcon(
-//                            value = birth.ifEmpty { "Data di nascita" },
-//                            label = "Data di nascita",
-//                            icon = Icons.Default.DateRange,
-//                            onClick = { showModal = true }
-//                        )
-//
-//                        DatePickerExamples(
-//                            showModalCheck = showModal,
-//                            onShowModalChange = { showModal = it },
-//                            onDateSelected = { selectedDate ->
-//                                birth = selectedDate
-//                            }
-//                        )
-
                         AuthTextField(
                             value = email,
                             onValueChange = { email = it },

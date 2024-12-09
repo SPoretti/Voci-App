@@ -42,7 +42,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
 
     LaunchedEffect(creatorId) {
         creatorId?.let {
-            volunteerViewModel.getSpecificVolunteer(it)
+            volunteerViewModel.getVolunteerByNickname(it)
         }
     }
 

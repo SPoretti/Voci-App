@@ -59,7 +59,7 @@ fun HomeScreen() {
                     message = message,
                     duration = SnackbarDuration.Short
                 )
-                homelessViewModel.clearSnackbarMessage() // Reset dello stato dopo aver mostrato
+                homelessViewModel.clearSnackbarMessage()
             }
         }
     }
