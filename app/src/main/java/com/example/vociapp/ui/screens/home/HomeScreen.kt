@@ -3,12 +3,20 @@ package com.example.vociapp.ui.screens.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -96,6 +104,8 @@ fun HomeScreen(
                     contentScale = ContentScale.Fit
                 )
 
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -107,19 +117,39 @@ fun HomeScreen(
                                 bottom = 8.dp,
                             ),
                         horizontalAlignment = Alignment.CenterHorizontally
-
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             SearchBar(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 onSearch = { homelessViewModel.updateSearchQuery(it)},
                                 placeholderText = "Cerca...",
                                 unfocusedBorderColor = Color.Transparent,
                                 onClick = { /* TODO() Handle click on search bar */ }
+                            )
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Button(
+                                onClick = {showAddHomelessDialog = true},
+                                modifier = Modifier
+                                    .size(56.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Add,
+                                        contentDescription = "Add homeless",
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                },
+                                contentPadding = PaddingValues(8.dp),
+                                shape = CircleShape
                             )
                         }
 
@@ -142,17 +172,6 @@ fun HomeScreen(
                         )
                     }
                 }
-            }
-
-            FloatingActionButton(
-                onClick = {showAddHomelessDialog = true},
-                elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add homeless")
             }
 
             if (showAddHomelessDialog) {

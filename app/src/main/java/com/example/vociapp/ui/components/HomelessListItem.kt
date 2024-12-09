@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
 
 @Composable
@@ -49,14 +50,13 @@ fun HomelessListItem(
 
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .padding(horizontal = 16.dp, )
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
 
             Column(
-                modifier = Modifier
-                    .weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
 
                 Text(
@@ -66,14 +66,17 @@ fun HomelessListItem(
                     ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
                 )
 
                 Text(
                     text = homeless.location,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        lineHeight = 20.sp
+                    ),
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(8.dp),
+
                 )
 
             }
