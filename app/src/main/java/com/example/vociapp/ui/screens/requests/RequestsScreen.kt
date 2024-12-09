@@ -19,9 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +49,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RequestsScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.getRequestViewModel()
@@ -69,7 +68,6 @@ fun RequestsScreen(
 
     var showAddRequestDialog by remember { mutableStateOf(false) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     // Osserva uno stato del ViewModel per i messaggi Snackbar
@@ -87,105 +85,103 @@ fun RequestsScreen(
             }
         }
     }
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-
-                    SortButtons(
-                        sortOptions = sortOptions,
-                        selectedSortOption = selectedSortOption,
-                        onSortOptionSelected = { selectedSortOption = it }
-                    )
-
-                    // History button
-                    IconButton(
-                        onClick = { navController.navigate(Screens.RequestsHistory.route) },
-                        modifier = Modifier.size(38.dp),
-                        colors = IconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Checklist,
-                            contentDescription = "Requests history",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .clip(CircleShape)
-                                .size(150.dp)
-
-                        )
-                    }
-                }
-
-                RequestList(
-                    requests = requests,
-                    filterOption = RequestStatus.TODO,
-                    sortOption = selectedSortOption,
-                    onItemClick = { request ->
-                        showDialog = true
-                        selectedRequest = request
-                    },
-                    navController = navController,
-                    requestViewModel = requestViewModel,
-                    homeLessViewModel = homelessViewModel
-                )
-            }
-
-            FloatingActionButton(
-                onClick = { showAddRequestDialog = true },
-                elevation = FloatingActionButtonDefaults.elevation(50.dp),
+            Row(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary
-
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add request")
-            }
 
-            if (showDialog) {
-                Dialog(
-                    onDismissRequest = { showDialog = false }
+                SortButtons(
+                    sortOptions = sortOptions,
+                    selectedSortOption = selectedSortOption,
+                    onSortOptionSelected = { selectedSortOption = it }
+                )
+
+                // History button
+                IconButton(
+                    onClick = { navController.navigate(Screens.RequestsHistory.route) },
+                    modifier = Modifier.size(38.dp),
+                    colors = IconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                    )
                 ) {
-                    RequestDetails(
-                        request = selectedRequest,
-                        onDismiss = { showDialog = false },
-                        navController = navController,
-                        homelessViewModel = homelessViewModel
+                    Icon(
+                        imageVector = Icons.Filled.Checklist,
+                        contentDescription = "Requests history",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .clip(CircleShape)
+                            .size(150.dp)
+
                     )
                 }
             }
 
-            if (showAddRequestDialog) {
-                AddRequestDialog(
-                    onDismiss = { showAddRequestDialog = false },
-                    onAdd = {
-                        requestViewModel.addRequest(it)
-                        showAddRequestDialog = false
-                    },
-                    authViewModel = authViewModel,
+            RequestList(
+                requests = requests,
+                filterOption = RequestStatus.TODO,
+                sortOption = selectedSortOption,
+                onItemClick = { request ->
+                    showDialog = true
+                    selectedRequest = request
+                },
+                navController = navController,
+                requestViewModel = requestViewModel,
+                homeLessViewModel = homelessViewModel
+            )
+        }
+
+        FloatingActionButton(
+            onClick = { showAddRequestDialog = true },
+            elevation = FloatingActionButtonDefaults.elevation(50.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "Add request")
+        }
+
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false }
+            ) {
+                RequestDetails(
+                    request = selectedRequest,
+                    onDismiss = { showDialog = false },
                     navController = navController,
+                    homelessViewModel = homelessViewModel
                 )
             }
         }
+
+        if (showAddRequestDialog) {
+            AddRequestDialog(
+                onDismiss = { showAddRequestDialog = false },
+                onAdd = {
+                    requestViewModel.addRequest(it)
+                    showAddRequestDialog = false
+                },
+                authViewModel = authViewModel,
+                navController = navController,
+            )
+        }
     }
+
 }

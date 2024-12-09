@@ -32,33 +32,16 @@ fun NavGraph(
     paddingValues: PaddingValues,
     snackbarHostState: SnackbarHostState
 ) {
-    val serviceLocator = LocalServiceLocator.current
-    val authState by serviceLocator.getAuthViewModel().authState.collectAsState()
-
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Authenticated -> {
-                navController.navigate(Screens.Home.route)
-            }
-            is AuthState.Unauthenticated -> {
-                navController.navigate(Screens.SignIn.route)
-            }
-
-            AuthState.Uninitialized -> {
-                // Handle uninitialized state if needed
-            }
-        }
-    }
 
     NavHost(
         navController = navController,
-        startDestination = Screens.Home.route,
+        startDestination = Screens.SignIn.route,
         modifier = Modifier.padding(paddingValues)
     ) {
-        composable(route = Screens.Home.route) { HomeScreen(navController) }
+        composable(route = Screens.Home.route) { HomeScreen(navController, snackbarHostState) }
         composable(route = Screens.SignIn.route) { SignInScreen(navController) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController) }
-        composable(route = Screens.Requests.route) { RequestsScreen(navController) }
+        composable(route = Screens.Requests.route) { RequestsScreen(navController, snackbarHostState) }
         composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen(navController) }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
