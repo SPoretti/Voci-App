@@ -49,82 +49,81 @@ fun RequestDetails(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Box(
-                        modifier = Modifier.weight(1f)
-                    ){
-                        Text(
-                            text = request.title,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            ),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
 
-
-                    Text(
-                        text =  dateTimeFormatter.formatDate(request.timestamp) + '\n' +
-                                dateTimeFormatter.formatTime(request.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(6.dp)
-                    )
-
-                }
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
                 Text(
-                    text = request.description,
-                    fontSize = 16.sp,
-                    lineHeight = 1.5.em
+                    text = request.title,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
                 )
+
                 Text(
-                    text = request.status.toString(),
-                    fontSize = 16.sp,
-                    lineHeight = 1.5.em
+                    text =  dateTimeFormatter.formatDate(request.timestamp) + '\n' +
+                            dateTimeFormatter.formatTime(request.timestamp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(6.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Created by:", fontSize = 14.sp)
-                    RequestChip(
-                        text = request.creatorId.toString(),
-                        onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
-                        imageVector = Icons.Filled.Person
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
 
-                    val homelessName by remember(request.homelessID) {
-                        derivedStateOf {
-                            names[request.homelessID] ?: "Unknown"
-                        }
+            }
+            Text(
+                text = request.description,
+                fontSize = 16.sp,
+                lineHeight = 1.5.em
+            )
+            Text(
+                text = request.status.toString(),
+                fontSize = 16.sp,
+                lineHeight = 1.5.em
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Creata da:", fontSize = 14.sp)
+                RequestChip(
+                    text = request.creatorId.toString(),
+                    onClick = { navController.navigate("profileVolontario/${request.creatorId}") },
+                    imageVector = Icons.Filled.Person
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                val homelessName by remember(request.homelessID) {
+                    derivedStateOf {
+                        names[request.homelessID] ?: "Unknown"
                     }
-
-                    Text("Homeless:", fontSize = 14.sp)
-                    RequestChip(
-                        text = homelessName,
-                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
-                        imageVector = Icons.Filled.AssignmentInd,
-                    )
                 }
+
+                Text("Ricevente:", fontSize = 14.sp)
+                RequestChip(
+                    text = homelessName,
+                    onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
+                    imageVector = Icons.Filled.AssignmentInd,
+                )
             }
         }
+
     }
 }
