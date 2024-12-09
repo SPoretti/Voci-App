@@ -62,6 +62,7 @@ fun NavGraph(
         composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen(navController) }
         composable(route = Screens.UserProfile.route) { UserProfileScreen(navController) }
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
+
         composable(
             route = "ProfileVolontario/{creatorId}",
             arguments = listOf(navArgument("creatorId") { type = NavType.StringType })
