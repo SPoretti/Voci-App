@@ -85,9 +85,7 @@ fun UserProfileScreen(
                             modifier = Modifier
                                 .padding(6.dp)
                                 .clip(CircleShape)
-                                .size(40.dp)
-
-
+                                .size(40.dp),
                         )
                     }
 
@@ -112,7 +110,6 @@ fun UserProfileScreen(
                                 .padding(6.dp)
                                 .clip(CircleShape)
                                 .size(40.dp)
-
                         )
                     }
 

@@ -17,13 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +45,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.getHomelessViewModel()
@@ -60,7 +57,6 @@ fun HomeScreen(
 
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     // Osserva uno stato del ViewModel per i messaggi Snackbar
@@ -83,106 +79,101 @@ fun HomeScreen(
         homelessViewModel.getHomelesses()
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ){ padding ->
-
-        Box(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
         ) {
-            Column(
+            Image(
+                painter = painterResource(R.drawable.voci_logo),
+                contentDescription = "App Logo",
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Image(
-                    painter = painterResource(R.drawable.voci_logo),
-                    contentDescription = "App Logo",
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Fit
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier.fillMaxWidth()
+                        .fillMaxSize()
+                        .padding(
+                            top = 0.dp,
+                            bottom = 8.dp,
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                top = 0.dp,
-                                bottom = 8.dp,
-                            ),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            SearchBar(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                onSearch = { homelessViewModel.updateSearchQuery(it)},
-                                placeholderText = "Cerca...",
-                                unfocusedBorderColor = Color.Transparent,
-                                onClick = { /* TODO() Handle click on search bar */ }
-                            )
+                        SearchBar(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            onSearch = { homelessViewModel.updateSearchQuery(it)},
+                            placeholderText = "Cerca...",
+                            unfocusedBorderColor = Color.Transparent,
+                            onClick = { /* TODO() Handle click on search bar */ }
+                        )
 
-                            Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
 
-                            Button(
-                                onClick = {showAddHomelessDialog = true},
-                                modifier = Modifier
-                                    .size(56.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                ),
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.Filled.Add,
-                                        contentDescription = "Add homeless",
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                },
-                                contentPadding = PaddingValues(8.dp),
-                                shape = CircleShape
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.padding(8.dp))
-
-                        val listToDisplay = if (searchQuery.isBlank()) {
-                            homelesses
-                        } else {
-                            filteredHomelesses
-                        }
-
-                        HomelessList(
-                            homelesses = listToDisplay,
-                            homelessViewModel = homelessViewModel,
-                            navController = navController,
-                            showPreferredIcon = true,
-                            onListItemClick = {homeless ->
-                                navController.navigate("profileHomeless/${homeless.name}")
+                        Button(
+                            onClick = {showAddHomelessDialog = true},
+                            modifier = Modifier
+                                .size(56.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ),
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "Add homeless",
+                                    modifier = Modifier.size(28.dp)
+                                )
                             },
+                            contentPadding = PaddingValues(8.dp),
+                            shape = CircleShape
                         )
                     }
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    val listToDisplay = if (searchQuery.isBlank()) {
+                        homelesses
+                    } else {
+                        filteredHomelesses
+                    }
+
+                    HomelessList(
+                        homelesses = listToDisplay,
+                        homelessViewModel = homelessViewModel,
+                        navController = navController,
+                        showPreferredIcon = true,
+                        onListItemClick = {homeless ->
+                            navController.navigate("profileHomeless/${homeless.name}")
+                        },
+                    )
                 }
             }
+        }
 
-            if (showAddHomelessDialog) {
-                AddHomelessDialog(
-                    onDismiss = { showAddHomelessDialog = false },
-                    onAdd = {
-                        homelessViewModel.addHomeless(it)
-                        showAddHomelessDialog = false
-                    }
-                )
-            }
+        if (showAddHomelessDialog) {
+            AddHomelessDialog(
+                onDismiss = { showAddHomelessDialog = false },
+                onAdd = {
+                    homelessViewModel.addHomeless(it)
+                    showAddHomelessDialog = false
+                }
+            )
         }
     }
 }
