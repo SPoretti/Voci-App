@@ -37,7 +37,7 @@ fun BottomBar(navController: NavHostController) {
     val currentRoute = currentRoute(navController)
 
     NavigationBar(
-        containerColor = ColorPalette.BackgroundNavBarColor,
+        containerColor = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .offset(y = 0.dp)
     ) {
@@ -50,20 +50,26 @@ fun BottomBar(navController: NavHostController) {
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(
-                                color =
-                                if (currentRoute == screen.route)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.inverseOnSurface
+                                color = MaterialTheme.colorScheme.surface
                             )
                             .padding(10.dp)
                     ){
-                        Icon(screen.icon, contentDescription = screen.title)
+                        Icon(
+                            screen.icon,
+                            contentDescription = screen.title,
+                        )
                     }
                      },
                 label = {
                     Text(screen.title,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight =
+                                if (currentRoute == screen.route)
+                                    FontWeight.ExtraBold
+                                else
+                                    FontWeight.Normal,
+                            fontSize = 16.sp
+                        )
                     )},
                 selected = currentRoute == screen.route,
                 onClick = {
@@ -82,9 +88,9 @@ fun BottomBar(navController: NavHostController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    unselectedTextColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    selectedIconColor = MaterialTheme.colorScheme.inversePrimary,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    selectedTextColor = MaterialTheme.colorScheme.secondary,
+                    selectedIconColor = MaterialTheme.colorScheme.secondary,
                     unselectedIconColor = MaterialTheme.colorScheme.onSurface,
                     indicatorColor = Color.Transparent
                 )

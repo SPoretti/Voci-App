@@ -19,16 +19,16 @@ object ColorPalette {
     val OnSurfaceLight = Color(0xFF212121)
     val OutlineLight = Color(0xFFFFFFFF)
 
-    val BackgroundNavBarColor = Color(0xFF7BABFF)
-    val BackgroundIconColor = Color(0xFFD7E6FF)
-    val IconColor = Color(0xFF4A4459)
-    val SelectedIconColor = Color(0xFF377CF8)
+//    val BackgroundNavBarColor = Color(0xFF7BABFF)
+//    val BackgroundIconColor = Color(0xFFD7E6FF)
+//    val IconColor = Color(0xFF4A4459)
+//    val SelectedIconColor = Color(0xFF377CF8)
 
     // Dark Theme
-    val PrimaryDark = Color(0xFF6A97FF) // Lightened blue for better contrast
+    val PrimaryDark = Color(0xFF035DFB) // Lightened blue for better contrast
     val OnPrimaryDark = Color(0xFF000000)
     val PrimaryContainerDark = Color(0xFF148AFF)// TODO: choose better color if needed
-    val SecondaryDark = Color(0xFFFF8533) // Lightened orange for better contrast
+    val SecondaryDark = Color(0xFFFF5700) // Lightened orange for better contrast
     val OnSecondaryDark = Color(0xFFFFFFFF)
     val SecondaryContainerDark = Color(0xFFFF6B00)
     val ErrorDark = Color(0xFFFF6B6B)
@@ -38,4 +38,6 @@ object ColorPalette {
     val SurfaceDark = Color(0xFF1E1E1E)
     val OnSurfaceDark = Color(0xFFE0E0E0)
     val OutlineDark = Color(0xFF444444)
+    //0xFF6A97FF
+    //0xFFFF8533
 }
