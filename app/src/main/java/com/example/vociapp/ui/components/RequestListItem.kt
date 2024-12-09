@@ -61,11 +61,12 @@ fun RequestListItem(
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp,
-
     ) {
 
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .fillMaxSize(),
         ) {
 
             if (request.status == RequestStatus.TODO) {
@@ -85,8 +86,6 @@ fun RequestListItem(
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-            }else{
-                Spacer(modifier = Modifier.padding(8.dp))
             }
 
             Column(
@@ -100,26 +99,22 @@ fun RequestListItem(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
-                    Box(
+                    Text(
+                        text = request.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        ),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f)
-                    ){
-                        Text(
-                            text = request.title,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            ),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    )
 
                     Text(
                         text = dateTimeFormatter.formatDate(request.timestamp),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(6.dp)
                     )
                 }
                 Row{
