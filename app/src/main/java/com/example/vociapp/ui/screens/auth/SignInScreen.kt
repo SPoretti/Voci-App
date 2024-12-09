@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
@@ -41,26 +45,64 @@ import com.example.vociapp.ui.viewmodels.AuthResult
 fun SignInScreen(
     navController: NavHostController
 ) {
+    // var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isSigningIn by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val authViewModel = serviceLocator.getAuthViewModel()
+
+    fun checkPassword(firstCredential: String) {
+        if(password.isEmpty()){
+            showError = true
+            errorMessage = "La password non può essere vuota"
+            isSigningIn = false
+        }
+        else{
+            TODO("fare la verifica della password")
+        }
+    }
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
-            val result = authViewModel.signInWithEmailAndPassword(email, password)
-            if (result is AuthResult.Failure) {
+            showError = false
+            errorMessage = ""
+
+            if (password.isEmpty()) {
                 showError = true
-                errorMessage = result.message
-            } else {
-                navController.navigate(Screens.Home.route) {
-                    popUpTo(Screens.SignIn.route) { inclusive = true }
-                }
+                errorMessage = "La password non può essere vuota"
+                isSigningIn = false
+                return@LaunchedEffect
             }
-            isSigningIn = false
+
+            if (email.isEmpty()) {
+                showError = true
+                errorMessage = "Inserisci l'email"
+                isSigningIn = false
+                return@LaunchedEffect
+            }
+
+            try {
+                val result = authViewModel.signInWithEmailAndPassword(email, password)
+                if (result is AuthResult.Failure) {
+                    showError = true
+                    errorMessage = result.message
+                    } else {
+                            volunteerViewModel.getVolunteerByEmail(email)
+                            navController.navigate(Screens.Home.route) {
+                                popUpTo(Screens.SignIn.route) { inclusive = true }
+                            }
+                            isSigningIn = false
+                        }
+            } catch (e: Exception) {
+                Log.d("AuthFlow", "Errore imprevisto: ${e.localizedMessage}")
+                showError = true
+                errorMessage = "Errore imprevisto: ${e.localizedMessage}"
+                isSigningIn = false
+            }
         }
     }
 
@@ -77,7 +119,7 @@ fun SignInScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "Sign In",
+                "Accedi",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -98,6 +140,19 @@ fun SignInScreen(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Text(
+                        text = "Inserisci l'email",
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
+
+//                    AuthTextField(
+//                        value = nickname,
+//                        onValueChange = { nickname = it },
+//                        label = "Nickname",
+//                        icon = Icons.Default.Person
+//                    )
+
                     AuthTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -125,7 +180,7 @@ fun SignInScreen(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
-                            Text("Sign In", modifier = Modifier.padding(vertical = 8.dp))
+                            Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
                         }
                     }
 
@@ -134,7 +189,7 @@ fun SignInScreen(
                             errorMessage,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally)
                         )
                     }
                 }
@@ -145,7 +200,7 @@ fun SignInScreen(
             TextButton(
                 onClick = { navController.navigate("signUp") }
             ) {
-                Text("Don't have an account? Sign Up", color = MaterialTheme.colorScheme.primary)
+                Text("Non hai un account? Registrati!", color = MaterialTheme.colorScheme.primary)
             }
         }
     }

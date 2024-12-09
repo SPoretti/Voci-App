@@ -39,6 +39,7 @@ fun RequestsHistoryScreen(
     val requestViewModel = serviceLocator.getRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
 
+
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
