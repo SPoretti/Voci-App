@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomelessViewModel @Inject constructor(
-    private val homelessRepository: HomelessRepository
+    private val homelessRepository: HomelessRepository,
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
@@ -75,6 +75,12 @@ class HomelessViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    fun getHomelesses(userId: String) {
+        viewModelScope.launch {
+            //TODO()
+        }
+    }
+
     suspend fun getHomeless(homelessID: String): Homeless? {
         return homelessRepository.getHomeless(homelessID)
     }
@@ -114,6 +120,8 @@ class HomelessViewModel @Inject constructor(
                 }
         }
     }
+
+
 
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""

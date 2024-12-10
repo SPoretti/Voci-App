@@ -26,8 +26,13 @@ class AuthViewModel : ViewModel() {
         }
     }
 
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
+
     init {
-        auth.addAuthStateListener(authStateListener)
+        auth.addAuthStateListener { firebaseAuth ->
+            _currentUserId.value = firebaseAuth.currentUser?.uid
+        }
     }
 
     override fun onCleared() {
