@@ -10,11 +10,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.util.Resource
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.state.HomelessItemUiState
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
@@ -27,6 +33,12 @@ fun HomelessList(
     selectedHomeless: Homeless? = null,
     modifier: Modifier = Modifier
 ) {
+
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
+    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val userId = volunteerViewModel.specificVolunteer.value.data?.id ?: ""
 
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
@@ -46,8 +58,16 @@ fun HomelessList(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(homelesses.data.orEmpty()) { homeless ->
+                        var homelessState by remember { mutableStateOf(HomelessItemUiState(homeless = homeless)) }
+
+                        LaunchedEffect(key1 = homeless) {
+                            homelessState = homelessState.copy(
+                                isPreferred = volunteerViewModel.isPreferred(userId, homeless.id)
+                            )
+                        }
+
                         HomelessListItem(
-                            homeless = homeless,
+                            homelessState = homelessState, // Pass homelessState instead of homeless
                             showPreferredIcon = showPreferredIcon,
                             onClick = onListItemClick,
                             isSelected = (homeless.id == selectedHomeless?.id)

@@ -2,6 +2,7 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class VolunteerViewModel @Inject constructor(
-    private val volunteerRepository: VolunteerRepository
+    private val volunteerRepository: VolunteerRepository,
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
@@ -107,6 +108,32 @@ class VolunteerViewModel @Inject constructor(
 
                 is Resource.Loading -> TODO()
             }
+        }
+    }
+
+
+
+    suspend fun isPreferred(userId: String, homelessId: String): Boolean {
+        val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
+        if (preferredHomelessIds != null) {
+            return preferredHomelessIds.preferredHomelessIds.contains(homelessId) ?: false
+        }
+        return false
+
+    }
+
+    fun toggleHomelessPreference(userId: String, homelessId: String) {
+        viewModelScope.launch {
+            val userPreferences = volunteerRepository.getUserPreferences(userId)
+            val updatedPreferredIds = if (userPreferences?.preferredHomelessIds?.contains(homelessId) == true) {
+                userPreferences?.preferredHomelessIds?.minus(homelessId)
+            } else {
+                userPreferences?.preferredHomelessIds?.plus(homelessId)
+            }
+            if (updatedPreferredIds != null) {
+                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+            }
+            // Update the UI state (e.g., using a StateFlow) to reflect the preference change
         }
     }
 

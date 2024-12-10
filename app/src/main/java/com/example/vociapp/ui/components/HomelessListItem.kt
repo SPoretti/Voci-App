@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,20 +23,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.state.HomelessItemUiState
 
 @Composable
 fun HomelessListItem(
-    homeless: Homeless,
+    homelessState: HomelessItemUiState,
     showPreferredIcon: Boolean,
     onClick:(Homeless) -> Unit,
     isSelected: Boolean = false,
 ){
 
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.primaryContainer // Or any desired color
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val serviceLocator = LocalServiceLocator.current
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val userId = serviceLocator.getAuthViewModel().currentUserId
+
+    val backgroundColor =
+        if (isSelected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
 
     Surface(
         modifier = Modifier
@@ -43,14 +51,14 @@ fun HomelessListItem(
             .height(80.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        onClick = {onClick(homeless)},
+        onClick = {onClick(homelessState.homeless)},
         shadowElevation = 4.dp,
         color = backgroundColor,
     ){
 
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, )
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
@@ -60,7 +68,7 @@ fun HomelessListItem(
             ) {
 
                 Text(
-                    text = homeless.name,
+                    text = homelessState.homeless.name,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -70,7 +78,7 @@ fun HomelessListItem(
                 )
 
                 Text(
-                    text = homeless.location,
+                    text = homelessState.homeless.location,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         lineHeight = 20.sp
                     ),
@@ -83,11 +91,18 @@ fun HomelessListItem(
 
             if (showPreferredIcon){
                 IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    onClick = { volunteerViewModel.toggleHomelessPreference(
+                        userId.value!!,
+                        homelessState.homeless.id
+                    ) },
+                    modifier = Modifier.align(Alignment.CenterVertically),
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.StarOutline,
+                        imageVector =
+                        if (homelessState.isPreferred)
+                            Icons.Filled.Star
+                        else
+                            Icons.Filled.StarOutline,
                         contentDescription = "Preferred icon",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)

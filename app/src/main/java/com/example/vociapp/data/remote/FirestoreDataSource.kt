@@ -3,6 +3,7 @@ package com.example.vociapp.data.remote
 import android.util.Log
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.types.UserPreferences
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
@@ -190,6 +191,29 @@ class FirestoreDataSource @Inject constructor(
             // Handle exception, e.g., log the error
             // and return null or throw an exception
             null
+        }
+    }
+
+    suspend fun getUserPreferences(userId: String): Resource<UserPreferences> {
+        return try {
+            val documentSnapshot = firestore.collection("userPreferences").document(userId).get().await()
+            if (documentSnapshot.exists()) {
+                Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
+            } else {
+                Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+        return try {
+            firestore.collection("userPreferences").document(userId)
+                .set(mapOf("preferredHomelessIds" to preferredHomelessIds)).await()
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 
