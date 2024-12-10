@@ -205,7 +205,9 @@ fun SignUpScreen(
                 errorMessage = result.message
             } else {
                 val id: String = UUID.randomUUID().toString()
-                val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+                val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
+//              val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+
                 volunteerViewModel.addVolunteer(volunteer)
                 volunteerViewModel.getVolunteerById(id)
 
