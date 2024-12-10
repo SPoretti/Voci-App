@@ -7,7 +7,7 @@ data class Volunteer(
     var name: String = "",
     var surname: String = "",
     var nickname: String = "",
-    var password: String = "",
+//    var password: String = "",
     var phone_number: String = "",
     var email: String = "",
     //val needs: List<Request> = emptyList(),
