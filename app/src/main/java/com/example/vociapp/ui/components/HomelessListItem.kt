@@ -1,7 +1,6 @@
 package com.example.vociapp.ui.components
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,9 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.state.HomelessItemUiState
 
@@ -44,6 +43,10 @@ fun HomelessListItem(
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val userId = volunteerViewModel.currentUser.value?.id
+    val userPreferences by volunteerViewModel.userPreferences.collectAsState()
+    val isPreferred by remember(userPreferences, homelessState.homeless.id) {
+        derivedStateOf { userPreferences?.contains(homelessState.homeless.id) ?: false }
+    }
 
 //    val volunteerResource by volunteerViewModel
 //        .getVolunteerByEmail(volunteerLoggedEmail)
@@ -110,13 +113,13 @@ fun HomelessListItem(
             if (showPreferredIcon){
                 IconButton(
                     onClick = {
-                        volunteerViewModel.toggleHomelessPreference(userId ?: "", homelessState.homeless.id)
-                        },
+                        volunteerViewModel.toggleHomelessPreference(userId!!, homelessState.homeless.id)
+                    },
                     modifier = Modifier.align(Alignment.CenterVertically),
                 ) {
                     Icon(
                         imageVector =
-                        if (homelessState.isPreferred)
+                        if (isPreferred)
                             Icons.Filled.Star
                         else
                             Icons.Filled.StarOutline,

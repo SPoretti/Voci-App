@@ -74,22 +74,13 @@ class VolunteerRepository @Inject constructor(
         return firestoreDataSource.getVolunteerIdByEmail(email)
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>) {
-        when (val result = firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)) {
-            is Resource.Success -> {
-                // Preference update successful
-            }
-            is Resource.Error -> throw Exception(result.message)
-            else -> throw IllegalStateException("Unexpected Resource state")
-        }
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+        return firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)
+
     }
 
-    suspend fun getUserPreferences(userId: String): UserPreferences? {
-        return when (val result = firestoreDataSource.getUserPreferences(userId)) {
-            is Resource.Success -> result.data
-            is Resource.Error -> throw Exception(result.message)
-            else -> throw IllegalStateException("Unexpected Resource state")
-        }
+    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
+        return firestoreDataSource.getUserPreferences(userId)
     }
 
 

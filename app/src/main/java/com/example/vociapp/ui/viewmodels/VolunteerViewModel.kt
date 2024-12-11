@@ -33,13 +33,21 @@ class VolunteerViewModel @Inject constructor(
     private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
     val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
 
+    private val _userPreferences = MutableStateFlow<List<String>?>(null)
+    val userPreferences: StateFlow<List<String>?> = _userPreferences.asStateFlow()
+
+    private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
+    val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
+
     init {
         firebaseAuth.addAuthStateListener { auth ->
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
                 viewModelScope.launch {
                     val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
-                    _currentUser.value = Volunteer(email = firebaseUser.email!!,id = volunteerId!!) // Update MutableStateFlow
+                    _currentUser.value = Volunteer(email = firebaseUser.email!!,id = volunteerId!!)
+                    fetchUserPreferences(volunteerId)
+                    //_userPreferences.value = volunteerRepository.getUserPreferences(volunteerId).data// Update MutableStateFlow
                 }
             } else {
                 _currentUser.value = null // Update MutableStateFlow
@@ -134,17 +142,17 @@ class VolunteerViewModel @Inject constructor(
 
 
 
-    fun isPreferred(userId: String, homelessId: String): Boolean {
-        var result = false
-        viewModelScope.launch {
-            val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
-            if (preferredHomelessIds != null) {
-                result = preferredHomelessIds.preferredHomelessIds.contains(homelessId) ?: false
-            }
-        }
-        return result
-
-    }
+//    fun isPreferred(userId: String, homelessId: String): Boolean {
+//        var result = false
+//        viewModelScope.launch {
+//            val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
+//            if (preferredHomelessIds != null) {
+//                result = preferredHomelessIds.contains(homelessId) ?: false
+//            }
+//        }
+//        return result
+//
+//    }
 
 //    fun toggleHomelessPreference(userId: String, homelessId: String) {
 //        viewModelScope.launch {
@@ -161,18 +169,52 @@ class VolunteerViewModel @Inject constructor(
 //        }
 //    }
 
+//    fun toggleHomelessPreference(userId: String, homelessId: String) {
+//        viewModelScope.launch {
+//            val userPreferences = volunteerRepository.getUserPreferences(userId)
+//            if (userPreferences != null){
+//                val updatedPreferredIds = if (homelessId in userPreferences) {
+//                    userPreferences - homelessId
+//                } else {
+//                    userPreferences + homelessId
+//                }
+//                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+//            }
+//            // Update UI state to reflect the change
+//
+//        }
+//    }
+
+    fun fetchUserPreferences(userId: String) {
+        viewModelScope.launch {
+            _userPreferencesResource.value = Resource.Loading() // Optional: Show loading state
+            val result = volunteerRepository.getUserPreferences(userId)
+            _userPreferences.value = result.data // Update UI state with result
+        }
+    }
+
     fun toggleHomelessPreference(userId: String, homelessId: String) {
         viewModelScope.launch {
-            val userPreferences = volunteerRepository.getUserPreferences(userId)
-            if (userPreferences != null){
-                val updatedPreferredIds = if (homelessId in userPreferences.preferredHomelessIds) {
-                    userPreferences.preferredHomelessIds - homelessId
+            val userPreferencesResource = volunteerRepository.getUserPreferences(userId)
+            if (userPreferencesResource is Resource.Success) {
+                val userPreferences = userPreferencesResource.data!!
+                val updatedPreferredIds = if (homelessId in userPreferences) {
+                    userPreferences - homelessId
                 } else {
-                    userPreferences.preferredHomelessIds + homelessId
+                    userPreferences + homelessId
                 }
-                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+                viewModelScope.launch { // Launch a separate coroutine for updating preferences
+                    val updateResult = volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+                    if (updateResult is Resource.Success) {
+                        _userPreferences.value = updatedPreferredIds // Emit new value to MutableStateFlow
+                    } else if (updateResult is Resource.Error) {
+                        // Handle error, e.g., show a Snackbar message
+                        // You might want to revert the UI state here if the update fails
+                    }
+                }
+            } else if (userPreferencesResource is Resource.Error) {
+                // Handle error, e.g., show a Snackbar message
             }
-            // Update UI state to reflect the change
         }
     }
 

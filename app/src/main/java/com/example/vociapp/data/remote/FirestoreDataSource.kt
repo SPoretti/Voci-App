@@ -210,8 +210,33 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getUserPreferences(userId: String): Resource<UserPreferences> {
-        return try {
+//    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
+//        try {
+//            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
+//            if (volunteerQuery.documents.isNotEmpty()) {
+//                val volunteerDocId = volunteerQuery.documents[0].id
+//                val documentSnapshot = firestore
+//                    .collection("volunteers")
+//                    .document(volunteerDocId)
+//                    .collection("userPreferences")
+//                    .document("preferences")
+//                    .get()
+//                    .await()
+//                if (documentSnapshot.exists()) {
+//                    return Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
+//                } else {
+//                    return Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
+//                }
+//            } else {
+//                return Resource.Error("Volunteer not found12$userId" + "3")
+//            }
+//        } catch (e: Exception) {
+//            return Resource.Error(e.message ?: "An unknown error occurred")
+//        }
+//    }
+
+    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
+        try {
             val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
                 val volunteerDocId = volunteerQuery.documents[0].id
@@ -223,20 +248,21 @@ class FirestoreDataSource @Inject constructor(
                     .get()
                     .await()
                 if (documentSnapshot.exists()) {
-                    Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
+                    val preferredItemIds = documentSnapshot.get("preferredItemIds") as? List<String> ?: emptyList()
+                    return Resource.Success(preferredItemIds)
                 } else {
-                    Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
+                    return Resource.Success(emptyList()) // Return empty list if preferences not found
                 }
             } else {
-                Resource.Error("Volunteer not found12$userId" + "3")
+                return Resource.Error("Volunteer not found")
             }
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
+            return Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 
     suspend fun updateUserPreferences(userId: String, preferredItemIds: List<String>): Resource<Unit> {
-        return try {
+        try {
             val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
                 val volunteerDocId = volunteerQuery.documents[0].id
@@ -247,12 +273,12 @@ class FirestoreDataSource @Inject constructor(
                     .document("preferences")
                     .set(mapOf("preferredItemIds" to preferredItemIds))
                     .await()
-                Resource.Success(Unit)
+                return Resource.Success(Unit)
             } else {
-                Resource.Error("Volunteer not found1")
+                return Resource.Error("Volunteer not found1")
             }
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
+            return Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 
