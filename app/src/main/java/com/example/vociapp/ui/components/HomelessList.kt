@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -39,10 +38,18 @@ fun HomelessList(
     val homelessViewModel = serviceLocator.getHomelessViewModel()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val userId = volunteerViewModel.specificVolunteer.value.data?.id ?: ""
+    val homelessState by remember { mutableStateOf(HomelessItemUiState(Homeless())) }
+
 
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
     }
+
+//    LaunchedEffect(key1 = homeless) {
+//        homelessState = homelessState.copy(
+//            isPreferred = volunteerViewModel.isPreferred(userId, homeless.id)
+//        )
+//    }
 
     Box(modifier = modifier.fillMaxWidth()) {
 
@@ -58,13 +65,7 @@ fun HomelessList(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(homelesses.data.orEmpty()) { homeless ->
-                        var homelessState by remember { mutableStateOf(HomelessItemUiState(homeless = homeless)) }
-
-                        LaunchedEffect(key1 = homeless) {
-                            homelessState = homelessState.copy(
-                                isPreferred = volunteerViewModel.isPreferred(userId, homeless.id)
-                            )
-                        }
+                        val homelessState by remember { mutableStateOf(HomelessItemUiState(homeless = homeless, isPreferred = false)) }
 
                         HomelessListItem(
                             homelessState = homelessState, // Pass homelessState instead of homeless

@@ -75,12 +75,6 @@ class HomelessViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun getHomelesses(userId: String) {
-        viewModelScope.launch {
-            //TODO()
-        }
-    }
-
     suspend fun getHomeless(homelessID: String): Homeless? {
         return homelessRepository.getHomeless(homelessID)
     }
