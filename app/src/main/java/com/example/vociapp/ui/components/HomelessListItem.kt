@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,11 +28,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.state.HomelessItemUiState
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomelessListItem(
     homelessState: HomelessItemUiState,
@@ -42,24 +43,17 @@ fun HomelessListItem(
 
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
-    if (volunteerLoggedEmail == null){
-        Log.d("hilter45", "121212volunteerLoggedEmail: $volunteerLoggedEmail")
-        return
-    }
+    val userId = volunteerViewModel.currentUser.value?.id
 
-    val volunteerResource by volunteerViewModel
-        .getVolunteerByEmail(volunteerLoggedEmail)
-        .collectAsState(initial = Resource.Loading())
-
-    var userId = ""
-
-    LaunchedEffect(volunteerResource) {
-        if (volunteerResource is Resource.Success) {
-            userId = volunteerResource.data?.id ?: "nullo"
-        }
-    }
+//    val volunteerResource by volunteerViewModel
+//        .getVolunteerByEmail(volunteerLoggedEmail)
+//        .collectAsState(initial = Resource.Loading())
+//
+//    LaunchedEffect(volunteerResource) {
+//        if (volunteerResource is Resource.Success) {
+//            userId = volunteerResource.data?.id ?: "nullo"
+//        }
+//    }
 
     val backgroundColor =
         if (isSelected) {

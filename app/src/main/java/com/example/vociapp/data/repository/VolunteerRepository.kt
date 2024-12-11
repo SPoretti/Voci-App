@@ -70,6 +70,10 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
+    suspend fun getVolunteerIdByEmail(email: String): String? {
+        return firestoreDataSource.getVolunteerIdByEmail(email)
+    }
+
     suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>) {
         when (val result = firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)) {
             is Resource.Success -> {
