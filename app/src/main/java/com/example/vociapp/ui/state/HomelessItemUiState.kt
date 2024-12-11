@@ -4,5 +4,5 @@ import com.example.vociapp.data.types.Homeless
 
 data class HomelessItemUiState (
     val homeless: Homeless,
-    val isPreferred: Boolean = false,
+    var isPreferred: Boolean = false,
 )
