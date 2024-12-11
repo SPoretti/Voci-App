@@ -15,17 +15,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.util.Resource
+import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
+import com.example.vociapp.ui.components.keyboardAsState
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
 
@@ -45,7 +45,6 @@ import com.example.vociapp.ui.viewmodels.AuthResult
 fun SignInScreen(
     navController: NavHostController
 ) {
-    // var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -55,118 +54,103 @@ fun SignInScreen(
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val authViewModel = serviceLocator.getAuthViewModel()
 
-    fun checkPassword(firstCredential: String) {
-        if(password.isEmpty()){
-            showError = true
-            errorMessage = "La password non può essere vuota"
-            isSigningIn = false
-        }
-        else{
-            TODO("fare la verifica della password")
-        }
-    }
-
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
-            showError = false
-            errorMessage = ""
-
-            if (password.isEmpty()) {
-                showError = true
-                errorMessage = "La password non può essere vuota"
-                isSigningIn = false
-                return@LaunchedEffect
-            }
-
-            if (email.isEmpty()) {
-                showError = true
-                errorMessage = "Inserisci l'email"
-                isSigningIn = false
-                return@LaunchedEffect
-            }
-
             try {
-                val result = authViewModel.signInWithEmailAndPassword(email, password)
-                if (result is AuthResult.Failure) {
+                showError = false
+                errorMessage = ""
+
+                if (password.isEmpty() || email.isEmpty()) {
                     showError = true
-                    errorMessage = result.message
+                    errorMessage = "Compila entrambi i campi"
+                    return@LaunchedEffect
+                } else {
+                    val result = authViewModel.signInWithEmailAndPassword(email, password)
+                    Log.d("AuthFlow", "Risultato dell'autenticazione: $result, email: $email, password: $password")
+                    if (result is AuthResult.Failure) {
+                        showError = true
+                        errorMessage = "Email o password errate"
                     } else {
-                            volunteerViewModel.getVolunteerByEmail(email)
-                            navController.navigate(Screens.Home.route) {
-                                popUpTo(Screens.SignIn.route) { inclusive = true }
-                            }
-                            isSigningIn = false
+                        volunteerViewModel.getVolunteerByEmail(email)
+                        navController.navigate(Screens.Home.route) {
+                            popUpTo(Screens.SignIn.route) { inclusive = true }
                         }
+                    }
+                }
             } catch (e: Exception) {
                 Log.d("AuthFlow", "Errore imprevisto: ${e.localizedMessage}")
                 showError = true
                 errorMessage = "Errore imprevisto: ${e.localizedMessage}"
+            } finally {
                 isSigningIn = false
             }
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                "Accedi",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+    if (showError) {
+        LaunchedEffect(showError && errorMessage.isNotEmpty()) {
+            SnackbarManager.showSnackbar(errorMessage)
+            showError = false
+        }
+    }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
+    Scaffold(
+        snackbarHost = { SnackbarManager.CustomSnackbarHost() },
+        content = { padding ->
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(16.dp)
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Inserisci l'email",
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        "Accedi",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
 
+                    Spacer(modifier = Modifier.height(32.dp))
 
-//                    AuthTextField(
-//                        value = nickname,
-//                        onValueChange = { nickname = it },
-//                        label = "Nickname",
-//                        icon = Icons.Default.Person
-//                    )
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "Inserisci email e password",
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
 
-                    AuthTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = "Email",
-                        icon = Icons.Default.Email
-                    )
+                            AuthTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                label = "Email",
+                                icon = Icons.Default.Email
+                            )
 
-                    AuthTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = "Password",
-                        icon = Icons.Default.Lock,
-                        isPassword = true
-                    )
+                            AuthTextField(
+                                value = password,
+                                onValueChange = { password = it },
+                                label = "Password",
+                                icon = Icons.Default.Lock,
+                                isPassword = true
+                            )
 
                     Button(
                         onClick = { isSigningIn = true },
@@ -184,25 +168,20 @@ fun SignInScreen(
                         }
                     }
 
-                    if (showError) {
-                        Text(
-                            errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally)
-                        )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    TextButton(
+                        onClick = { navController.navigate("signUp") }
+                    ) {
+                        Text("Non hai un account? Registrati!", color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TextButton(
-                onClick = { navController.navigate("signUp") }
-            ) {
-                Text("Non hai un account? Registrati!", color = MaterialTheme.colorScheme.primary)
-            }
         }
-    }
+    )
 }
+
 
