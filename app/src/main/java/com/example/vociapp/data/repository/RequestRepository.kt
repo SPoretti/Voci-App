@@ -28,4 +28,8 @@ class RequestRepository @Inject constructor(
     suspend fun deleteRequest(request: Request): Resource<Unit> {
         return firestoreDataSource.deleteRequest(request)
     }
+
+    suspend fun getRequestById(requestId: String): Resource<Request> {
+        return firestoreDataSource.getRequestById(requestId)
+    }
 }

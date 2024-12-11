@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,8 +42,7 @@ fun RequestListItem(
     request: Request,
     navController: NavHostController,
     requestViewModel: RequestViewModel,
-    homelessViewModel: HomelessViewModel,
-    onClick: () -> Unit
+    homelessViewModel: HomelessViewModel
 ){
 
     val names = homelessViewModel.homelessNames.collectAsState().value
@@ -54,7 +53,7 @@ fun RequestListItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable { onClick(navController, request) }
             .height(100.dp),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
@@ -142,5 +141,9 @@ fun RequestListItem(
             }
         }
     }
+}
+
+fun onClick(navController: NavHostController, request: Request) {
+    navController.navigate("requestDetailsScreen/${request.id}")
 }
 

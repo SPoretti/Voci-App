@@ -193,4 +193,22 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun getRequestById(requestId: String): Resource<Request> {
+        return try {
+            val documentSnapshot = firestore.collection("requests")
+                .document(requestId) // Specify the document ID
+                .get()
+                .await()
+
+            if (documentSnapshot.exists()) {
+                val request = documentSnapshot.toObject(Request::class.java)!!
+                Resource.Success(request)
+            } else {
+                Resource.Error("Request not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
 }

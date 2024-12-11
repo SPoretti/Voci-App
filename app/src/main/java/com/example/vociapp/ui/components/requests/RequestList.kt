@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -44,7 +44,6 @@ fun RequestList(
     requests: Resource<List<Request>>,
     filterOption: RequestStatus,
     sortOption: SortOption,
-    onItemClick: (Request) -> Unit,
     navController: NavHostController,
     requestViewModel: RequestViewModel,
     homeLessViewModel: HomelessViewModel,
@@ -131,9 +130,7 @@ fun RequestList(
                                     navController,
                                     requestViewModel,
                                     homeLessViewModel
-                                ) {
-                                    onItemClick(request)
-                                }
+                                )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                         }

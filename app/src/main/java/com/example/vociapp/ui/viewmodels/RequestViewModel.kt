@@ -6,9 +6,14 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.Resource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -24,6 +29,9 @@ class RequestViewModel @Inject constructor(
     private val _requests = MutableStateFlow<Resource<List<Request>>>(Resource.Loading())
     val requests: StateFlow<Resource<List<Request>>> = _requests.asStateFlow()
 
+    private val _requestById = MutableStateFlow<Resource<Request>>(Resource.Loading())
+    val requestById: StateFlow<Resource<Request>> = _requestById.asStateFlow()
+
     init {
         getRequests()
     }
@@ -34,6 +42,14 @@ class RequestViewModel @Inject constructor(
                 _requests.value = result
             }
             .launchIn(viewModelScope)
+    }
+
+    fun getRequestById(requestId: String): Flow<Resource<Request>> = flow {
+        emit(Resource.Loading())
+
+        val result = requestRepository.getRequestById(requestId)
+
+        emit(result)
     }
 
     fun addRequest(request: Request) {

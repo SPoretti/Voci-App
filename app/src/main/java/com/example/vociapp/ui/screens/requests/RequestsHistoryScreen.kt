@@ -25,8 +25,8 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestList
+import com.example.vociapp.ui.components.requests.RequestDetails
+import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.SortButtons
 
 @Composable
@@ -94,10 +94,6 @@ fun RequestsHistoryScreen(
                 requests = requests,
                 filterOption = RequestStatus.DONE,
                 sortOption = selectedSortOption,
-                onItemClick = { request ->
-                    showDialog = true
-                    selectedRequest = request
-                },
                 navController = navController,
                 requestViewModel = requestViewModel,
                 homeLessViewModel = homelessViewModel
