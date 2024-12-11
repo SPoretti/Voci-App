@@ -37,7 +37,7 @@ class AuthViewModel : ViewModel() {
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): AuthResult {
         return try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
+            auth.signInWithEmailAndPassword(email, password).await()
             AuthResult.Success
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "An unknown error occurred")
@@ -46,7 +46,7 @@ class AuthViewModel : ViewModel() {
 
     suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthResult {
         return try {
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            auth.createUserWithEmailAndPassword(email, password).await()
             AuthResult.Success
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "An unknown error occurred")
