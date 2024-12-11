@@ -2,10 +2,10 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +26,26 @@ class VolunteerViewModel @Inject constructor(
     private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
 
+    private val firebaseAuth = FirebaseAuth.getInstance()
+
     private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
+
+    private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
+    val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
+
+    init {
+        firebaseAuth.addAuthStateListener { auth ->
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                viewModelScope.launch {
+                    val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
+                    _currentUser.value = Volunteer(email = firebaseUser.email!!,id = volunteerId!!) // Update MutableStateFlow
+                }
+            } else {
+                _currentUser.value = null // Update MutableStateFlow
+            }
+        }
+    }
 
     init {
         getVolunteerById(id = "")

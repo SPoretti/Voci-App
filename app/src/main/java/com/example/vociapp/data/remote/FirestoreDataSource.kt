@@ -145,7 +145,23 @@ class FirestoreDataSource @Inject constructor(
         return volunteerNickname?.toObject(Volunteer::class.java)
     }
 
+    suspend fun getVolunteerIdByEmail(email: String): String? {
+        return try {
+            val querySnapshot = firestore.collection("volunteers")
+                .whereEqualTo("email", email)
+                .get()
+                .await()
 
+            if (querySnapshot.documents.isNotEmpty()) {
+                querySnapshot.documents[0].getString("id")
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("Firestore", "Error getting volunteer ID", e)
+            null
+        }
+    }
 
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return try {
@@ -196,7 +212,7 @@ class FirestoreDataSource @Inject constructor(
 
     suspend fun getUserPreferences(userId: String): Resource<UserPreferences> {
         return try {
-            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("userId", userId).get().await()
+            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
                 val volunteerDocId = volunteerQuery.documents[0].id
                 val documentSnapshot = firestore
@@ -221,7 +237,7 @@ class FirestoreDataSource @Inject constructor(
 
     suspend fun updateUserPreferences(userId: String, preferredItemIds: List<String>): Resource<Unit> {
         return try {
-            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("userId", userId).get().await()
+            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
                 val volunteerDocId = volunteerQuery.documents[0].id
                 firestore
