@@ -82,7 +82,7 @@ class VolunteerRepository @Inject constructor(
 
     suspend fun getUserPreferences(userId: String): UserPreferences? {
         return when (val result = firestoreDataSource.getUserPreferences(userId)) {
-            is Resource.Success -> result.data //da rimuovere in caso crei problemi
+            is Resource.Success -> result.data
             is Resource.Error -> throw Exception(result.message)
             else -> throw IllegalStateException("Unexpected Resource state")
         }

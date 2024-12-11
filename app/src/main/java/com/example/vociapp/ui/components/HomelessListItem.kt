@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -23,6 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.state.HomelessItemUiState
 
@@ -36,7 +42,24 @@ fun HomelessListItem(
 
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val userId = serviceLocator.getAuthViewModel().currentUserId
+    val authViewModel = serviceLocator.getAuthViewModel()
+    val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
+    if (volunteerLoggedEmail == null){
+        Log.d("hilter45", "121212volunteerLoggedEmail: $volunteerLoggedEmail")
+        return
+    }
+
+    val volunteerResource by volunteerViewModel
+        .getVolunteerByEmail(volunteerLoggedEmail)
+        .collectAsState(initial = Resource.Loading())
+
+    var userId = ""
+
+    LaunchedEffect(volunteerResource) {
+        if (volunteerResource is Resource.Success) {
+            userId = volunteerResource.data?.id ?: "nullo"
+        }
+    }
 
     val backgroundColor =
         if (isSelected) {
@@ -44,6 +67,7 @@ fun HomelessListItem(
         } else {
             MaterialTheme.colorScheme.surface
         }
+
 
     Surface(
         modifier = Modifier
@@ -91,10 +115,9 @@ fun HomelessListItem(
 
             if (showPreferredIcon){
                 IconButton(
-                    onClick = { volunteerViewModel.toggleHomelessPreference(
-                        userId.value!!,
-                        homelessState.homeless.id
-                    ) },
+                    onClick = {
+                        volunteerViewModel.toggleHomelessPreference(userId ?: "", homelessState.homeless.id)
+                        },
                     modifier = Modifier.align(Alignment.CenterVertically),
                 ) {
                     Icon(

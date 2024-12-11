@@ -80,6 +80,8 @@ class VolunteerViewModel @Inject constructor(
         return _currentVolunteer.value
     }
 
+
+
     fun addVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
             val result = volunteerRepository.addVolunteer(volunteer)
@@ -113,27 +115,45 @@ class VolunteerViewModel @Inject constructor(
 
 
 
-    suspend fun isPreferred(userId: String, homelessId: String): Boolean {
-        val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
-        if (preferredHomelessIds != null) {
-            return preferredHomelessIds.preferredHomelessIds.contains(homelessId) ?: false
+    fun isPreferred(userId: String, homelessId: String): Boolean {
+        var result = false
+        viewModelScope.launch {
+            val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
+            if (preferredHomelessIds != null) {
+                result = preferredHomelessIds.preferredHomelessIds.contains(homelessId) ?: false
+            }
         }
-        return false
+        return result
 
     }
+
+//    fun toggleHomelessPreference(userId: String, homelessId: String) {
+//        viewModelScope.launch {
+//            val userPreferences = volunteerRepository.getUserPreferences(userId)
+//            val updatedPreferredIds = if (userPreferences?.preferredHomelessIds?.contains(homelessId) == true) {
+//                userPreferences?.preferredHomelessIds?.minus(homelessId)
+//            } else {
+//                userPreferences?.preferredHomelessIds?.plus(homelessId)
+//            }
+//            if (updatedPreferredIds != null) {
+//                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+//            }
+//            // Update the UI state (e.g., using a StateFlow) to reflect the preference change
+//        }
+//    }
 
     fun toggleHomelessPreference(userId: String, homelessId: String) {
         viewModelScope.launch {
             val userPreferences = volunteerRepository.getUserPreferences(userId)
-            val updatedPreferredIds = if (userPreferences?.preferredHomelessIds?.contains(homelessId) == true) {
-                userPreferences?.preferredHomelessIds?.minus(homelessId)
-            } else {
-                userPreferences?.preferredHomelessIds?.plus(homelessId)
-            }
-            if (updatedPreferredIds != null) {
+            if (userPreferences != null){
+                val updatedPreferredIds = if (homelessId in userPreferences.preferredHomelessIds) {
+                    userPreferences.preferredHomelessIds - homelessId
+                } else {
+                    userPreferences.preferredHomelessIds + homelessId
+                }
                 volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
             }
-            // Update the UI state (e.g., using a StateFlow) to reflect the preference change
+            // Update UI state to reflect the change
         }
     }
 

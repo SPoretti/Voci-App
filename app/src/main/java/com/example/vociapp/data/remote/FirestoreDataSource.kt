@@ -196,22 +196,45 @@ class FirestoreDataSource @Inject constructor(
 
     suspend fun getUserPreferences(userId: String): Resource<UserPreferences> {
         return try {
-            val documentSnapshot = firestore.collection("userPreferences").document(userId).get().await()
-            if (documentSnapshot.exists()) {
-                Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
+            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("userId", userId).get().await()
+            if (volunteerQuery.documents.isNotEmpty()) {
+                val volunteerDocId = volunteerQuery.documents[0].id
+                val documentSnapshot = firestore
+                    .collection("volunteers")
+                    .document(volunteerDocId)
+                    .collection("userPreferences")
+                    .document("preferences")
+                    .get()
+                    .await()
+                if (documentSnapshot.exists()) {
+                    Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
+                } else {
+                    Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
+                }
             } else {
-                Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
+                Resource.Error("Volunteer not found12$userId" + "3")
             }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+    suspend fun updateUserPreferences(userId: String, preferredItemIds: List<String>): Resource<Unit> {
         return try {
-            firestore.collection("userPreferences").document(userId)
-                .set(mapOf("preferredHomelessIds" to preferredHomelessIds)).await()
-            Resource.Success(Unit)
+            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("userId", userId).get().await()
+            if (volunteerQuery.documents.isNotEmpty()) {
+                val volunteerDocId = volunteerQuery.documents[0].id
+                firestore
+                    .collection("volunteers")
+                    .document(volunteerDocId)
+                    .collection("userPreferences")
+                    .document("preferences")
+                    .set(mapOf("preferredItemIds" to preferredItemIds))
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Volunteer not found1")
+            }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
