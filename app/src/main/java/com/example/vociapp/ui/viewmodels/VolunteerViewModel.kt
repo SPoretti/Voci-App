@@ -36,6 +36,7 @@ class VolunteerViewModel @Inject constructor(
     private val _userPreferences = MutableStateFlow<List<String>?>(null)
     val userPreferences: StateFlow<List<String>?> = _userPreferences.asStateFlow()
 
+    //da usare?
     private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
     val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
 
@@ -45,9 +46,11 @@ class VolunteerViewModel @Inject constructor(
             if (firebaseUser != null) {
                 viewModelScope.launch {
                     val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
-                    _currentUser.value = Volunteer(email = firebaseUser.email!!,id = volunteerId!!)
-                    fetchUserPreferences(volunteerId)
-                    //_userPreferences.value = volunteerRepository.getUserPreferences(volunteerId).data// Update MutableStateFlow
+                    if (volunteerId != null){
+                        _currentUser.value =
+                            Volunteer(email = firebaseUser.email!!, id = volunteerId)
+                        fetchUserPreferences(volunteerId)
+                    }
                 }
             } else {
                 _currentUser.value = null // Update MutableStateFlow

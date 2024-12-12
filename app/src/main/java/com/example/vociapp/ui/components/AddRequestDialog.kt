@@ -127,8 +127,6 @@ fun AddRequestDialog(
 
                 HomelessList(
                     homelesses = listToDisplay,
-                    homelessViewModel = homelessViewModel,
-                    navController = navController,
                     showPreferredIcon = false,
                     onListItemClick = { homeless ->
                         homelessID = homeless.id

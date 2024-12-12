@@ -27,8 +27,6 @@ import com.example.vociapp.ui.viewmodels.HomelessViewModel
 @Composable
 fun HomelessList(
     homelesses: Resource<List<Homeless>>,
-    homelessViewModel: HomelessViewModel,
-    navController: NavHostController,
     showPreferredIcon: Boolean,
     onListItemClick: (Homeless) -> Unit = {},
     selectedHomeless: Homeless? = null,
@@ -36,11 +34,9 @@ fun HomelessList(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
     val homelessViewModel = serviceLocator.getHomelessViewModel()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val userId = volunteerViewModel.specificVolunteer.value.data?.id ?: ""
-    //val homelessState by remember { mutableStateOf(HomelessItemUiState(Homeless())) }
     val userPreferences by volunteerViewModel.userPreferences.collectAsState()
 
 
@@ -48,26 +44,20 @@ fun HomelessList(
         homelessViewModel.getHomelesses()
     }
 
-//    LaunchedEffect(key1 = homelessState) {
-//        homelessState = homelessState.copy(
-//            isPreferred = volunteerViewModel.isPreferred(userId, homelessState.homeless.id)
-//        )
-//    }
-
     Box(modifier = modifier.fillMaxWidth()) {
 
         when (homelesses) {
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-
             is Resource.Success -> {
+                val sortedHomelessList = homelesses.data.orEmpty().sortedByDescending { userPreferences?.contains(it.id) ?: false }
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(homelesses.data.orEmpty()) { homeless ->
+                    items(sortedHomelessList) { homeless ->
                         val isPreferred = userPreferences?.contains(homeless.id) ?: false
                         val homelessState by remember { mutableStateOf(HomelessItemUiState(homeless = homeless, isPreferred = isPreferred)) }
 
@@ -80,14 +70,12 @@ fun HomelessList(
                     }
                 }
             }
-
             is Resource.Error -> {
                 Text(
                     text = "Error: ${homelesses.message}",
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-
         }
     }
 
