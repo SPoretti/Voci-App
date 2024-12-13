@@ -66,7 +66,7 @@ fun HomelessListItem(
     Surface(
         modifier = Modifier
             .padding(vertical = 4.dp)
-            .height(80.dp)
+            .height(70.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         onClick = {onClick(homelessState.homeless)},
@@ -79,6 +79,7 @@ fun HomelessListItem(
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ){
 
             Column(
@@ -92,7 +93,6 @@ fun HomelessListItem(
                     ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(8.dp),
                 )
 
                 Text(
@@ -101,8 +101,6 @@ fun HomelessListItem(
                         lineHeight = 20.sp
                     ),
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(8.dp),
-
                 )
 
             }
@@ -125,7 +123,7 @@ fun HomelessListItem(
                         contentDescription = "Preferred icon",
                         tint =
                         if (isPreferred)
-                            MaterialTheme.colorScheme.primary
+                            MaterialTheme.colorScheme.secondary
                         else
                             MaterialTheme.colorScheme.onSurface
                         ,
