@@ -2,6 +2,7 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.R
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
@@ -12,6 +13,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.os.Bundle
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
 
 class VolunteerViewModel @Inject constructor(
     private val volunteerRepository: VolunteerRepository
@@ -63,6 +70,11 @@ class VolunteerViewModel @Inject constructor(
                 }
         }
         return _specificVolunteer.asStateFlow()
+    }
+
+    // ritorna il valore "id" del volontario corrente
+    fun getVolunteerId(): String? {
+        return _currentVolunteer.value?.id
     }
 
     // ritorna il valore "name" del volontario corrente
