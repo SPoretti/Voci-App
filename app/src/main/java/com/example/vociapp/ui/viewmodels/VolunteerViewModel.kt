@@ -33,10 +33,6 @@ class VolunteerViewModel @Inject constructor(
     private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
     val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
 
-    private val _userPreferences = MutableStateFlow<List<String>?>(null)
-    val userPreferences: StateFlow<List<String>?> = _userPreferences.asStateFlow()
-
-    //da usare?
     private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
     val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
 
@@ -143,64 +139,18 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-
-
-//    fun isPreferred(userId: String, homelessId: String): Boolean {
-//        var result = false
-//        viewModelScope.launch {
-//            val preferredHomelessIds = volunteerRepository.getUserPreferences(userId = userId)
-//            if (preferredHomelessIds != null) {
-//                result = preferredHomelessIds.contains(homelessId) ?: false
-//            }
-//        }
-//        return result
-//
-//    }
-
-//    fun toggleHomelessPreference(userId: String, homelessId: String) {
-//        viewModelScope.launch {
-//            val userPreferences = volunteerRepository.getUserPreferences(userId)
-//            val updatedPreferredIds = if (userPreferences?.preferredHomelessIds?.contains(homelessId) == true) {
-//                userPreferences?.preferredHomelessIds?.minus(homelessId)
-//            } else {
-//                userPreferences?.preferredHomelessIds?.plus(homelessId)
-//            }
-//            if (updatedPreferredIds != null) {
-//                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
-//            }
-//            // Update the UI state (e.g., using a StateFlow) to reflect the preference change
-//        }
-//    }
-
-//    fun toggleHomelessPreference(userId: String, homelessId: String) {
-//        viewModelScope.launch {
-//            val userPreferences = volunteerRepository.getUserPreferences(userId)
-//            if (userPreferences != null){
-//                val updatedPreferredIds = if (homelessId in userPreferences) {
-//                    userPreferences - homelessId
-//                } else {
-//                    userPreferences + homelessId
-//                }
-//                volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
-//            }
-//            // Update UI state to reflect the change
-//
-//        }
-//    }
-
     fun fetchUserPreferences(userId: String) {
-        viewModelScope.launch {
-            _userPreferencesResource.value = Resource.Loading() // Optional: Show loading state
-            val result = volunteerRepository.getUserPreferences(userId)
-            _userPreferences.value = result.data // Update UI state with result
-        }
+        volunteerRepository.getUserPreferences(userId)
+            .onEach { result ->
+                _userPreferencesResource.value = result
+            }
+            .launchIn(viewModelScope)
     }
 
     fun toggleHomelessPreference(userId: String, homelessId: String) {
         viewModelScope.launch {
-            val userPreferencesResource = volunteerRepository.getUserPreferences(userId)
-            if (userPreferencesResource is Resource.Success) {
-                val userPreferences = userPreferencesResource.data!!
+            if (userPreferencesResource.value is Resource.Success) {
+                val userPreferences = userPreferencesResource.value.data!!
                 val updatedPreferredIds = if (homelessId in userPreferences) {
                     userPreferences - homelessId
                 } else {
@@ -209,13 +159,13 @@ class VolunteerViewModel @Inject constructor(
                 viewModelScope.launch { // Launch a separate coroutine for updating preferences
                     val updateResult = volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
                     if (updateResult is Resource.Success) {
-                        _userPreferences.value = updatedPreferredIds // Emit new value to MutableStateFlow
+                        _userPreferencesResource.value.data = updatedPreferredIds // Emit new value to MutableStateFlow
                     } else if (updateResult is Resource.Error) {
                         // Handle error, e.g., show a Snackbar message
                         // You might want to revert the UI state here if the update fails
                     }
                 }
-            } else if (userPreferencesResource is Resource.Error) {
+            } else if (userPreferencesResource.value is Resource.Error) {
                 // Handle error, e.g., show a Snackbar message
             }
         }
@@ -224,5 +174,4 @@ class VolunteerViewModel @Inject constructor(
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }
-
 }

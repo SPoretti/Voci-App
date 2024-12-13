@@ -1,17 +1,12 @@
 package com.example.vociapp.data.repository
 
 import android.util.Log
-import androidx.lifecycle.get
 import com.example.vociapp.data.remote.FirestoreDataSource
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.UserPreferences
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
-import kotlin.io.path.exists
 
 class VolunteerRepository @Inject constructor(
     private val firestoreDataSource: FirestoreDataSource
@@ -79,8 +74,10 @@ class VolunteerRepository @Inject constructor(
 
     }
 
-    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
-        return firestoreDataSource.getUserPreferences(userId)
+    fun getUserPreferences(userId: String): Flow<Resource<List<String>>> = flow {
+        emit(Resource.Loading()) // Indicate loading state
+        val result = firestoreDataSource.getUserPreferences(userId) // Get the result from FirestoreDataSource
+        emit(result) // Emit the result (Success or Error)
     }
 
 
