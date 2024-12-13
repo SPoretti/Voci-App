@@ -37,7 +37,6 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
-import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(

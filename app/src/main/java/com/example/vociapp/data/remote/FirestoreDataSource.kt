@@ -3,15 +3,12 @@ package com.example.vociapp.data.remote
 import android.util.Log
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.UserPreferences
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.collections.get
-import kotlin.text.get
 
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore

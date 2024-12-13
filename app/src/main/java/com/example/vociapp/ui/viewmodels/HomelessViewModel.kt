@@ -38,6 +38,7 @@ class HomelessViewModel @Inject constructor(
     init {
         getHomelesses()
         fetchHomelessNames()
+        updateSearchQuery("")
     }
 
     private var searchJob: Job? = null

@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,27 +78,10 @@ fun HomelessList(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(sortedHomelessList) { homeless ->
-
-                                val homelessState = remember {
-                                    mutableStateOf(
-                                        HomelessItemUiState(
-                                            homeless = homeless
-                                        )
-                                    )
-                                }
-
-                                val isPreferred by remember(userPreferences, homelessState.value.homeless.id) {
-                                    derivedStateOf {
-                                        userPreferences.data?.contains(homelessState.value.homeless.id) ?: false
-                                    }
-                                }
-
-                                LaunchedEffect(isPreferred) {
-                                    homelessState.value = homelessState.value.copy(isPreferred = isPreferred)
-                                }
-
                                 HomelessListItem(
-                                    homelessState = homelessState,
+                                    homelessState = HomelessItemUiState(
+                                        homeless = homeless
+                                    ),
                                     showPreferredIcon = showPreferredIcon,
                                     onClick = onListItemClick,
                                     isSelected = (homeless.id == selectedHomeless?.id)
