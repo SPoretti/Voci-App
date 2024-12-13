@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
+// added
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
@@ -57,7 +60,11 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
     }
 
-    suspend fun updateUserProfile(displayName: String?, photoUrl: String?): AuthResult {
+    suspend fun updateUserProfile(
+        displayName: String?,
+        email: String?,
+        photoUrl: String?
+    ): AuthResult {
         return try {
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(displayName)
@@ -65,6 +72,12 @@ class AuthViewModel : ViewModel() {
                 .build()
 
             auth.currentUser?.updateProfile(profileUpdates)?.await()
+
+            // Update email if provided
+            email?.let {
+                auth.currentUser?.verifyBeforeUpdateEmail(it)?.await()
+            }
+
             AuthResult.Success
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "An unknown error occurred")
@@ -75,6 +88,9 @@ class AuthViewModel : ViewModel() {
         val user = auth.currentUser ?: return null
         return UserProfile(
             displayName = user.displayName,
+            // surname = user.surname,
+            email = user.email,
+            phoneNumber = user.phoneNumber,
             photoUrl = user.photoUrl?.toString()
         )
     }
@@ -91,5 +107,10 @@ sealed class AuthResult {
 
 data class UserProfile(
     val displayName: String? = null,
+    // val surname: String?,
+    val email: String? = null,
+    val phoneNumber : String? = null,
     val photoUrl: String? = null
-)
+) {
+
+}
