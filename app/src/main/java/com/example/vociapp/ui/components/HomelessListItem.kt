@@ -18,7 +18,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +37,7 @@ import com.example.vociapp.ui.state.HomelessItemUiState
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomelessListItem(
-    homelessState: MutableState<HomelessItemUiState>,
+    homelessState: HomelessItemUiState,
     showPreferredIcon: Boolean,
     onClick:(Homeless) -> Unit,
     isSelected: Boolean = false,
@@ -48,7 +47,6 @@ fun HomelessListItem(
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val userId = volunteerViewModel.currentUser.value?.id
     val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
-    var isPreferred by remember { mutableStateOf(false) }
     val backgroundColor =
         if (isSelected) {
             MaterialTheme.colorScheme.primaryContainer
@@ -56,9 +54,11 @@ fun HomelessListItem(
             MaterialTheme.colorScheme.surface
         }
 
-    LaunchedEffect(userPreferencesResource.data) { // Trigger recomposition on state change
+    var isPreferred by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = userPreferencesResource.data, key2 = homelessState) {
         isPreferred = when (userPreferencesResource) {
-            is Resource.Success -> userPreferencesResource.data?.contains(homelessState.value.homeless.id) == true
+            is Resource.Success -> userPreferencesResource.data?.contains(homelessState.homeless.id) == true
             else -> false
         }
     }
@@ -69,7 +69,7 @@ fun HomelessListItem(
             .height(80.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        onClick = {onClick(homelessState.value.homeless)},
+        onClick = {onClick(homelessState.homeless)},
         shadowElevation = 4.dp,
         color = backgroundColor,
     ){
@@ -86,7 +86,7 @@ fun HomelessListItem(
             ) {
 
                 Text(
-                    text = homelessState.value.homeless.name,
+                    text = homelessState.homeless.name,
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold
                     ),
@@ -96,7 +96,7 @@ fun HomelessListItem(
                 )
 
                 Text(
-                    text = homelessState.value.homeless.location,
+                    text = homelessState.homeless.location,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         lineHeight = 20.sp
                     ),
@@ -110,7 +110,7 @@ fun HomelessListItem(
             if (showPreferredIcon){
                 IconButton(
                     onClick = {
-                        volunteerViewModel.toggleHomelessPreference(userId!!, homelessState.value.homeless.id)
+                        volunteerViewModel.toggleHomelessPreference(userId!!, homelessState.homeless.id)
                         isPreferred = !isPreferred
                     },
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -131,16 +131,6 @@ fun HomelessListItem(
                         ,
                         modifier = Modifier.size(32.dp)
                     )
-//                    Icon(
-//                        imageVector =
-//                        if (homelessState.value.isPreferred)
-//                            Icons.Filled.Star
-//                        else
-//                            Icons.Filled.StarOutline,
-//                        contentDescription = "Preferred icon",
-//                        tint = MaterialTheme.colorScheme.primary,
-//                        modifier = Modifier.size(32.dp)
-//                    )
                 }
             }
         }

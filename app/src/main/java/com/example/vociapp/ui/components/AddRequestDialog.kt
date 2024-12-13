@@ -114,7 +114,10 @@ fun AddRequestDialog(
                     onSearch = { homelessViewModel.updateSearchQuery(it)},
                     placeholderText = "Cerca un senzatetto...",
                     unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    onClick = { }
+                    onClick = { },
+                    onDismiss = {
+                        //homelessViewModel.updateSearchQuery("")
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
