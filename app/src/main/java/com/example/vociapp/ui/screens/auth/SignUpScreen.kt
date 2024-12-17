@@ -92,92 +92,91 @@ fun SignUpScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AuthTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = "Nome",
+                        icon = Icons.Default.PersonOutline
+                    )
+
+                    AuthTextField(
+                        value = surname,
+                        onValueChange = { surname = it },
+                        label = "Cognome",
+                        icon = Icons.Default.PersonOutline
+                    )
+
+                    AuthTextField(
+                        value = nickname,
+                        onValueChange = { nickname = it },
+                        label = "Nickname",
+                        icon = Icons.Default.PersonOutline
+                    )
+
+                    AuthTextField(
+                        value = phoneNumber,
+                        onValueChange = { phoneNumber = it },
+                        label = "Numero di telefono",
+                        icon = Icons.Default.Phone
+                    )
+
+                    AuthTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = "Email",
+                        icon = Icons.Default.Email
+                    )
+
+                    AuthTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "Password",
+                        icon = Icons.Default.Lock,
+                        isPassword = true
+                    )
+
+                    AuthTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        label = "Conferma Password",
+                        icon = Icons.Default.Lock,
+                        isPassword = true
+                    )
+
+                    Button(
+                        onClick = { isSigningUp = true },
+                        enabled = !isSigningUp && password == confirmPassword,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        AuthTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = "Nome",
-                            icon = Icons.Default.PersonOutline
-                        )
-
-                        AuthTextField(
-                            value = surname,
-                            onValueChange = { surname = it },
-                            label = "Cognome",
-                            icon = Icons.Default.PersonOutline
-                        )
-
-                        AuthTextField(
-                            value = nickname,
-                            onValueChange = { nickname = it },
-                            label = "Nickname",
-                            icon = Icons.Default.PersonOutline
-                        )
-
-                        AuthTextField(
-                            value = phoneNumber,
-                            onValueChange = { phoneNumber = it },
-                            label = "Numero di telefono",
-                            icon = Icons.Default.Phone
-                        )
-
-                        AuthTextField(
-                            value = email,
-                            onValueChange = { email = it },
-                            label = "Email",
-                            icon = Icons.Default.Email
-                        )
-
-                        AuthTextField(
-                            value = password,
-                            onValueChange = { password = it },
-                            label = "Password",
-                            icon = Icons.Default.Lock,
-                            isPassword = true
-                        )
-
-                        AuthTextField(
-                            value = confirmPassword,
-                            onValueChange = { confirmPassword = it },
-                            label = "Conferma Password",
-                            icon = Icons.Default.Lock,
-                            isPassword = true
-                        )
-
-                        Button(
-                            onClick = { isSigningUp = true },
-                            enabled = !isSigningUp && password == confirmPassword,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            if (isSigningUp) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            } else {
-                                Text("Registrati", modifier = Modifier.padding(vertical = 8.dp))
-                            }
+                        if (isSigningUp) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text("Registrati", modifier = Modifier.padding(vertical = 8.dp))
                         }
                     }
+                }
 
-                    if (showError) {
-                        Text(
-                            errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 1.dp)
-                                .align(Alignment.CenterHorizontally)
-                                .offset(y = (-10).dp)
-                        )
-                    }
-
+                if (showError) {
+                    Text(
+                        errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 1.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .offset(y = (-10).dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

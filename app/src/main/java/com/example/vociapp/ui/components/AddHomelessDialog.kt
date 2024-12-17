@@ -1,12 +1,19 @@
 package com.example.vociapp.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,18 +42,22 @@ fun AddHomelessDialog(
     var homelessName by remember { mutableStateOf("") }
     var homelessLocation by remember { mutableStateOf("") }
     var homelessPets by remember { mutableStateOf("No") }
+    var homelessAge by remember { mutableStateOf("") }
+    var homelessNationality by remember { mutableStateOf("") }
+    var homelessDescription by remember { mutableStateOf("") }
     var selectedGender by remember { mutableStateOf(Gender.Unspecified) }
+
     var isAddingHomeless by remember { mutableStateOf(false) }
 
     AlertDialog(
+        modifier = Modifier.fillMaxSize(),
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false),
-        title = { Text("Aggiungi SenzaTetto") },
+        title = { Text("Aggiungi Senzatetto") },
         text = {
+
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
 
                 OutlinedTextField(
@@ -62,12 +73,6 @@ fun AddHomelessDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //TODO(): birth date picker with fish's DatePicker
-//        DatePicker()
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-
-                //Temporary
                 OutlinedTextField(
                     value = homelessLocation,
                     onValueChange = { homelessLocation = it },
@@ -83,8 +88,36 @@ fun AddHomelessDialog(
 
                 OutlinedTextField(
                     value = homelessPets,
-                    onValueChange = { homelessPets = it},
-                    label = {Text("Animali")},
+                    onValueChange = { homelessPets = it },
+                    label = { Text("Animali") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    ),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = homelessAge,
+                    onValueChange = { homelessAge = it },
+                    label = { Text("Età") },
+                    placeholder = { Text("40-45,  53,  60-70, ...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                    ),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = homelessNationality,
+                    onValueChange = { homelessNationality = it },
+                    label = { Text("Nazionalità") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -98,7 +131,27 @@ fun AddHomelessDialog(
                     selectedGender = selectedGender,
                     onGenderSelected = { selectedGender = it }
                 )
-        }},
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    OutlinedTextField(
+                        value = homelessDescription,
+                        onValueChange = { homelessDescription = it },
+                        label = { Text("Descrizione") },
+                        maxLines = 10,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                        ),
+                    )
+                }
+            }
+        },
         confirmButton = {
             Button(
                 onClick = {
@@ -107,7 +160,9 @@ fun AddHomelessDialog(
                         name = homelessName,
                         gender = selectedGender,
                         location = homelessLocation,
+                        age = homelessAge,
                         pets = homelessPets,
+                        description = homelessDescription
                     )
                     onAdd(newHomeless)
                 },
