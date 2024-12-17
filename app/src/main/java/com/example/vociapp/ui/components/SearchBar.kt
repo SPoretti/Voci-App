@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -23,8 +24,10 @@ fun SearchBar(
     onSearch: (String) -> Unit,
     placeholderText: String,
     unfocusedBorderColor: androidx.compose.ui.graphics.Color,
-    onClick: () -> Unit) {
+    onClick: () -> Unit,
+    onDismiss: () -> Unit) {
     var searchText by remember { mutableStateOf("") }
+    var isSearchBarFocused by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = searchText,
@@ -32,7 +35,21 @@ fun SearchBar(
             searchText = newText
             onSearch(newText) // Trigger search when text changes
         },
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier
+            .clickable { onClick() }
+            .onFocusChanged { focusState ->
+                if (isSearchBarFocused && !focusState.isFocused) {
+                    // Focus was lost
+                    isSearchBarFocused = false
+
+                    // Perform actions here, e.g., hide keyboard, clear search
+                    // Example:
+                    onDismiss()
+                } else if (focusState.isFocused) {
+                    // Gained focus
+                    isSearchBarFocused = true
+                }
+            },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class VolunteerViewModel @Inject constructor(
-    private val volunteerRepository: VolunteerRepository
+    private val volunteerRepository: VolunteerRepository,
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
@@ -25,7 +26,33 @@ class VolunteerViewModel @Inject constructor(
     private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
 
+    private val firebaseAuth = FirebaseAuth.getInstance()
+
     private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
+
+    private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
+    val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
+
+    private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
+    val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
+
+    init {
+        firebaseAuth.addAuthStateListener { auth ->
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                viewModelScope.launch {
+                    val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
+                    if (volunteerId != null){
+                        _currentUser.value =
+                            Volunteer(email = firebaseUser.email!!, id = volunteerId)
+                        fetchUserPreferences(volunteerId)
+                    }
+                }
+            } else {
+                _currentUser.value = null // Update MutableStateFlow
+            }
+        }
+    }
 
     init {
         getVolunteerById(id = "")
@@ -79,6 +106,8 @@ class VolunteerViewModel @Inject constructor(
         return _currentVolunteer.value
     }
 
+
+
     fun addVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
             val result = volunteerRepository.addVolunteer(volunteer)
@@ -110,8 +139,39 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
+    fun fetchUserPreferences(userId: String) {
+        volunteerRepository.getUserPreferences(userId)
+            .onEach { result ->
+                _userPreferencesResource.value = result
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun toggleHomelessPreference(userId: String, homelessId: String) {
+        viewModelScope.launch {
+            if (userPreferencesResource.value is Resource.Success) {
+                val userPreferences = userPreferencesResource.value.data!!
+                val updatedPreferredIds = if (homelessId in userPreferences) {
+                    userPreferences - homelessId
+                } else {
+                    userPreferences + homelessId
+                }
+                viewModelScope.launch { // Launch a separate coroutine for updating preferences
+                    val updateResult = volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
+                    if (updateResult is Resource.Success) {
+                        _userPreferencesResource.value.data = updatedPreferredIds // Emit new value to MutableStateFlow
+                    } else if (updateResult is Resource.Error) {
+                        // Handle error, e.g., show a Snackbar message
+                        // You might want to revert the UI state here if the update fails
+                    }
+                }
+            } else if (userPreferencesResource.value is Resource.Error) {
+                // Handle error, e.g., show a Snackbar message
+            }
+        }
+    }
+
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }
-
 }

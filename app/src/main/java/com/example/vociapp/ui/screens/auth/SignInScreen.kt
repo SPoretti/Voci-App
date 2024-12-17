@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
@@ -90,13 +87,14 @@ fun SignInScreen(
                 if (result is AuthResult.Failure) {
                     showError = true
                     errorMessage = result.message
-                    } else {
-                            volunteerViewModel.getVolunteerByEmail(email)
-                            navController.navigate(Screens.Home.route) {
-                                popUpTo(Screens.SignIn.route) { inclusive = true }
-                            }
-                            isSigningIn = false
-                        }
+                }else {
+                    //delay(3000)
+                    volunteerViewModel.getVolunteerByEmail(email)
+                    navController.navigate(Screens.Home.route) {
+                        popUpTo(Screens.SignIn.route) { inclusive = true }
+                    }
+                    isSigningIn = false
+                }
             } catch (e: Exception) {
                 Log.d("AuthFlow", "Errore imprevisto: ${e.localizedMessage}")
                 showError = true

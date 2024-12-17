@@ -65,4 +65,21 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
+    suspend fun getVolunteerIdByEmail(email: String): String? {
+        return firestoreDataSource.getVolunteerIdByEmail(email)
+    }
+
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+        return firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)
+
+    }
+
+    fun getUserPreferences(userId: String): Flow<Resource<List<String>>> = flow {
+        emit(Resource.Loading()) // Indicate loading state
+        val result = firestoreDataSource.getUserPreferences(userId) // Get the result from FirestoreDataSource
+        emit(result) // Emit the result (Success or Error)
+    }
+
+
+
 }

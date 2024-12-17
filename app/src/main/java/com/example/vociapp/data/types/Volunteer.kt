@@ -10,6 +10,6 @@ data class Volunteer(
     var password: String = "",
     var phone_number: String = "",
     var email: String = "",
-    //val needs: List<Request> = emptyList(),
+    //val preferences: List<String> = emptyList(),
     // ... other properties ...
 )
