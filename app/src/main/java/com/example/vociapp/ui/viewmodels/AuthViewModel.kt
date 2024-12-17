@@ -85,7 +85,7 @@ class AuthViewModel : ViewModel() {
 }
 
 sealed class AuthResult {
-    object Success : AuthResult()
+    data object Success : AuthResult()//da reversare forse
     data class Failure(val message: String) : AuthResult()
 }
 

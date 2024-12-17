@@ -50,10 +50,12 @@ fun HomeScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
 
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
+    val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
 
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
@@ -77,6 +79,7 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
+        homelessViewModel.updateSearchQuery("")
     }
 
     Box(
@@ -120,7 +123,8 @@ fun HomeScreen(
                             onSearch = { homelessViewModel.updateSearchQuery(it)},
                             placeholderText = "Cerca...",
                             unfocusedBorderColor = Color.Transparent,
-                            onClick = { /* TODO() Handle click on search bar */ }
+                            onClick = { /* TODO() Handle click on search bar */ },
+                            onDismiss = { homelessViewModel.updateSearchQuery("") }
                         )
 
                         Spacer(modifier = Modifier.width(4.dp))
@@ -153,10 +157,12 @@ fun HomeScreen(
                         filteredHomelesses
                     }
 
+//                    val sortedHomelessList = listToDisplay.data.orEmpty()
+//                        .sortedByDescending { userPreferences.data?.contains(it.id) ?: false }
+//                    val sortedHomelessListResource = Resource.Success(sortedHomelessList)
+
                     HomelessList(
                         homelesses = listToDisplay,
-                        homelessViewModel = homelessViewModel,
-                        navController = navController,
                         showPreferredIcon = true,
                         onListItemClick = {homeless ->
                             navController.navigate("profileHomeless/${homeless.name}")
@@ -175,8 +181,7 @@ fun HomeScreen(
                 }
             )
         }
-    }
-}
+    } }
 
 
 

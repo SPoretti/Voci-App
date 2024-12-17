@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomelessViewModel @Inject constructor(
-    private val homelessRepository: HomelessRepository
+    private val homelessRepository: HomelessRepository,
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
@@ -38,6 +38,7 @@ class HomelessViewModel @Inject constructor(
     init {
         getHomelesses()
         fetchHomelessNames()
+        updateSearchQuery("")
     }
 
     private var searchJob: Job? = null
@@ -114,6 +115,8 @@ class HomelessViewModel @Inject constructor(
                 }
         }
     }
+
+
 
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
