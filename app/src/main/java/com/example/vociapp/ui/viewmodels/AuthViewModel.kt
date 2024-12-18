@@ -107,10 +107,9 @@ sealed class AuthResult {
 
 data class UserProfile(
     val displayName: String? = null,
-    // val surname: String?,
+    val surname: String? = null,
     val email: String? = null,
     val phoneNumber : String? = null,
     val photoUrl: String? = null
 ) {
-
 }

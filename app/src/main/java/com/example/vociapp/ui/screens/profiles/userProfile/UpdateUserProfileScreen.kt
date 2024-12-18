@@ -70,6 +70,10 @@ import com.google.firebase.firestore.ktx.firestore
 import kotlinx.coroutines.tasks.await
 
 
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseUser
+
+
 @Composable
 fun UpdateUserProfileScreen(
     navController: NavHostController
@@ -79,8 +83,9 @@ fun UpdateUserProfileScreen(
     val authViewModel = serviceLocator.getAuthViewModel()
     val currentProfile = authViewModel.getCurrentUserProfile()
     var displayName by remember { mutableStateOf(currentProfile?.displayName ?: "") }
-    // val surname by remember { mutableStateOf(currentProfile?.surname ?: "") }
+    var surname by remember { mutableStateOf(currentProfile?.surname ?: "") }
     var email by remember { mutableStateOf(currentProfile?.email ?: "") }
+    var new_email by remember { mutableStateOf(currentProfile?.email ?: "") }
     var phoneNumber by remember { mutableStateOf(currentProfile?.phoneNumber ?: "") }
     var photoUrl by remember { mutableStateOf(currentProfile?.photoUrl ?: "") }
     var showError by remember { mutableStateOf(false) }
@@ -157,17 +162,17 @@ fun UpdateUserProfileScreen(
                         icon = Icons.Default.Person
                     )
 
-//                    ProfileTextField(
-//                        value = surname,
-//                        onValueChange = { surname = it },
-//                        label = "Name",
-//                        icon = Icons.Default.Person
-//                    )
+                    ProfileTextField(
+                        value = surname,
+                        onValueChange = { surname = it },
+                        label = "Surname",
+                        icon = Icons.Default.Person
+                    )
 
                     ProfileTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = "Email",
+                        value = new_email,
+                        onValueChange = { new_email = it },
+                        label = "New_Email",
                         icon = Icons.Default.Email
                     )
 
@@ -205,46 +210,6 @@ fun UpdateUserProfileScreen(
                         icon = Icons.Default.Face
                     )
 
-                    OutlinedTextField(
-                        value = newEmail,
-                        onValueChange = { newEmail = it },
-                        label = { Text("New Email") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                        )
-                    )
-
-                    // Add a field for password input
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                        )
-                    )
-
                     Button(
                         onClick = {
                             isUpdating = true
@@ -274,36 +239,32 @@ fun UpdateUserProfileScreen(
 
     LaunchedEffect(isUpdating) {
         if (isUpdating) {
-            // funziona trova "id" del profilo utente
-            val currentId = serviceLocator.getVolunteerViewModel().getVolunteerId().toString()
-//            println("this is the document id: " + currentId)
             // Usage
             val db = FirebaseFirestore.getInstance()
-            // TODO: modifica-> in modo che trova direttamente l utente
-            val docRef = db.collection("volunteers").document("bptEAkUWtN879UNFni84")
-
             val auth = FirebaseAuth.getInstance()
             val currentUser = auth.currentUser
+            // trova l email del utente loggato
+            var currentEmail = currentUser?.email.toString()
+            println("email: "+currentEmail)
 
             val updates = mapOf(
                 "name" to displayName,
-                // "email" to email,
+                "surname" to surname,
                 "phone_number" to phoneNumber,
                 "photoUrl" to photoUrl
             ).filterValues { it.isNotEmpty() }
 
-            // attiva la funzione updateVolunteer che dovrebbe modificare solo i campi inseriti ma modifica anche quelli già presenti nel database (-> null)
-//            val result = serviceLocator.getVolunteerViewModel().updateVolunteer(updates)
-
             if (updates.isNotEmpty()) {
                 try {
                     val querySnapshot = db.collection("volunteers")
-                        .whereEqualTo("id", currentId) // Query by "id" field
+                        .whereEqualTo("email", currentEmail) // Query by "id" field
                         .get()
                         .await()
+                    println("Query: "+querySnapshot)
 
                     if (querySnapshot.documents.isNotEmpty()) {
                         val documentId = querySnapshot.documents[0].id // Get the document ID
+                        println("Document ID: "+documentId)
                         db.collection("volunteers")
                             .document(documentId) // Use the document ID for update
                             .set(updates, SetOptions.merge())
@@ -317,8 +278,26 @@ fun UpdateUserProfileScreen(
                 }
             }
 
+            val user = FirebaseAuth.getInstance().currentUser
+            currentEmail = email
+            println("current email: "+currentEmail)
+            currentPassword = "123456"
+            val credential = EmailAuthProvider.getCredential(currentEmail, currentPassword)
+
+            user?.reauthenticate(credential)?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Re-authentication successful
+                    updateEmail(new_email)
+                    println("updating...")
+                } else {
+                    // Handle error
+                    println("error.")
+                    Log.e("Reauthentication", "Failed: ${task.exception?.message}")
+                }
+            }
+
             currentUser?.let {
-                it.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener { task ->
+                it.verifyBeforeUpdateEmail(new_email).addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d(
                             "UpdateEmail",
@@ -343,8 +322,6 @@ fun UpdateUserProfileScreen(
                 ).show()
             }
 
-            val user = Firebase.auth.currentUser
-
             user!!.verifyBeforeUpdateEmail(email)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -356,6 +333,34 @@ fun UpdateUserProfileScreen(
         isUpdating = false
     }
 }
+
+private fun updateEmail(newEmail: String) {
+    val user = FirebaseAuth.getInstance().currentUser
+    user?.verifyBeforeUpdateEmail(newEmail)?.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            println("3")
+            Log.d("UpdateEmail", "User email address updated.")
+            // Optionally send a verification email
+//            sendVerificationEmail(user)
+        } else {
+            println("4")
+            // Handle error
+            Log.e("UpdateEmail", "Failed: ${task.exception?.message}")
+        }
+    }
+}
+
+private fun sendVerificationEmail(user: FirebaseUser) {
+    user.sendEmailVerification().addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            Log.d("VerificationEmail", "Verification email sent.")
+        } else {
+            Log.e("VerificationEmail", "Failed: ${task.exception?.message}")
+        }
+    }
+}
+
+
 
 
 
@@ -400,3 +405,27 @@ fun CollectProfileUpdates(
         "photoUrl" to photoUrl
     ).filterValues { it.isNotEmpty() }
 }
+
+@Composable
+fun UpdateEmailScreen() {
+    var newEmail by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var showPasswordField by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+
+    fun reauthenticateUser(email: String, password: String, onComplete: (Boolean) -> Unit) {
+    val auth = FirebaseAuth.getInstance()
+    val user = auth.currentUser
+
+    val credential = EmailAuthProvider.getCredential(email, password)
+
+    user?.reauthenticate(credential)?.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            onComplete(true)
+        } else {
+            onComplete(false)
+        }
+    }
+}
+    }
