@@ -144,20 +144,32 @@ class FirestoreDataSource @Inject constructor(
         return volunteerNickname?.toObject(Volunteer::class.java)
     }
 
+    suspend fun updateVolunteer(oldVolunteer: Volunteer, volunteer: Volunteer): Resource<Unit> {
 
+        Log.d("Firestorez", "Vecchio nickname: ${oldVolunteer.nickname}")
+        Log.d("Firestorez", "Nuovo nickname: ${volunteer.nickname}")
 
-    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return try {
             val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("id", volunteer.id) // Query by "id" field
+                .whereEqualTo("nickname", oldVolunteer.nickname) // Query by "nickname" field
                 .get()
                 .await()
 
+            Log.d("Firestorezeze", "Risultati query: ${querySnapshot.size()} documenti trovati")
+
             if (querySnapshot.documents.isNotEmpty()) {
                 val documentId = querySnapshot.documents[0].id // Get the document ID
+
+                val updatedVolunteer = volunteer.copy(
+                    id = oldVolunteer.id,
+                    password = oldVolunteer.password,
+                    phone_number = oldVolunteer.phone_number,
+                    email = oldVolunteer.email
+                )
+
                 firestore.collection("volunteers")
                     .document(documentId) // Use the document ID for update
-                    .set(volunteer, SetOptions.merge())
+                    .set(updatedVolunteer, SetOptions.merge())
                     .await()
                 Resource.Success(Unit)
             } else {
@@ -166,6 +178,7 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
+
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {
