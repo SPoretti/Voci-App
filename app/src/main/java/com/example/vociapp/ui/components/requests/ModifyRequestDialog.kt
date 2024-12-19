@@ -154,6 +154,8 @@ fun ModifyRequestDialog(
                     request.homelessID = homelessID
 
                     requestViewModel.updateRequest(request)
+
+                    onDismiss()
                 },
                 enabled =
                 !isAddingRequest and

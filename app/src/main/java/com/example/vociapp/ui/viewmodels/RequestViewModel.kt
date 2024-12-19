@@ -44,12 +44,12 @@ class RequestViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun getRequestById(requestId: String): Flow<Resource<Request>> = flow {
-        emit(Resource.Loading())
-
-        val result = requestRepository.getRequestById(requestId)
-
-        emit(result)
+    fun getRequestById(requestId: String) {
+        viewModelScope.launch {
+            _requestById.value = Resource.Loading() // Set loading state
+            val result = requestRepository.getRequestById(requestId) // Get data
+            _requestById.value = result // Update state with result
+        }
     }
 
     fun addRequest(request: Request) {
