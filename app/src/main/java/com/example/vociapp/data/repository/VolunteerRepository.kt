@@ -1,6 +1,5 @@
 package com.example.vociapp.data.repository
 
-import android.util.Log
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
