@@ -1,5 +1,7 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,10 +52,174 @@ fun UserProfileScreen(
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val currentProfile = authViewModel.getCurrentUser()
 
-    val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
+    if(currentProfile != null){
+        val loggedUserNickname = currentProfile.displayName
+        Log.d(TAG, "Utente loggato (profilo utente): $loggedUserNickname")
+        val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
+        val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
+            .collectAsState(initial = Resource.Loading())
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
 
-    if (volunteerLoggedEmail == null) {
+                        // Edit button
+                        IconButton(
+                            onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .size(38.dp),
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Profile",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .clip(CircleShape)
+                                    .size(40.dp),
+                            )
+                        }
+
+                        // Logout button
+                        IconButton(
+                            onClick = { authViewModel.signOut() },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(38.dp),
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = "Logout",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .clip(CircleShape)
+                                    .size(40.dp)
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            when (val resource = volunteerResource) {
+
+                                is Resource.Loading -> {
+                                    CircularProgressIndicator()
+                                }
+
+                                is Resource.Error -> {
+                                    Text(
+                                        text = "Errore: ${resource.message}",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+
+                                is Resource.Success -> {
+                                    val volunteer = resource.data
+                                    // Profile picture placeholder
+                                    Box(
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Profile Picture",
+                                            modifier = Modifier.size(64.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    Text(
+                                        text = volunteer?.nickname ?: "User",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                                    // name
+                                    ProfileInfoItem(
+                                        icon = Icons.Default.Person,
+                                        label = "Name",
+                                        value = volunteer?.name ?: "Unknown Volunteer"
+                                    )
+
+                                    // surname
+                                    ProfileInfoItem(
+                                        icon = Icons.Default.Person,
+                                        label = "Surname",
+                                        value = volunteer?.surname ?: "Unknown Volunteer"
+                                    )
+
+                                    // email
+                                    ProfileInfoItem(
+                                        icon = Icons.Default.Email,
+                                        label = "Email",
+                                        value = volunteer?.email ?: "Unknown Volunteer"
+                                    )
+
+                                    // phone number
+                                    ProfileInfoItem(
+                                        icon = Icons.Default.Phone,
+                                        label = "Phone Number",
+                                        value = volunteer?.phone_number ?: "Unknown Volunteer"
+                                    )
+
+                                    // Edit Profile Section
+                                    Button(
+                                        onClick =
+                                        { navController.navigate(Screens.UpdateUserProfile.route) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 16.dp),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Modifica profilo")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -69,165 +235,5 @@ fun UserProfileScreen(
         return
     }
 
-    val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
-        .collectAsState(initial = Resource.Loading())
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-            ) {
-                Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
-
-                    // Edit button
-                    IconButton(
-                        onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .size(38.dp),
-                        colors = IconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Profile",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .clip(CircleShape)
-                                .size(40.dp),
-                        )
-                    }
-
-                    // Logout button
-                    IconButton(
-                        onClick = { authViewModel.signOut() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .size(38.dp),
-                        colors = IconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Logout",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .clip(CircleShape)
-                                .size(40.dp)
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        when (val resource = volunteerResource) {
-                            is Resource.Loading -> {
-                                CircularProgressIndicator()
-                            }
-
-                            is Resource.Error -> {
-                                Text(
-                                    text = "Errore: ${resource.message}",
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-
-                            is Resource.Success -> {
-                                val volunteer = resource.data
-                                // Profile picture placeholder
-                                Box(
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = "Profile Picture",
-                                        modifier = Modifier.size(64.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Text(
-                                    text = volunteer?.nickname ?: "User",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                                // name
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Person,
-                                    label = "Name",
-                                    value = volunteer?.name ?: "Unknown Volunteer"
-                                )
-
-                                // surname
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Person,
-                                    label = "Surname",
-                                    value = volunteer?.surname ?: "Unknown Volunteer"
-                                )
-
-                                // email
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Email,
-                                    label = "Email",
-                                    value = volunteer?.email ?: "Unknown Volunteer"
-                                )
-
-                                // phone number
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Phone,
-                                    label = "Phone Number",
-                                    value = volunteer?.phone_number ?: "Unknown Volunteer"
-                                )
-
-                                // Edit Profile Section
-                                Button(
-                                    onClick =
-                                    { navController.navigate(Screens.UpdateUserProfile.route) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 16.dp),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
-                                    Text("Modifica profilo")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

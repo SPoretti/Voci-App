@@ -1,6 +1,8 @@
 package com.example.vociapp.ui.viewmodels
 
+import android.content.ContentValues.TAG
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.vociapp.data.types.AuthState
 import com.google.firebase.auth.FirebaseAuth
@@ -63,6 +65,20 @@ class AuthViewModel : ViewModel() {
                 .setDisplayName(displayName)
                 .setPhotoUri(photoUrl?.let { Uri.parse(it) })
                 .build()
+
+            auth.currentUser?.updateProfile(profileUpdates)?.await()
+            AuthResult.Success
+        } catch (e: Exception) {
+            AuthResult.Failure(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun updateUserProfile(displayName: String?): AuthResult {
+        return try {
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(displayName)
+                .build()
+            Log.d(TAG, "updateUserProfile: ${profileUpdates.displayName}")
 
             auth.currentUser?.updateProfile(profileUpdates)?.await()
             AuthResult.Success
