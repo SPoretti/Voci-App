@@ -4,11 +4,11 @@ import java.util.UUID
 
 data class Homeless(
     val id: String = UUID.randomUUID().toString(),
-    val name: String = "",
-    val birthDate: String = "",
-    val gender: Gender = Gender.Unspecified,
-    val location: String = "",
-    val age: String = "",
-    val pets: String = "No",
-    val description: String = "",
+    var name: String = "",
+    var gender: Gender = Gender.Unspecified,
+    var location: String = "",
+    var age: String = "",
+    var pets: String = "No",
+    var nationality: String = "",
+    var description: String = "",
 )
