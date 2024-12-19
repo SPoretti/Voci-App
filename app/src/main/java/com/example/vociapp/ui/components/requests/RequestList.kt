@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -101,20 +102,37 @@ fun RequestList(
                                 state = swipeState,
 
                                 backgroundContent = {
-                                    // Optional background content while swiping (e.g., delete icon)
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(shape = RoundedCornerShape(16.dp))
-                                            .background(MaterialTheme.colorScheme.primary),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(modifier = Modifier.width(16.dp))
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "Delete",
-                                            tint = Color.White
-                                        )
+                                    if(filterOption == RequestStatus.TODO){
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(shape = RoundedCornerShape(16.dp))
+                                                .background(MaterialTheme.colorScheme.primary),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Check",
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                    if(filterOption == RequestStatus.DONE){
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(shape = RoundedCornerShape(16.dp))
+                                                .background(MaterialTheme.colorScheme.error),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                tint = Color.White
+                                            )
+                                        }
                                     }
                                 },
                                 modifier = Modifier

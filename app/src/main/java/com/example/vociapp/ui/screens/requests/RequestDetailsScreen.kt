@@ -58,8 +58,8 @@ fun RequestDetailsScreen(
 
     val homelessViewModel = serviceLocator.getHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
-    var showDialog by remember { mutableStateOf(false) } // State for dialog visibility
-    var requestForDialog: Request? by remember { mutableStateOf(null) } // State to hold the request for the dialog
+    var showDialog by remember { mutableStateOf(false) }
+    var requestForDialog: Request? by remember { mutableStateOf(null) }
 
     Column(
         modifier = Modifier
