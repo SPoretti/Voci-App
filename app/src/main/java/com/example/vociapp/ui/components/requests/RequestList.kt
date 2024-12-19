@@ -96,10 +96,9 @@ fun RequestList(
                                     if(request.status == RequestStatus.TODO){
                                         requestViewModel.requestDone(request)
                                     }
-                                    if(request.status == RequestStatus.DONE){
+                                    else {
                                         requestViewModel.deleteRequest(request)
                                     }
-
                                 }
                             }
 
@@ -152,7 +151,6 @@ fun RequestList(
                                 RequestListItem(
                                     request = request,
                                     navController,
-                                    requestViewModel,
                                     homeLessViewModel
                                 )
                             }

@@ -46,7 +46,6 @@ import kotlin.text.get
 fun RequestListItem(
     request: Request,
     navController: NavHostController,
-    requestViewModel: RequestViewModel,
     homelessViewModel: HomelessViewModel
 ){
 

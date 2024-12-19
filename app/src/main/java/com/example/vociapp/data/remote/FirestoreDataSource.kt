@@ -9,8 +9,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.collections.get
-import kotlin.text.get
 
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -195,13 +193,13 @@ class FirestoreDataSource @Inject constructor(
 
     suspend fun getRequestById(requestId: String): Resource<Request> {
         return try {
-            val documentSnapshot = firestore.collection("requests")
-                .document(requestId) // Specify the document ID
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("id", requestId)
                 .get()
                 .await()
 
-            if (documentSnapshot.exists()) {
-                val request = documentSnapshot.toObject(Request::class.java)!!
+            if (querySnapshot.documents.isNotEmpty()) {
+                val request = querySnapshot.documents[0].toObject(Request::class.java)!!
                 Resource.Success(request)
             } else {
                 Resource.Error("Request not found")
