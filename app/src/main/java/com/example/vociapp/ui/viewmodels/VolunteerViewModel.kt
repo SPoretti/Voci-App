@@ -1,5 +1,7 @@
 package com.example.vociapp.ui.viewmodels
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.VolunteerRepository
@@ -54,29 +56,18 @@ class VolunteerViewModel @Inject constructor(
         return _specificVolunteer.asStateFlow()
     }
 
-    fun getVolunteerByEmail(email: String): StateFlow<Resource<Volunteer>> {
+    //Ritorna un volontario tramite email
+    fun getVolunteerByEmail(email: String?): StateFlow<Resource<Volunteer>> {
         _specificVolunteer.value = Resource.Loading()
         viewModelScope.launch {
-            volunteerRepository.getVolunteerByEmail(email)
-                .collect { result ->
-                    _specificVolunteer.value = result
-                }
+            if (email != null) {
+                volunteerRepository.getVolunteerByEmail(email)
+                    .collect { result ->
+                        _specificVolunteer.value = result
+                    }
+            }
         }
         return _specificVolunteer.asStateFlow()
-    }
-
-    // ritorna il valore "name" del volontario corrente
-    fun getVolunteerName(): String? {
-        return _currentVolunteer.value?.name
-    }
-
-    // ritorna il valore "surname" del volontario corrente
-    fun getVolunteerSurname(): String? {
-        return _currentVolunteer.value?.surname
-    }
-
-    fun getCurrentVolunteer(): Volunteer? {
-        return _currentVolunteer.value
     }
 
     fun addVolunteer(volunteer: Volunteer) {
@@ -92,16 +83,15 @@ class VolunteerViewModel @Inject constructor(
     }
 
 
-    fun updateVolunteer(volunteer: Volunteer) {
+    fun updateVolunteer(oldVolunteer: Volunteer, volunteer: Volunteer) {
         viewModelScope.launch {
-            val result = volunteerRepository.updateVolunteer(volunteer)
+            val result = volunteerRepository.updateVolunteer(oldVolunteer, volunteer)
+            Log.d(TAG, "updateVolunteer: $result")
             when (result) {
                 is Resource.Success -> {
-                    // Request updated successfully, you might want to refresh the requests list
                     getVolunteerById(volunteer.id)
                 }
                 is Resource.Error -> {
-                    // Handle error, e.g., show an error message to the user
                     println("Errore nella modifica dell'utente: ${result.message}")
                 }
 

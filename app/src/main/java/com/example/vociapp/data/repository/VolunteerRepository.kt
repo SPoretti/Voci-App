@@ -37,18 +37,14 @@ class VolunteerRepository @Inject constructor(
                 emit(Resource.Success(volunteer))
             } else {
                 emit(Resource.Error("Volontario non trovato"))
-                Log.d("VolunteerRepo", "Volontario non trovato per il nickname: $nickname") // Log per vedere se entra qui
             }
         } catch (e: Exception) {
             emit(Resource.Error("Errore durante il recupero dei dati: ${e.localizedMessage}"))
-            Log.e("VolunteerRepo", "Errore durante il recupero dei dati: ${e.localizedMessage}", e) // Log degli errori
         }
     }
 
-
-
-    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
-        return firestoreDataSource.updateVolunteer(volunteer)
+    suspend fun updateVolunteer(oldVolunteer: Volunteer, volunteer: Volunteer): Resource<Unit> {
+        return firestoreDataSource.updateVolunteer(oldVolunteer, volunteer)
     }
 
     fun getVolunteerByEmail(email: String): Flow<Resource<Volunteer>> = flow {
