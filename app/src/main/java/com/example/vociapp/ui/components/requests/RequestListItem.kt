@@ -15,9 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentInd
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,8 +37,6 @@ import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.ui.components.iconCategoryMap
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
-import com.example.vociapp.ui.viewmodels.RequestViewModel
-import kotlin.text.get
 
 @Composable
 fun RequestListItem(

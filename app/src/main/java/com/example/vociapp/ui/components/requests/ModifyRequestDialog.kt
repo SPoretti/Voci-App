@@ -35,7 +35,6 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
 fun ModifyRequestDialog(

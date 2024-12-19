@@ -187,6 +187,7 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             // Handle exception, e.g., log the error
             // and return null or throw an exception
+            Log.e("FirestoreDataSource", "Error fetching homeless: ${e.message}")
             null
         }
     }
