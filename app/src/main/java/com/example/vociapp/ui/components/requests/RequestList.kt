@@ -93,7 +93,13 @@ fun RequestList(
                             // Observe dismissal state
                             LaunchedEffect(swipeState.currentValue) {
                                 if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                                    requestViewModel.requestDone(request)
+                                    if(request.status == RequestStatus.TODO){
+                                        requestViewModel.requestDone(request)
+                                    }
+                                    if(request.status == RequestStatus.DONE){
+                                        requestViewModel.deleteRequest(request)
+                                    }
+
                                 }
                             }
 
