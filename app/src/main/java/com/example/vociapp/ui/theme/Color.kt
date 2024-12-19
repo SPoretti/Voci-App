@@ -5,33 +5,28 @@ import androidx.compose.ui.graphics.Color
 object ColorPalette {
 
     // Light Theme
-    val PrimaryLight = Color(0xFF035DFB) // Blue
+    val PrimaryLight = Color(0xFF035DFB)
     val OnPrimaryLight = Color(0xFFFFFFFF)
     val PrimaryContainerLight = Color(0xFFA7C1FF)
-    val SecondaryLight = Color(0xFFFF5700) // Orange
+    val SecondaryLight = Color(0xFFFF5700)
     val OnSecondaryLight = Color(0xFF000000)
     val SecondaryContainerLight = Color(0xFFCC7A00)
     val ErrorLight = Color(0xFFD32F2F)
     val OnErrorLight = Color(0xFF000000)
     val BackgroundLight = Color(0xFFFAFAFA)
     val OnBackgroundLight = Color(0xFF212121)
-    val SurfaceLight = Color(0xFFF3F3F3) //Light gray
+    val SurfaceLight = Color(0xFFF3F3F3)
     val OnSurfaceLight = Color(0xFF212121)
     val OutlineLight = Color(0xFFFFFFFF)
 
-//    val BackgroundNavBarColor = Color(0xFF7BABFF)
-//    val BackgroundIconColor = Color(0xFFD7E6FF)
-//    val IconColor = Color(0xFF4A4459)
-//    val SelectedIconColor = Color(0xFF377CF8)
-
     // Dark Theme
-    val PrimaryDark = Color(0xFF035DFB) // Lightened blue for better contrast
+    val PrimaryDark = Color(0xFF035DFB)
     val OnPrimaryDark = Color(0xFF000000)
-    val PrimaryContainerDark = Color(0xFF148AFF)// TODO: choose better color if needed
-    val SecondaryDark = Color(0xFFFF5700) // Lightened orange for better contrast
+    val PrimaryContainerDark = Color(0xFF148AFF)
+    val SecondaryDark = Color(0xFFFF5700)
     val OnSecondaryDark = Color(0xFFFFFFFF)
     val SecondaryContainerDark = Color(0xFFFF6B00)
-    val ErrorDark = Color(0xFFFF6B6B)
+    val ErrorDark = Color(0xFFD32F2F)
     val OnErrorDark = Color(0xFFFFFFFF)
     val BackgroundDark = Color(0xFF121212)
     val OnBackgroundDark = Color(0xFFE0E0E0)
