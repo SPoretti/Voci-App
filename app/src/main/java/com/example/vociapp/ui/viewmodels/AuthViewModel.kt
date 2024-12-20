@@ -106,10 +106,12 @@ sealed class AuthResult {
 }
 
 data class UserProfile(
+    val nickname: String? = null,
     val displayName: String? = null,
     val surname: String? = null,
     val email: String? = null,
     val phoneNumber : String? = null,
     val photoUrl: String? = null
 ) {
+
 }
