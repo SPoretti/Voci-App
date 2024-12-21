@@ -118,7 +118,8 @@ fun ModifyRequestDialog(
                     onSearch = { homelessViewModel.updateSearchQuery(it) },
                     placeholderText = "Cerca un senzatetto...",
                     unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    onClick = { }
+                    onClick = { },
+                    onDismiss = { }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -131,8 +132,6 @@ fun ModifyRequestDialog(
 
                 HomelessList(
                     homelesses = listToDisplay,
-                    homelessViewModel = homelessViewModel,
-                    navController = navController,
                     showPreferredIcon = false,
                     onListItemClick = { homeless ->
                         homelessID = homeless.id
