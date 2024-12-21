@@ -166,7 +166,7 @@ fun UserProfileScreen(
                                         )
                                     }
                                     Text(
-                                        text = volunteer?.nickname ?: "User",
+                                        text = volunteer?.nickname ?: "Unknown Volunteer",
                                         style = MaterialTheme.typography.headlineMedium,
                                         fontWeight = FontWeight.Bold
                                     )

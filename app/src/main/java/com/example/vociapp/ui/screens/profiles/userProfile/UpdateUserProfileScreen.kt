@@ -21,6 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +39,7 @@ import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileTextField
+import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.viewmodels.AuthResult
 
 @Composable
@@ -48,7 +50,9 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
 
     if(currentProfile != null){
         val loggedUserNickname = currentProfile.displayName
-        Log.d(TAG, "Utente loggato (modifica): $loggedUserNickname")
+        val volunteerLoggedEmail = currentProfile.email
+
+        Log.d(TAG, "Utente loggato (modifica): $loggedUserNickname + $volunteerLoggedEmail")
 
         var nickname by remember { mutableStateOf("") }
         var name by remember { mutableStateOf("") }
@@ -60,161 +64,179 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
         var isUpdating by remember { mutableStateOf(false) }
         var isNavigatingBack by remember { mutableStateOf(false) }
         var isInitialized by remember { mutableStateOf(false) }
+        var showSnackbar by remember { mutableStateOf(false) }
 
         val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-        val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
 
         var loggedVolunteer by remember { mutableStateOf<Volunteer?>(null) }
 
         val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
             .collectAsState(initial = Resource.Loading())
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-
-            IconButton(
-                onClick = {
-                    isNavigatingBack = true
-                    navController.popBackStack()
-                },
-                enabled = !isNavigatingBack,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back to Profile",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    "Modifica il profilo",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Card(
+        Scaffold(
+            snackbarHost = { SnackbarManager.CustomSnackbarHost() },
+            content = { padding ->
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(16.dp)
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
+
+                    IconButton(
+                        onClick = {
+                            isNavigatingBack = true
+                            navController.popBackStack()
+                        },
+                        enabled = !isNavigatingBack,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.TopStart)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back to Profile",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
+                            .fillMaxSize()
+                            .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        when (val resource = volunteerResource) {
-                            is Resource.Loading -> CircularProgressIndicator()
+                        Text(
+                            "Modifica il profilo",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                            is Resource.Error -> {
-                                Text(
-                                    text = "Errore: ${resource.message}",
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                when (val resource = volunteerResource) {
+                                    is Resource.Loading -> CircularProgressIndicator()
 
-                            is Resource.Success -> {
-                                val volunteer = resource.data
-                                if (!isInitialized) {
-                                    loggedVolunteer = volunteer
-                                    nickname = volunteer?.nickname ?: ""
-                                    name = volunteer?.name ?: ""
-                                    surname = volunteer?.surname ?: ""
-                                    isInitialized = true
+                                    is Resource.Error -> {
+                                        Text(
+                                            text = "Errore: ${resource.message}",
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+
+                                    is Resource.Success -> {
+                                        val volunteer = resource.data
+                                        if (!isInitialized) {
+                                            loggedVolunteer = volunteer
+                                            nickname = volunteer?.nickname ?: ""
+                                            name = volunteer?.name ?: ""
+                                            surname = volunteer?.surname ?: ""
+                                            isInitialized = true
+                                        }
+
+                                        ProfileTextField(
+                                            value = nickname,
+                                            onValueChange = { nickname = it },
+                                            label = "Nickname",
+                                            icon = Icons.Default.Person,
+                                            placeholder = "Nickname"
+                                        )
+
+
+                                        ProfileTextField(
+                                            value = name,
+                                            onValueChange = { name = it },
+                                            label = "Nome",
+                                            icon = Icons.Default.Person,
+                                            placeholder = "Nome"
+                                        )
+
+                                        ProfileTextField(
+                                            value = surname,
+                                            onValueChange = { surname = it },
+                                            label = "Cognome",
+                                            icon = Icons.Default.Person,
+                                            placeholder = "Cognome"
+                                        )
+
+                                        ProfileTextField(
+                                            value = password,
+                                            onValueChange = { password = it },
+                                            label = "Password",
+                                            icon = Icons.Default.Password,
+                                            placeholder = "Password",
+                                        )
+
+                                        val isPasswordValid = password.isNotBlank()
+
+                                        Button(
+                                            onClick = { isUpdating = true },
+                                            enabled = isPasswordValid,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(
+                                                "Conferma modifiche",
+                                                modifier = Modifier.padding(vertical = 8.dp)
+                                            )
+                                        }
+                                    }
                                 }
 
-                                    ProfileTextField(
-                                        value = nickname,
-                                        onValueChange = { nickname = it },
-                                        label = "Nickname",
-                                        icon = Icons.Default.Person,
-                                        placeholder = "Nickname"
-                                    )
-
-
-                                ProfileTextField(
-                                    value = name,
-                                    onValueChange = { name = it },
-                                    label = "Nome",
-                                    icon = Icons.Default.Person,
-                                    placeholder = "Nome"
-                                )
-
-                                ProfileTextField(
-                                    value = surname,
-                                    onValueChange = { surname = it },
-                                    label = "Cognome",
-                                    icon = Icons.Default.Person,
-                                    placeholder = "Cognome"
-                                )
-
-                                ProfileTextField(
-                                    value = password,
-                                    onValueChange = { password = it },
-                                    label = "Password",
-                                    icon = Icons.Default.Password,
-                                    placeholder = "Password"
-                                )
-
-                                val isPasswordValid = password == volunteer?.password && password.isNotBlank()
-
-                                Button(
-                                    onClick = { isUpdating = true },
-                                    enabled = isPasswordValid && !isUpdating,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp)
-                                ) {
+                                if (showError) {
                                     Text(
-                                        if (isUpdating) "Aggiornamento in corso..." else "Conferma modifiche",
-                                        modifier = Modifier.padding(vertical = 8.dp)
+                                        errorMessage,
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(top = 8.dp)
                                     )
                                 }
                             }
-                        }
-
-                        if (showError) {
-                            Text(
-                                errorMessage,
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(top = 8.dp)
-                            )
                         }
                     }
                 }
             }
-        }
+        )
 
         LaunchedEffect(isUpdating) {
             if (isUpdating) {
-                val result = authViewModel.updateUserProfile(nickname)
+                var result = volunteerLoggedEmail?.let { authViewModel.signInWithEmailAndPassword(it, password) }
                 if (result is AuthResult.Failure) {
-                    showError = true
+                    showSnackbar = true
                     errorMessage = result.message
+                    isUpdating = false
+                    Log.d(TAG, "Errore di autenticazione: ${result.message}")
+                    return@LaunchedEffect
                 } else {
-                    showError = false
-                    val updatedVolunteer = Volunteer("", name, surname, nickname)
-                    Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
-                    loggedVolunteer?.let { volunteerViewModel.updateVolunteer(it,updatedVolunteer) }
-                    Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
-                    navController.popBackStack()
+                    result = authViewModel.updateUserProfile(nickname)
+                    if (result is AuthResult.Failure) {
+                        showError = true
+                        errorMessage = result.message
+                    } else {
+                        showError = false
+                        val updatedVolunteer = Volunteer("", name, surname, nickname)
+                        Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
+                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(it,updatedVolunteer) }
+                        Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
+                        navController.popBackStack()
+                    }
+                    isUpdating = false
                 }
-                isUpdating = false
+            }
+            if(showSnackbar) {
+                SnackbarManager.showSnackbar(errorMessage)
+                showSnackbar = false
             }
         }
     }

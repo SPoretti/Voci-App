@@ -162,7 +162,7 @@ class FirestoreDataSource @Inject constructor(
 
                 val updatedVolunteer = volunteer.copy(
                     id = oldVolunteer.id,
-                    password = oldVolunteer.password,
+                    //password = oldVolunteer.password,
                     phone_number = oldVolunteer.phone_number,
                     email = oldVolunteer.email
                 )

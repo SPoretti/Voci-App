@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.vociapp.data.types.AuthState
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,8 +43,31 @@ class AuthViewModel : ViewModel() {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
             AuthResult.Success
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            AuthResult.Failure("Password errata")
+        } catch (e: FirebaseAuthException) {
+            handleAuthException(e)
         } catch (e: Exception) {
-            AuthResult.Failure(e.message ?: "An unknown error occurred")
+            handleGenericException(e)
+        }
+    }
+
+    //TODO: spostare in una classe a parte
+    private fun handleAuthException(e: FirebaseAuthException): AuthResult {
+        Log.e("Auth", "Errore FirebaseAuthException: ${e.message}", e)
+        return if (e.message?.contains("we have blocked all requests", ignoreCase = true) == true) {
+            AuthResult.Failure("Limite di tentativi raggiunto, riprova più tardi")
+        } else {
+            AuthResult.Failure("Errore di autenticazione: ${e.message}")
+        }
+    }
+
+    private fun handleGenericException(e: Exception): AuthResult {
+        Log.e("Auth", "Errore generico: ${e.message}", e)
+        return if (e.message?.contains("we have blocked all requests", ignoreCase = true) == true) {
+            AuthResult.Failure("Limite di tentativi raggiunto, riprova più tardi")
+        } else {
+            AuthResult.Failure("Errore sconosciuto: ${e.message}")
         }
     }
 

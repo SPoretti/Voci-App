@@ -51,9 +51,6 @@ fun SignUpScreen(
     var nickname by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
-//    var birth by remember { mutableStateOf("") }
-//    var showModal by remember { mutableStateOf(false) }
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -205,9 +202,14 @@ fun SignUpScreen(
                 errorMessage = result.message
             } else {
                 val id: String = UUID.randomUUID().toString()
-                val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+                //val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+                val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
                 volunteerViewModel.getVolunteerById(id)
+
+//                navController.navigate(Screens.EmailVerification.route){
+//                    popUpTo(Screens.SignUp.route){inclusive = true}
+//                }
 
                 navController.navigate(Screens.UserProfile.route) {
                     popUpTo(Screens.SignUp.route) { inclusive = true }
