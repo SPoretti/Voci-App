@@ -66,7 +66,6 @@ fun SignInScreen(
                     return@LaunchedEffect
                 } else {
                     val result = authViewModel.signInWithEmailAndPassword(email, password)
-                    Log.d("AuthFlow", "Risultato dell'autenticazione: $result, email: $email, password: $password")
                     if (result is AuthResult.Failure) {
                         showError = true
                         errorMessage = "Email o password errate"
@@ -88,7 +87,7 @@ fun SignInScreen(
     }
 
     if (showError) {
-        LaunchedEffect(showError && errorMessage.isNotEmpty()) {
+        LaunchedEffect(errorMessage.isNotEmpty()) {
             SnackbarManager.showSnackbar(errorMessage)
             showError = false
         }
