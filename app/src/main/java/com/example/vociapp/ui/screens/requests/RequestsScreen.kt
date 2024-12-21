@@ -40,9 +40,9 @@ import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AddRequestDialog
-import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestList
+import com.example.vociapp.ui.components.requests.AddRequestDialog
+import com.example.vociapp.ui.components.requests.RequestDetails
+import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
 import kotlinx.coroutines.launch
@@ -136,10 +136,6 @@ fun RequestsScreen(
                 requests = requests,
                 filterOption = RequestStatus.TODO,
                 sortOption = selectedSortOption,
-                onItemClick = { request ->
-                    showDialog = true
-                    selectedRequest = request
-                },
                 navController = navController,
                 requestViewModel = requestViewModel,
                 homeLessViewModel = homelessViewModel
@@ -156,19 +152,6 @@ fun RequestsScreen(
 
         ) {
             Icon(Icons.Filled.Add, contentDescription = "Add request")
-        }
-
-        if (showDialog) {
-            Dialog(
-                onDismissRequest = { showDialog = false }
-            ) {
-                RequestDetails(
-                    request = selectedRequest,
-                    onDismiss = { showDialog = false },
-                    navController = navController,
-                    homelessViewModel = homelessViewModel
-                )
-            }
         }
 
         if (showAddRequestDialog) {

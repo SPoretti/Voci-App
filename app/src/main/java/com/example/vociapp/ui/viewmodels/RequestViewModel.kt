@@ -24,6 +24,9 @@ class RequestViewModel @Inject constructor(
     private val _requests = MutableStateFlow<Resource<List<Request>>>(Resource.Loading())
     val requests: StateFlow<Resource<List<Request>>> = _requests.asStateFlow()
 
+    private val _requestById = MutableStateFlow<Resource<Request>>(Resource.Loading())
+    val requestById: StateFlow<Resource<Request>> = _requestById.asStateFlow()
+
     init {
         getRequests()
     }
@@ -34,6 +37,14 @@ class RequestViewModel @Inject constructor(
                 _requests.value = result
             }
             .launchIn(viewModelScope)
+    }
+
+    fun getRequestById(requestId: String) {
+        viewModelScope.launch {
+            _requestById.value = Resource.Loading() // Set loading state
+            val result = requestRepository.getRequestById(requestId) // Get data
+            _requestById.value = result // Update state with result
+        }
     }
 
     fun addRequest(request: Request) {

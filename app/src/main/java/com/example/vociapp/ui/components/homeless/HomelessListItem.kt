@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.homeless
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
