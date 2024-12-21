@@ -30,8 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList

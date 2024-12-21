@@ -1,6 +1,6 @@
 package com.example.vociapp.ui.state
 
-import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.local.database.Homeless
 
 data class HomelessItemUiState (
     val homeless: Homeless,

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.HomelessRepository
-import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

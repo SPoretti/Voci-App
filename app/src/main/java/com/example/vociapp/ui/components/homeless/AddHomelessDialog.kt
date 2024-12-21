@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.local.database.Homeless
 
 @Composable
 fun AddHomelessDialog(

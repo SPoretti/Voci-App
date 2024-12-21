@@ -1,9 +1,9 @@
 package com.example.vociapp.data.remote
 
 import android.util.Log
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -296,6 +296,14 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             return Resource.Error(e.message ?: "An unknown error occurred")
         }
+    }
+
+    fun updateHomeless(data: Any) {
+        TODO()//if needed
+    }
+
+    fun deleteHomeless(id: Any) {
+        TODO()//if needed
     }
 
 }

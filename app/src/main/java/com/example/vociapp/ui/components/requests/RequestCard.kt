@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.local.database.Request
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

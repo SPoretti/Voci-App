@@ -3,7 +3,7 @@ package com.example.vociapp.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.VolunteerRepository
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
