@@ -50,12 +50,10 @@ fun HomeScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
 
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
-    val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
 
     var showAddHomelessDialog by remember { mutableStateOf(false) }
 
@@ -151,15 +149,12 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
-                    val listToDisplay = if (searchQuery.isBlank()) {
-                        homelesses
-                    } else {
-                        filteredHomelesses
-                    }
-
-//                    val sortedHomelessList = listToDisplay.data.orEmpty()
-//                        .sortedByDescending { userPreferences.data?.contains(it.id) ?: false }
-//                    val sortedHomelessListResource = Resource.Success(sortedHomelessList)
+                    val listToDisplay =
+                        if (searchQuery.isBlank()) {
+                            homelesses
+                        } else {
+                            filteredHomelesses
+                        }
 
                     HomelessList(
                         homelesses = listToDisplay,
@@ -173,15 +168,22 @@ fun HomeScreen(
         }
 
         if (showAddHomelessDialog) {
-            AddHomelessDialog(
-                onDismiss = { showAddHomelessDialog = false },
-                onAdd = {
-                    homelessViewModel.addHomeless(it)
-                    showAddHomelessDialog = false
-                }
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+            ){
+                AddHomelessDialog(
+                    onDismiss = { showAddHomelessDialog = false },
+                    onAdd = {
+                        homelessViewModel.addHomeless(it)
+                        showAddHomelessDialog = false
+                    }
+                )
+            }
         }
-    } }
+    }
+}
 
 
 

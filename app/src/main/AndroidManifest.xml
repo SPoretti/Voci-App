@@ -11,7 +11,8 @@
         android:roundIcon="@drawable/voci_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VociApp"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:windowSoftInputMode="adjustResize">
         <activity
             android:name=".MainActivity"
             android:exported="true"
