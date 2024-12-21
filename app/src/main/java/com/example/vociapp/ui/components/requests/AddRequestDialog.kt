@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -33,6 +33,10 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.IconCategory
+import com.example.vociapp.ui.components.IconSelector
+import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
@@ -56,6 +60,8 @@ fun AddRequestDialog(
     var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
 
     var isAddingRequest by remember { mutableStateOf(false) }
+
+    var selectedIconCategory by remember { mutableStateOf(IconCategory.OTHER) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -109,9 +115,20 @@ fun AddRequestDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                IconSelector(
+                    onIconSelected = { iconCategory ->
+                        selectedIconCategory = iconCategory
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 SearchBar(
                     modifier = Modifier.fillMaxWidth(),
-                    onSearch = { homelessViewModel.updateSearchQuery(it)},
+                    onSearch = { homelessViewModel.updateSearchQuery(it) },
                     placeholderText = "Cerca un senzatetto...",
                     unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                     onClick = { },
@@ -150,6 +167,7 @@ fun AddRequestDialog(
                         description = requestDescription,
                         homelessID = homelessID,
                         creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
+                        iconCategory = selectedIconCategory
                     )
                     onAdd(newRequest)
                 },

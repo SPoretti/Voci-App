@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentInd
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +35,8 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
@@ -42,12 +48,20 @@ fun RequestDetails(
 ) {
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     val names = homelessViewModel.homelessNames.collectAsState().value
+    var showDialog = false
 
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
+
+        IconButton(onClick = { showDialog = true }) {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = "Modify"
+            )
+        }
 
         Column(modifier = Modifier
             .padding(16.dp)
@@ -116,6 +130,7 @@ fun RequestDetails(
                 }
 
                 Text("Ricevente:", fontSize = 14.sp)
+
                 RequestChip(
                     text = homelessName,
                     onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
@@ -123,6 +138,12 @@ fun RequestDetails(
                 )
             }
         }
-
+    }
+    if (showDialog) {
+        ModifyRequestDialog(
+            request = request,
+            onDismiss = { showDialog = false },
+            navController = navController
+        )
     }
 }

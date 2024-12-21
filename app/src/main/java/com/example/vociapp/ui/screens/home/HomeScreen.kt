@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.R
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AddHomelessDialog
-import com.example.vociapp.ui.components.HomelessList
+import com.example.vociapp.ui.components.homeless.AddHomelessDialog
+import com.example.vociapp.ui.components.homeless.HomelessList
 import com.example.vociapp.ui.components.SearchBar
 import kotlinx.coroutines.launch
 

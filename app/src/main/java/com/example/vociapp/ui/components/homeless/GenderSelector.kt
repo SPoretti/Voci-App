@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.homeless
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth

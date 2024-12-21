@@ -203,7 +203,26 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             // Handle exception, e.g., log the error
             // and return null or throw an exception
+            Log.e("FirestoreDataSource", "Error fetching homeless: ${e.message}")
             null
+        }
+    }
+
+    suspend fun getRequestById(requestId: String): Resource<Request> {
+        return try {
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("id", requestId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val request = querySnapshot.documents[0].toObject(Request::class.java)!!
+                Resource.Success(request)
+            } else {
+                Resource.Error("Request not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 

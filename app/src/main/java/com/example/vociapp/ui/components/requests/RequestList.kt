@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +45,6 @@ fun RequestList(
     requests: Resource<List<Request>>,
     filterOption: RequestStatus,
     sortOption: SortOption,
-    onItemClick: (Request) -> Unit,
     navController: NavHostController,
     requestViewModel: RequestViewModel,
     homeLessViewModel: HomelessViewModel,
@@ -93,7 +93,12 @@ fun RequestList(
                             // Observe dismissal state
                             LaunchedEffect(swipeState.currentValue) {
                                 if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                                    requestViewModel.requestDone(request)
+                                    if(request.status == RequestStatus.TODO){
+                                        requestViewModel.requestDone(request)
+                                    }
+                                    else {
+                                        requestViewModel.deleteRequest(request)
+                                    }
                                 }
                             }
 
@@ -102,20 +107,37 @@ fun RequestList(
                                 state = swipeState,
 
                                 backgroundContent = {
-                                    // Optional background content while swiping (e.g., delete icon)
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(shape = RoundedCornerShape(16.dp))
-                                            .background(MaterialTheme.colorScheme.primary),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(modifier = Modifier.width(16.dp))
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "Delete",
-                                            tint = Color.White
-                                        )
+                                    if(filterOption == RequestStatus.TODO){
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(shape = RoundedCornerShape(16.dp))
+                                                .background(MaterialTheme.colorScheme.primary),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Check",
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                    if(filterOption == RequestStatus.DONE){
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(shape = RoundedCornerShape(16.dp))
+                                                .background(MaterialTheme.colorScheme.error),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                tint = Color.White
+                                            )
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -129,11 +151,8 @@ fun RequestList(
                                 RequestListItem(
                                     request = request,
                                     navController,
-                                    requestViewModel,
                                     homeLessViewModel
-                                ) {
-                                    onItemClick(request)
-                                }
+                                )
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                         }
