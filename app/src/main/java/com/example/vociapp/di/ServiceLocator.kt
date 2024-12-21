@@ -49,7 +49,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
 
     private val homelessRepository: HomelessRepository = HomelessRepository(
         firestoreDataSource = FirestoreDataSource(firestore),
-        localDataSource = roomDataSource,
+        roomDataSource = roomDataSource,
         networkManager = networkManager,
         syncQueueDao = roomDatabase.syncQueueDao()
     )

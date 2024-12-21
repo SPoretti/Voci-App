@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class HomelessRepository @Inject constructor(
-    private val localDataSource: RoomDataSource,
+    private val roomDataSource: RoomDataSource,
     private val firestoreDataSource: FirestoreDataSource,
     private val networkManager: NetworkManager,
     private val syncQueueDao: SyncQueueDao // Inject SyncQueueDao to manage offline sync
@@ -22,7 +22,7 @@ class HomelessRepository @Inject constructor(
 
     suspend fun addHomeless(homeless: Homeless): Resource<String> {
         // Add to local data source
-        localDataSource.insertHomeless(homeless)
+        roomDataSource.insertHomeless(homeless)
 
         // Check if the network is available
         return if (networkManager.isNetworkConnected()) {
@@ -56,32 +56,66 @@ class HomelessRepository @Inject constructor(
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            val pendingActions = syncQueueDao.getPendingSyncActions(System.currentTimeMillis())
+            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
 
-            for (action in pendingActions) {
-                // Deserialize the data
-                val data = Gson().fromJson(action.data, Homeless::class.java)
+                for (action in pendingActions) {
+                    // Deserialize the data
+                    val data = Gson().fromJson(action.data, Homeless::class.java)
 
-                when (action.operation) {
-                    "add" -> firestoreDataSource.addHomeless(data)
-                    "update" -> firestoreDataSource.updateHomeless(data)
-                    "delete" -> firestoreDataSource.deleteHomeless(data.id)
+                    when (action.operation) {
+                        "add" -> firestoreDataSource.addHomeless(data)
+                        "update" -> firestoreDataSource.updateHomeless(data)
+                        "delete" -> firestoreDataSource.deleteHomeless(data.id)
+                    }
+
+                    // Once synced, remove the action from the queue
+                    syncQueueDao.deleteSyncAction(action)
                 }
-
-                // Once synced, remove the action from the queue
-                syncQueueDao.deleteSyncAction(action)
             }
         }
     }
-    fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
-        emit(Resource.Loading()) // Indicate loading state
-        val result = firestoreDataSource.getHomelesses() // Get the result from FirestoreDataSource
-        emit(result) // Emit the result (Success or Error)
 
+    fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
+        emit(Resource.Loading()) // Emit loading state
+
+        if (networkManager.isNetworkConnected()) {
+            // If online, fetch from Firestore
+            val remoteHomelesses = firestoreDataSource.getHomelesses()
+
+            when (remoteHomelesses) {
+                is Resource.Success -> {
+                    // Cache the fetched data in Room using RoomDataSource
+                    roomDataSource.homelessDao.insertAll(remoteHomelesses.data)
+                    emit(remoteHomelesses) // Emit the remote data
+                }
+                is Resource.Error -> {
+                    emit(remoteHomelesses) // Emit the error from Firestore
+                }
+                else -> {
+                    emit(Resource.Loading()) // Handle any unexpected cases
+                }
+            }
+        } else {
+            // If offline, fetch from the local Room database
+            roomDataSource.homelessDao.getAllHomeless().collect { localHomelesses ->
+                emit(Resource.Success(localHomelesses)) // Emit the local data
+            }
+        }
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless?{
-        return firestoreDataSource.getHomeless(homelessID)
+    suspend fun getHomeless(homelessID: String): Homeless? {
+        return if (networkManager.isNetworkConnected()) {
+            // If online, fetch from Firestore
+            val remoteHomeless = firestoreDataSource.getHomeless(homelessID)
+            if (remoteHomeless != null) {
+                // Cache the fetched data into Room using RoomDataSource
+                roomDataSource.homelessDao.insert(remoteHomeless)
+            }
+            remoteHomeless // Return the fetched data from Firestore
+        } else {
+            // If offline, fetch from the local Room database
+            return roomDataSource.homelessDao.getHomelessById(homelessID)
+        }
     }
 }
 
