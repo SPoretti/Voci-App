@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.components
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,7 +23,6 @@ import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.state.HomelessItemUiState
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomelessList(
     homelesses: Resource<List<Homeless>>,
@@ -66,7 +64,7 @@ fun HomelessList(
                     is Resource.Loading -> {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.secondary
                         )
                     }
                     is Resource.Success -> {
