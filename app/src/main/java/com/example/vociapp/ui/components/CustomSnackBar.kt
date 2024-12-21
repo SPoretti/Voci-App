@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarData
 import androidx.compose.runtime.Composable
@@ -33,8 +34,8 @@ fun CustomSnackbar(snackbarData: SnackbarData) {
         }
         .clip(RoundedCornerShape(12.dp))
         .background(MaterialTheme.colorScheme.primary)
-        .size(280.dp, 60.dp)
         .padding(16.dp)
+        .wrapContentHeight()
 
     Box(
         modifier = snackbarModifier,
