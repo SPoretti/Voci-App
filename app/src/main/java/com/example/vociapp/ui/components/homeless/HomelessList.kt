@@ -18,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.vociapp.data.types.AuthState
-import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.state.HomelessItemUiState

@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.data.util.NetworkConnectivityListener
 import com.example.vociapp.di.ServiceLocator
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.BottomBar
@@ -24,13 +25,18 @@ import com.example.vociapp.ui.theme.VociAppTheme
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var networkConnectivityListener: NetworkConnectivityListener
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
+        networkConnectivityListener.startMonitoring()
         enableEdgeToEdge()
         setContent {
             val serviceLocator = remember {
                 val firestore = FirebaseFirestore.getInstance()
-                ServiceLocator.initialize(firestore)
+                ServiceLocator.initialize(applicationContext, firestore)
                 ServiceLocator.getInstance()
             }
 
@@ -75,5 +81,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Stop monitoring connectivity when the activity is destroyed
+        networkConnectivityListener.stopMonitoring()
     }
 }

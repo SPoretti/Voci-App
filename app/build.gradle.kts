@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.room.common)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,4 +70,10 @@ dependencies {
     implementation(libs.androidx.material.icons.extended.v175)
     implementation(libs.material)
     implementation(libs.material3)
+    implementation (libs.androidx.room.runtime)
+    implementation (libs.androidx.room.compiler)
+    implementation (libs.androidx.work.runtime.ktx)
+    implementation (libs.gson)
+
+
 }

@@ -33,8 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.ui.viewmodels.HomelessViewModel

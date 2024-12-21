@@ -34,14 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.requests.AddRequestDialog
-import com.example.vociapp.ui.components.requests.RequestDetails
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.navigation.Screens
