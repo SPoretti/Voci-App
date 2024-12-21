@@ -21,7 +21,7 @@ class SyncWorker(
         // Attempt to sync pending actions
         homelessRepository.syncPendingActions()
         volunteerRepository.syncPendingActions()
-        //requestRepository.syncPendingActions()
+        requestRepository.syncPendingActions()
 
         return Result.success() // Indicate that the work was successful
     }
