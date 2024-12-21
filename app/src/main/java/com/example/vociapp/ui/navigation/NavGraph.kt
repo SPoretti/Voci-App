@@ -1,5 +1,9 @@
 package com.example.vociapp.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
@@ -39,38 +43,124 @@ fun NavGraph(
         startDestination = Screens.SignIn.route,
         modifier = Modifier.padding(paddingValues)
     ) {
-        composable(route = Screens.Home.route) { HomeScreen(navController, snackbarHostState) }
+        // Sign in and up screens
         composable(route = Screens.SignIn.route) { SignInScreen(navController) }
         composable(route = Screens.SignUp.route) { SignUpScreen(navController) }
-        composable(route = Screens.Requests.route) { RequestsScreen(navController, snackbarHostState) }
+
+        // Home screen
+        composable(
+            route = Screens.Home.route,
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { -it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { -it }
+                )
+            }
+        ) { HomeScreen(navController, snackbarHostState) }
+
+        // Requests screens
+        composable(
+            route = Screens.Requests.route,
+            enterTransition = {
+                // Slide in from the right if coming from Home
+                // Slide in from the left if coming from UserProfile
+                when (initialState.destination.route) {
+                    Screens.Home.route -> slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
+                    Screens.UserProfile.route -> slideInHorizontally(animationSpec = tween(600), initialOffsetX = { -it })
+                    else -> null
+                }
+            },
+            exitTransition = {
+                // Slide out to the left if going to Home
+                // Slide out to the right if going to UserProfile
+                when (targetState.destination.route) {
+                    Screens.Home.route -> slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
+                    Screens.UserProfile.route -> slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { -it })
+                    else -> null
+                }
+            }
+        ) { RequestsScreen(navController, snackbarHostState) }
+
         composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen(navController) }
-        composable(route = Screens.UserProfile.route) { UserProfileScreen(navController) }
+
+        composable(
+            route = "RequestDetailsScreen/{requestId}",
+            arguments = listOf(navArgument("requestId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { it }
+                )
+            }
+        ) {
+            backStackEntry ->
+            val requestId = backStackEntry.arguments?.getString("requestId")
+            RequestDetailsScreen(requestId.toString(), navController)
+        }
+
+        // Profile screens
+        composable(
+            route = Screens.UserProfile.route,
+            enterTransition = {
+                slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
+            },
+            exitTransition = {
+                slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
+            }
+        ) { UserProfileScreen(navController) }
+
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
 
         composable(
             route = "ProfileVolontario/{creatorId}",
-            arguments = listOf(navArgument("creatorId") { type = NavType.StringType })
-        ) {
-            backStackEntry ->
+            arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { it }
+                )
+            }
+        ) { backStackEntry ->
             val creatorId = backStackEntry.arguments?.getString("creatorId")
             ProfileVolunteerScreen(creatorId)
         }
-        composable(
-            route = "ProfileHomeless/{homelessId}",
-            arguments = listOf(navArgument("homelessId") { type = NavType.StringType })
-        ) {
-                backStackEntry ->
-            val homelessId = backStackEntry.arguments?.getString("homelessId")
-            ProfileHomelessScreen(homelessId)
-        }
 
         composable(
-            route = "RequestDetailsScreen/{requestId}",
-            arguments = listOf(navArgument("requestId") { type = NavType.StringType })
-        ) {
-                backStackEntry ->
-            val requestId = backStackEntry.arguments?.getString("requestId")
-            RequestDetailsScreen(requestId.toString(), navController)
+            route = "ProfileHomeless/{homelessId}",
+            arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { it }
+                )
+            }
+        ) { backStackEntry ->
+            val homelessId = backStackEntry.arguments?.getString("homelessId")
+            ProfileHomelessScreen(homelessId)
         }
     }
 }
