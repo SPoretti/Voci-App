@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     val snackbarHostState = remember { SnackbarHostState() }
                     Scaffold(
                         bottomBar = {
-                            if (currentRoute(navController) !in listOf("signIn", "signUp")) {
+                            if (currentRoute(navController) !in listOf("signIn", "signUp", "emailVerification", "completeSignUp")) {
                                 BottomBar(navController)
                             }
                         },
@@ -52,11 +52,17 @@ class MainActivity : ComponentActivity() {
                         LaunchedEffect(authState) {
                             when (authState) {
                                 is AuthState.Authenticated -> {
-                                    navController.navigate(Screens.Home.route)
+                                    val user = (authState as AuthState.Authenticated).user
+                                    if (user.isEmailVerified) {
+                                        navController.navigate(Screens.Home.route)
+                                    }
+                                    else{
+                                        navController.navigate(Screens.EmailVerification.route)
+                                    }
                                 }
                                 is AuthState.Unauthenticated -> {
                                     navController.navigate(Screens.SignIn.route) {
-                                        popUpTo(0) { inclusive = true } // Clear entire back stack
+                                        popUpTo(0) { inclusive = true }
                                     }
                                 }
 
