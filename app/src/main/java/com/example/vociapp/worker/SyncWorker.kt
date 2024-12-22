@@ -1,9 +1,8 @@
-package com.example.vociapp.data.util
+package com.example.vociapp.worker
 
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.RequestRepository
@@ -14,7 +13,7 @@ class SyncWorker(
     workerParams: WorkerParameters,
     private val homelessRepository: HomelessRepository,
     private val volunteerRepository: VolunteerRepository,
-    private val requestRepository: RequestRepository,
+    private val requestRepository: RequestRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
