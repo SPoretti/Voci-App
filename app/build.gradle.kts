@@ -78,6 +78,4 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     // Annotation processor for Room
     kapt(libs.androidx.room.compiler)
-    implementation (libs.androidx.work.runtime.ktx.v281) // Replace with the latest version
-
 }
