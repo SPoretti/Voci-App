@@ -46,10 +46,6 @@ class VolunteerRepository @Inject constructor(
         return firestoreDataSource.updateVolunteer(oldVolunteer, newVolunteer)
     }
 
-    suspend fun completeVolunteerProfile(volunteer: Volunteer): Resource<Unit> {
-        return firestoreDataSource.completeVolunteerProfile(volunteer)
-    }
-
     fun getVolunteerByEmail(email: String): Flow<Resource<Volunteer>> = flow {
         emit(Resource.Loading())
         try {

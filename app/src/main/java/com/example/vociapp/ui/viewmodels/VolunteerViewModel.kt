@@ -86,29 +86,12 @@ class VolunteerViewModel @Inject constructor(
                 is Resource.Success -> {
                     getVolunteerById(newVolunteer.id)
                 }
-
                 is Resource.Error -> {
                     println("Errore nella modifica dell'utente: ${result.message}")
                 }
-
                 is Resource.Loading -> TODO()
             }
         }
     }
 
-    fun completeVolunteerProfile(volunteer: Volunteer) {
-        viewModelScope.launch {
-            when (val result = volunteerRepository.completeVolunteerProfile(volunteer)) {
-                is Resource.Success -> {
-                    getVolunteerById(volunteer.id)
-                }
-
-                is Resource.Error -> {
-                    println("Errore nella modifica dell'utente: ${result.message}")
-                }
-
-                is Resource.Loading -> TODO()
-            }
-        }
-    }
 }

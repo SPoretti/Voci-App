@@ -101,8 +101,8 @@ class FirestoreDataSource @Inject constructor(
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return try {
             val uid = FirebaseAuth.getInstance().currentUser?.uid
-
             val volunteerWithId = volunteer.copy(id = uid ?: "")
+
             val documentReference = uid?.let {
                 firestore.collection("volunteers")
                     .document(it)
@@ -176,31 +176,6 @@ class FirestoreDataSource @Inject constructor(
             Resource.Error(e.message ?: "An unknown error occurred")
         }
 
-    }
-
-    suspend fun completeVolunteerProfile(volunteer: Volunteer): Resource<Unit> {
-        return try {
-            val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("email", volunteer.email) // Preleva il volontario tramite email
-                .get()
-                .await()
-            if (querySnapshot.documents.isNotEmpty()) {
-                val documentId = querySnapshot.documents[0].id // Get the document ID
-                val updatedVolunteer = volunteer.copy(
-                    id = documentId,
-                    email = volunteer.email
-                )
-                firestore.collection("volunteers")
-                    .document(documentId)
-                    .set(updatedVolunteer, SetOptions.merge())
-                    .await()
-                Resource.Success(Unit)
-            } else {
-                Resource.Error("Volunteer not found")
-            }
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {

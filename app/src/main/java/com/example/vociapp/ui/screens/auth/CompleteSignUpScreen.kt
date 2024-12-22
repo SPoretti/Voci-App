@@ -65,9 +65,9 @@ fun CompleteSignUpScreen(
                 errorMessage = result.message
                 showSnackbar = true
             } else {
+
                 val updatedVolunteer = Volunteer("", name, surname, nickname, phoneNumber, user?.email ?: "")
-                volunteerViewModel.completeVolunteerProfile(updatedVolunteer)
-                Log.d("CompleteSignUpScreen", "Volunteer: $updatedVolunteer")
+                volunteerViewModel.addVolunteer(updatedVolunteer)
                 navController.navigate(Screens.Home.route) {
                     popUpTo(Screens.CompleteSignUp.route) { inclusive = true }
                 }
