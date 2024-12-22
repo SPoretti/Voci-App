@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,12 +48,6 @@ fun HomelessListItem(
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val userId = volunteerViewModel.currentUser.value?.id
     val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
-    val backgroundColor =
-        if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
 
     var isPreferred by remember { mutableStateOf(false) }
 
@@ -65,21 +60,20 @@ fun HomelessListItem(
 
     Surface(
         modifier = Modifier
-            .padding(vertical = 4.dp)
             .height(70.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         onClick = {onClick(homelessState.homeless)},
-        shadowElevation = 4.dp,
-        color = backgroundColor,
+//        shadowElevation = 4.dp,
+        color = MaterialTheme.colorScheme.background,
     ){
 
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(start = 16.dp, end = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ){
 
             Column(
@@ -88,7 +82,7 @@ fun HomelessListItem(
 
                 Text(
                     text = homelessState.homeless.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold
                     ),
                     maxLines = 1,
@@ -101,6 +95,7 @@ fun HomelessListItem(
                         lineHeight = 20.sp
                     ),
                     overflow = TextOverflow.Ellipsis,
+                    color = LocalContentColor.current.copy(alpha = 0.6f)
                 )
 
             }
@@ -127,12 +122,27 @@ fun HomelessListItem(
                         else
                             MaterialTheme.colorScheme.onSurface
                         ,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
+
+//           IconButton(
+//                onClick = { /* Your action here */ },
+//                modifier = Modifier
+//                    .align(Alignment.CenterVertically)
+//                    .size(48.dp)
+//                    .clip(CircleShape)
+//                    .background(MaterialTheme.colorScheme.primary)
+//            ) {
+//                Icon(
+//                    imageVector = Icons.AutoMirrored.Filled.Comment,
+//                    contentDescription = "Update Icon",
+//                    tint = MaterialTheme.colorScheme.surface,
+//                    modifier = Modifier.size(32.dp)
+//                )
+//            }
+
         }
-
     }
-
 }
