@@ -5,12 +5,11 @@ import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import kotlin.collections.get
-import kotlin.text.get
 
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -99,11 +98,19 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    //Query volontari
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return try {
-            val documentReference = firestore.collection("volunteers").add(volunteer).await()
-            Resource.Success(documentReference.id)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+            val volunteerWithId = volunteer.copy(id = uid ?: "")
+            val documentReference = uid?.let {
+                firestore.collection("volunteers")
+                    .document(it)
+                    .set(volunteerWithId)
+                    .await()
+            }
+
+            Resource.Success(documentReference.toString())
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
@@ -126,9 +133,6 @@ class FirestoreDataSource @Inject constructor(
             .whereEqualTo("nickname", nickname)
             .get()
             .await()
-
-        Log.d("Firestore", "Risultati query: ${volunteerNickname.size()} documenti trovati") // Log per il numero di documenti trovati
-
         return volunteerNickname.documents
             .firstOrNull()?.toObject(Volunteer::class.java)
     }
@@ -144,26 +148,19 @@ class FirestoreDataSource @Inject constructor(
         return volunteerNickname?.toObject(Volunteer::class.java)
     }
 
-    suspend fun updateVolunteer(oldVolunteer: Volunteer, volunteer: Volunteer): Resource<Unit> {
-
-        Log.d("Firestorez", "Vecchio nickname: ${oldVolunteer.nickname}")
-        Log.d("Firestorez", "Nuovo nickname: ${volunteer.nickname}")
-
+    suspend fun updateVolunteer(oldVolunteer: Volunteer, newVolunteer: Volunteer): Resource<Unit> {
         return try {
             val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("nickname", oldVolunteer.nickname) // Query by "nickname" field
+                .whereEqualTo("nickname", oldVolunteer.nickname) //Preleva il volontario già esistente tramite nickname
                 .get()
                 .await()
-
-            Log.d("Firestorezeze", "Risultati query: ${querySnapshot.size()} documenti trovati")
 
             if (querySnapshot.documents.isNotEmpty()) {
                 val documentId = querySnapshot.documents[0].id // Get the document ID
 
-                val updatedVolunteer = volunteer.copy(
+                val updatedVolunteer = newVolunteer.copy( //Copia nel volontario aggiornato i dati preesistenti
                     id = oldVolunteer.id,
-                    //password = oldVolunteer.password,
-                    phone_number = oldVolunteer.phone_number,
+                    phoneNumber = oldVolunteer.phoneNumber,
                     email = oldVolunteer.email
                 )
 
@@ -179,6 +176,31 @@ class FirestoreDataSource @Inject constructor(
             Resource.Error(e.message ?: "An unknown error occurred")
         }
 
+    }
+
+    suspend fun completeVolunteerProfile(volunteer: Volunteer): Resource<Unit> {
+        return try {
+            val querySnapshot = firestore.collection("volunteers")
+                .whereEqualTo("email", volunteer.email) // Preleva il volontario tramite email
+                .get()
+                .await()
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id // Get the document ID
+                val updatedVolunteer = volunteer.copy(
+                    id = documentId,
+                    email = volunteer.email
+                )
+                firestore.collection("volunteers")
+                    .document(documentId)
+                    .set(updatedVolunteer, SetOptions.merge())
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Volunteer not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {
@@ -205,5 +227,4 @@ class FirestoreDataSource @Inject constructor(
             null
         }
     }
-
 }
