@@ -259,13 +259,13 @@ class FirestoreDataSource @Inject constructor(
                 val documentSnapshot = firestore
                     .collection("volunteers")
                     .document(volunteerDocId)
-                    .collection("userPreferences")
-                    .document("preferences")
+//                    .collection("userPreferences")
+//                    .document("preferences")
                     .get()
                     .await()
                 if (documentSnapshot.exists()) {
-                    val preferredItemIds = documentSnapshot.get("preferredItemIds") as? List<String> ?: emptyList()
-                    return Resource.Success(preferredItemIds)
+                    val preferredHomelessIds = documentSnapshot.get("preferredHomelessIds") as? List<String> ?: emptyList()
+                    return Resource.Success(preferredHomelessIds)
                 } else {
                     return Resource.Success(emptyList()) // Return empty list if preferences not found
                 }
@@ -277,7 +277,7 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredItemIds: List<String>): Resource<Unit> {
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
         try {
             val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
@@ -285,9 +285,7 @@ class FirestoreDataSource @Inject constructor(
                 firestore
                     .collection("volunteers")
                     .document(volunteerDocId)
-                    .collection("userPreferences")
-                    .document("preferences")
-                    .set(mapOf("preferredItemIds" to preferredItemIds))
+                    .update(mapOf("preferredHomelessIds" to preferredHomelessIds))
                     .await()
                 return Resource.Success(Unit)
             } else {

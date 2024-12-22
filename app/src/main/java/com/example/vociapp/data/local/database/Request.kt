@@ -7,13 +7,13 @@ import java.util.UUID
 
 @Entity(tableName = "requests")
 data class Request(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val creatorId: String? = null,
+    @PrimaryKey var id: String = UUID.randomUUID().toString(),
+    var creatorId: String? = null,
     var homelessID: String = "",
     var title: String = "",
     var description: String = "",
     var status: RequestStatus = RequestStatus.TODO,
-    val timestamp: Long = System.currentTimeMillis(),
+    var timestamp: Long = System.currentTimeMillis(),
     var iconCategory: IconCategory = IconCategory.OTHER
 )
 

@@ -2,6 +2,8 @@ package com.example.vociapp.data.repository
 
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.dao.SyncQueueDao
+import com.example.vociapp.data.local.database.Converters
+import com.example.vociapp.data.local.database.SyncAction
 import com.google.gson.Gson
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.local.database.Volunteer
@@ -28,7 +30,7 @@ class VolunteerRepository @Inject constructor(
         } else {
             // Offline: add to sync queue for later
             queueSyncAction("volunteer", "add", volunteer)
-            Resource.Success("Volunteer added offline.")
+            Resource.Success("No network connection. Data saved locally and queued for later sync.")
         }
     }
 
@@ -61,13 +63,13 @@ class VolunteerRepository @Inject constructor(
 
     // Update volunteer details (both locally and remotely)
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
+        roomDataSource.updateVolunteer(volunteer)
         return if (networkManager.isNetworkConnected()) {
             firestoreDataSource.updateVolunteer(volunteer)
         } else {
             // Offline: update locally and add to sync queue
-            roomDataSource.updateVolunteer(volunteer)
             queueSyncAction("volunteer", "update", volunteer)
-            Resource.Success(Unit)
+            Resource.Error("No network connection. Data saved locally and queued for later sync.")
         }
     }
 
@@ -98,24 +100,108 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
+    suspend fun getVolunteerIdByEmail(email: String): String? {
+        return if (networkManager.isNetworkConnected()) {
+            // Fetch from remote if connected
+            firestoreDataSource.getVolunteerIdByEmail(email)
+        } else {
+            // Fetch from local otherwise
+            roomDataSource.getVolunteerIdByEmail(email)
+        }
+    }
+
+    fun getVolunteerByNickname(nickname: String): Flow<Resource<Volunteer>> = flow {
+        emit(Resource.Loading()) // Indicate loading state
+
+        try {
+            val volunteer: Volunteer? =
+                if (networkManager.isNetworkConnected()) {
+                    // Fetch from remote if network is available
+                    firestoreDataSource.getVolunteerByNickname(nickname)
+                        ?.also { fetchedVolunteer ->
+                            // Save to local database for offline access
+                            roomDataSource.insertVolunteer(fetchedVolunteer)
+                        }
+                } else {
+                    // Fetch from local database if offline
+                    roomDataSource.getVolunteerByNickname(nickname)
+                }
+
+            if (volunteer != null) {
+                emit(Resource.Success(volunteer)) // Emit success with the retrieved volunteer
+            } else {
+                emit(Resource.Error("Volunteer not found")) // Emit error if volunteer not found
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching volunteer by nickname: ${e.localizedMessage}"))
+        }
+    }
+
+    fun getUserPreferences(userId: String): Flow<Resource<List<String>>> = flow {
+        emit(Resource.Loading()) // Indicate loading state
+
+        try {
+            if (networkManager.isNetworkConnected()) {
+                // Fetch preferences from Firestore if network is connected
+                val remoteResult = firestoreDataSource.getUserPreferences(userId)
+                if (remoteResult is Resource.Success) {
+                    // Save preferences to local database for offline access
+                    roomDataSource.updateUserPreferences(userId, remoteResult.data!!)
+                }
+                emit(remoteResult)
+            } else {
+                // Fetch preferences from local database if offline
+                val jsonPreferences = roomDataSource.getUserPreferences(userId).data
+                val preferences = Converters().fromJson(jsonPreferences!!)
+                emit(Resource.Success(preferences))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "An error occurred while retrieving user preferences"))
+        }
+    }
+
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+        return try {
+            if (networkManager.isNetworkConnected()) {
+                // Update Firestore if connected
+                val remoteResult = firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)
+                if (remoteResult is Resource.Success) {
+                    roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
+                }
+                remoteResult // Return the result from Firestore
+            } else {
+                val currentVolunteer = roomDataSource.getVolunteerById(userId)
+                val newVolunteer = currentVolunteer?.copy(preferredHomelessIds = preferredHomelessIds)
+                roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
+                queueSyncAction("Volunteer", "updatePreferences", newVolunteer!!)
+                Resource.Error("No network connection. Data saved locally and queued for later sync.")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An error occurred while updating user preferences")
+        }
+    }
+
+
     // Sync actions from the sync queue
     suspend fun syncPendingActions() {
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            val pendingActions = syncQueueDao.getPendingSyncActions(System.currentTimeMillis())
+            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect { pendingActions ->
 
-            for (action in pendingActions) {
-                val data = Gson().fromJson(action.data, Volunteer::class.java)
+                for (action in pendingActions) {
+                    val data = Gson().fromJson(action.data, Volunteer::class.java)
 
-                when (action.operation) {
-                    "add" -> firestoreDataSource.addVolunteer(data)
-                    "update" -> firestoreDataSource.updateVolunteer(data)
-                    "delete" -> firestoreDataSource.deleteVolunteer(data.id)
+                    when (action.operation) {
+                        "add" -> firestoreDataSource.addVolunteer(data)
+                        "update" -> firestoreDataSource.updateVolunteer(data)
+                        "updatePreferences" -> firestoreDataSource.updateUserPreferences(data.id, data.preferredHomelessIds)
+                        //"delete" -> firestoreDataSource.deleteVolunteer(data.id)
+                    }
+
+                    // Once synced, remove the action from the queue
+                    syncQueueDao.deleteSyncAction(action)
                 }
-
-                // Once synced, remove the action from the queue
-                syncQueueDao.deleteSyncAction(action)
             }
         }
     }
@@ -131,9 +217,4 @@ class VolunteerRepository @Inject constructor(
         )
         syncQueueDao.addSyncAction(syncAction)
     }
-}
-
-
-
-
 }

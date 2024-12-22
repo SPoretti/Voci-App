@@ -5,8 +5,13 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.util.Log
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 
 class NetworkConnectivityListener(private val context: Context) {
 
@@ -15,6 +20,7 @@ class NetworkConnectivityListener(private val context: Context) {
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             // Network is available, trigger the sync operation
+            Log.d("NetworkConnectivity", "Network is available")
             triggerSync()
         }
 
@@ -38,8 +44,23 @@ class NetworkConnectivityListener(private val context: Context) {
     }
 
     private fun triggerSync() {
-        // Enqueue a OneTimeWorkRequest for the sync operation when the network is available
         val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
-        WorkManager.getInstance(context).enqueue(syncRequest)
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                "SyncWorker",
+                ExistingWorkPolicy.KEEP, // Keep the existing sync if already enqueued
+                syncRequest
+            )
+        val periodicSyncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
+            5, TimeUnit.MINUTES // Adjust the interval as needed
+        ).build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "PeriodicSync",
+            ExistingPeriodicWorkPolicy.KEEP, // Keep the periodic work schedule
+            periodicSyncRequest
+        )
+        Log.d("NetworkConnectivity", "SyncWorker triggered")
     }
+
 }

@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Entity(tableName = "homelesses")
 data class Homeless(
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey var id: String = UUID.randomUUID().toString(),
     var name: String = "",
     var gender: Gender = Gender.Unspecified,
     var location: String = "",

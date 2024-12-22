@@ -1,5 +1,6 @@
 package com.example.vociapp.data.repository
 
+import android.util.Log
 import com.google.gson.Gson
 
 import com.example.vociapp.data.local.RoomDataSource
@@ -62,6 +63,8 @@ class HomelessRepository @Inject constructor(
                     // Deserialize the data
                     val data = Gson().fromJson(action.data, Homeless::class.java)
 
+                    Log.d("SyncPendingActions", "Syncing action: $action")
+
                     when (action.operation) {
                         "add" -> firestoreDataSource.addHomeless(data)
                         "update" -> firestoreDataSource.updateHomeless(data)
@@ -85,7 +88,7 @@ class HomelessRepository @Inject constructor(
             when (remoteHomelesses) {
                 is Resource.Success -> {
                     // Cache the fetched data in Room using RoomDataSource
-                    roomDataSource.homelessDao.insertAll(remoteHomelesses.data)
+                    roomDataSource.homelessDao.insertAll(remoteHomelesses.data!!)
                     emit(remoteHomelesses) // Emit the remote data
                 }
                 is Resource.Error -> {

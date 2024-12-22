@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("com.android.application")
+    id("kotlin-kapt")
 }
 
 android {
@@ -42,6 +43,8 @@ android {
 }
 
 dependencies {
+    implementation (libs.gson)
+    implementation (libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,6 +57,7 @@ dependencies {
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -70,10 +74,10 @@ dependencies {
     implementation(libs.androidx.material.icons.extended.v175)
     implementation(libs.material)
     implementation(libs.material3)
-    implementation (libs.androidx.room.runtime)
-    implementation (libs.androidx.room.compiler)
-    implementation (libs.androidx.work.runtime.ktx)
-    implementation (libs.gson)
-
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    // Annotation processor for Room
+    kapt(libs.androidx.room.compiler)
+    implementation (libs.androidx.work.runtime.ktx.v281) // Replace with the latest version
 
 }
