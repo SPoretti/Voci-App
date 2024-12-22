@@ -15,5 +15,6 @@ data class Update(
 enum class UpdateStatus {
     GREEN,
     YELLOW,
-    RED
+    RED,
+    GRAY
 }

@@ -15,6 +15,8 @@ class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
+    // ------------------------------- Request Functions ----------------------------------
+
     suspend fun addRequest(request: Request): Resource<String> {
         return try {
             val documentReference = firestore.collection("requests").add(request).await()
@@ -78,6 +80,25 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun getRequestById(requestId: String): Resource<Request> {
+        return try {
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("id", requestId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val request = querySnapshot.documents[0].toObject(Request::class.java)!!
+                Resource.Success(request)
+            } else {
+                Resource.Error("Request not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    // ------------------------------- Homeless Functions ----------------------------------
 
     suspend fun addHomeless(homeless: Homeless): Resource<String> {
         return try {
@@ -98,7 +119,56 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    //Query volontari
+    suspend fun getHomeless(homelessID: String): Homeless? {
+        return try {
+            val querySnapshot = firestore.collection("homelesses")
+                .whereEqualTo("id", homelessID)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id
+                val homeless = firestore.collection("homelesses")
+                    .document(documentId)
+                    .get()
+                    .await()
+                    .toObject(Homeless::class.java)
+                homeless // Return the Homeless object if found
+            } else {
+                null // Return null if homeless not found
+            }
+        } catch (e: Exception) {
+            // Handle exception, e.g., log the error
+            // and return null or throw an exception
+            Log.e("FirestoreDataSource", "Error fetching homeless: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun updateHomeless(homeless: Homeless): Resource<Unit> {
+        return try {
+            val querySnapshot = firestore.collection("homelesses")
+                .whereEqualTo("id", homeless.id)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id
+                firestore.collection("homelesses")
+                    .document(documentId)
+                    .set(homeless, SetOptions.merge())
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Homeless not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    // ------------------------------- Volunteer Functions ----------------------------------
+
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return try {
             val documentReference = firestore.collection("volunteers").add(volunteer).await()
@@ -183,74 +253,7 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless? {
-        return try {
-            val querySnapshot = firestore.collection("homelesses")
-                .whereEqualTo("id", homelessID)
-                .get()
-                .await()
-
-            if (querySnapshot.documents.isNotEmpty()) {
-                val documentId = querySnapshot.documents[0].id
-                val homeless = firestore.collection("homelesses")
-                    .document(documentId)
-                    .get()
-                    .await()
-                    .toObject(Homeless::class.java)
-                homeless // Return the Homeless object if found
-            } else {
-                null // Return null if homeless not found
-            }
-        } catch (e: Exception) {
-            // Handle exception, e.g., log the error
-            // and return null or throw an exception
-            Log.e("FirestoreDataSource", "Error fetching homeless: ${e.message}")
-            null
-        }
-    }
-
-    suspend fun getRequestById(requestId: String): Resource<Request> {
-        return try {
-            val querySnapshot = firestore.collection("requests")
-                .whereEqualTo("id", requestId)
-                .get()
-                .await()
-
-            if (querySnapshot.documents.isNotEmpty()) {
-                val request = querySnapshot.documents[0].toObject(Request::class.java)!!
-                Resource.Success(request)
-            } else {
-                Resource.Error("Request not found")
-            }
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-//    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
-//        try {
-//            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
-//            if (volunteerQuery.documents.isNotEmpty()) {
-//                val volunteerDocId = volunteerQuery.documents[0].id
-//                val documentSnapshot = firestore
-//                    .collection("volunteers")
-//                    .document(volunteerDocId)
-//                    .collection("userPreferences")
-//                    .document("preferences")
-//                    .get()
-//                    .await()
-//                if (documentSnapshot.exists()) {
-//                    return Resource.Success(documentSnapshot.toObject(UserPreferences::class.java)!!)
-//                } else {
-//                    return Resource.Success(UserPreferences(userId = userId)) // Return empty preferences if not found
-//                }
-//            } else {
-//                return Resource.Error("Volunteer not found12$userId" + "3")
-//            }
-//        } catch (e: Exception) {
-//            return Resource.Error(e.message ?: "An unknown error occurred")
-//        }
-//    }
+    // ------------------------------- Preferences Functions ----------------------------------
 
     suspend fun getUserPreferences(userId: String): Resource<List<String>> {
         try {
@@ -268,7 +271,7 @@ class FirestoreDataSource @Inject constructor(
                     val preferredItemIds = documentSnapshot.get("preferredItemIds") as? List<String> ?: emptyList()
                     return Resource.Success(preferredItemIds)
                 } else {
-                    return Resource.Success(emptyList()) // Return empty list if preferences not found
+                    return Resource.Success(emptyList())
                 }
             } else {
                 return Resource.Error("Volunteer not found")

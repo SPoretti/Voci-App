@@ -1,14 +1,20 @@
 package com.example.vociapp.ui.components.homeless
 
 import android.annotation.SuppressLint
+import android.widget.Space
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Icon
@@ -26,13 +32,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.types.Homeless
+import com.example.vociapp.data.types.UpdateStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.updates.StatusLED
+import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.state.HomelessItemUiState
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -64,7 +75,6 @@ fun HomelessListItem(
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         onClick = {onClick(homelessState.homeless)},
-//        shadowElevation = 4.dp,
         color = MaterialTheme.colorScheme.background,
     ){
 
@@ -75,19 +85,36 @@ fun HomelessListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ){
-
             Column(
                 modifier = Modifier.weight(1f),
             ) {
-
-                Text(
-                    text = homelessState.homeless.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Text(
+                        text = homelessState.homeless.name,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    StatusLED(
+                        color = when (homelessState.homeless.status){
+                            UpdateStatus.GREEN -> Color.Green
+                            UpdateStatus.YELLOW -> Color.Yellow
+                            UpdateStatus.RED -> Color.Red
+                            UpdateStatus.GRAY -> Color.Gray
+                        },
+                        isPulsating = when(homelessState.homeless.status){
+                            UpdateStatus.GREEN -> true
+                            UpdateStatus.YELLOW -> true
+                            UpdateStatus.RED -> true
+                            UpdateStatus.GRAY -> false
+                        }
+                    )
+                }
 
                 Text(
                     text = homelessState.homeless.location,
@@ -106,7 +133,9 @@ fun HomelessListItem(
                         volunteerViewModel.toggleHomelessPreference(userId!!, homelessState.homeless.id)
                         isPreferred = !isPreferred
                     },
-                    modifier = Modifier.align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .hapticFeedback(),
                 ) {
                     Icon(
                         imageVector =

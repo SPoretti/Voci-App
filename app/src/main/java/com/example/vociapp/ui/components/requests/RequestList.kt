@@ -52,7 +52,7 @@ fun RequestList(
     requestViewModel: RequestViewModel,
     homeLessViewModel: HomelessViewModel,
 ) {
-    val filteredRequests = remember(requests, sortOption) { // Remember to avoid recalculation
+    val filteredRequests = remember(requests, sortOption) {
         requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
     }
 
