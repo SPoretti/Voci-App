@@ -73,12 +73,43 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
         val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
             .collectAsState(initial = Resource.Loading())
 
+        LaunchedEffect(isUpdating) {
+            if (isUpdating) {
+                var result = volunteerLoggedEmail?.let { authViewModel.signInWithEmailAndPassword(it, password) }
+                if (result is AuthResult.Failure) {
+                    showSnackbar = true
+                    errorMessage = result.message
+                    isUpdating = false
+                    return@LaunchedEffect
+                } else {
+                    result = authViewModel.updateUserProfile(nickname)
+                    if (result is AuthResult.Failure) {
+                        showError = true
+                        errorMessage = result.message
+                    } else {
+                        showError = false
+                        val updatedVolunteer = Volunteer("", name, surname, nickname)
+                        Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
+                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(it,updatedVolunteer) }
+                        Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
+                        navController.popBackStack()
+                    }
+                    isUpdating = false
+                }
+            }
+            if(showSnackbar) {
+                SnackbarManager.showSnackbar(errorMessage)
+                showSnackbar = false
+            }
+        }
+
         Scaffold(
             snackbarHost = { SnackbarManager.CustomSnackbarHost() },
             content = { padding ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(padding)
                         .background(MaterialTheme.colorScheme.background)
                 ) {
 
@@ -208,37 +239,6 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
                 }
             }
         )
-
-        LaunchedEffect(isUpdating) {
-            if (isUpdating) {
-                var result = volunteerLoggedEmail?.let { authViewModel.signInWithEmailAndPassword(it, password) }
-                if (result is AuthResult.Failure) {
-                    showSnackbar = true
-                    errorMessage = result.message
-                    isUpdating = false
-                    Log.d(TAG, "Errore di autenticazione: ${result.message}")
-                    return@LaunchedEffect
-                } else {
-                    result = authViewModel.updateUserProfile(nickname)
-                    if (result is AuthResult.Failure) {
-                        showError = true
-                        errorMessage = result.message
-                    } else {
-                        showError = false
-                        val updatedVolunteer = Volunteer("", name, surname, nickname)
-                        Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
-                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(it,updatedVolunteer) }
-                        Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
-                        navController.popBackStack()
-                    }
-                    isUpdating = false
-                }
-            }
-            if(showSnackbar) {
-                SnackbarManager.showSnackbar(errorMessage)
-                showSnackbar = false
-            }
-        }
     }
 }
 

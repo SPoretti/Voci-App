@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.auth
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,7 +36,6 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
-import com.example.vociapp.ui.components.keyboardAsState
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
 
@@ -48,48 +46,32 @@ fun SignInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
+
     var errorMessage by remember { mutableStateOf("") }
     var isSigningIn by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val authViewModel = serviceLocator.getAuthViewModel()
+    var showSnackbar by remember { mutableStateOf(false) }
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
-            try {
-                showError = false
-                errorMessage = ""
-
-                if (password.isEmpty() || email.isEmpty()) {
-                    showError = true
-                    errorMessage = "Compila entrambi i campi"
-                    return@LaunchedEffect
-                } else {
-                    val result = authViewModel.signInWithEmailAndPassword(email, password)
-                    if (result is AuthResult.Failure) {
-                        showError = true
-                        errorMessage = "Email o password errate"
-                    } else {
-                        volunteerViewModel.getVolunteerByEmail(email)
-                        navController.navigate(Screens.Home.route) {
-                            popUpTo(Screens.SignIn.route) { inclusive = true }
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.d("AuthFlow", "Errore imprevisto: ${e.localizedMessage}")
+            val result = authViewModel.signInWithEmailAndPassword(email, password)
+            if (result is AuthResult.Failure) {
                 showError = true
-                errorMessage = "Errore imprevisto: ${e.localizedMessage}"
-            } finally {
-                isSigningIn = false
+                errorMessage = result.message
+                showSnackbar = true
+            } else {
+                volunteerViewModel.getVolunteerByEmail(email)
+                navController.navigate(Screens.Home.route) {
+                    popUpTo(Screens.SignIn.route) { inclusive = true }
+                }
             }
+            isSigningIn = false
         }
-    }
-
-    if (showError) {
-        LaunchedEffect(errorMessage.isNotEmpty()) {
+        if (showSnackbar) {
             SnackbarManager.showSnackbar(errorMessage)
-            showError = false
+            showSnackbar = false
         }
     }
 
@@ -131,18 +113,12 @@ fun SignInScreen(
                                 .padding(24.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text(
-                                text = "Inserisci email e password",
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
-
                             AuthTextField(
                                 value = email,
                                 onValueChange = { email = it },
                                 label = "Email",
                                 icon = Icons.Default.Email
                             )
-
                             AuthTextField(
                                 value = password,
                                 onValueChange = { password = it },
@@ -151,22 +127,21 @@ fun SignInScreen(
                                 isPassword = true
                             )
 
-                    Button(
-                        onClick = { isSigningIn = true },
-                        enabled = !isSigningIn,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        if (isSigningIn) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
-                        }
-                    }
-
+                            Button(
+                                onClick = { isSigningIn = true },
+                                enabled = !isSigningIn,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                if (isSigningIn) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                } else {
+                                    Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
+                                }
+                            }
                         }
                     }
 
@@ -175,7 +150,10 @@ fun SignInScreen(
                     TextButton(
                         onClick = { navController.navigate("signUp") }
                     ) {
-                        Text("Non hai un account? Registrati!", color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            "Non hai un account? Registrati!",
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
