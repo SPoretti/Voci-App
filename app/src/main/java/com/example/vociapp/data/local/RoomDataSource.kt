@@ -4,6 +4,7 @@ import com.example.vociapp.data.local.dao.HomelessDao
 import com.example.vociapp.data.local.dao.RequestDao
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.dao.VolunteerDao
+import com.example.vociapp.data.local.database.Converters
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Volunteer
@@ -57,6 +58,54 @@ class RoomDataSource(
     fun getVolunteers(): Flow<List<Volunteer>> {
         return volunteerDao.getAllVolunteers()
     }
+
+    suspend fun getVolunteerById(id: String): Volunteer? {
+        return volunteerDao.getVolunteerById(id)
+    }
+
+    suspend fun getVolunteerByEmail(email: String): Volunteer? {
+        return volunteerDao.getVolunteerByEmail(email)
+    }
+
+    suspend fun getVolunteerIdByEmail(email: String): String? {
+        return volunteerDao.getVolunteerIdByEmail(email)
+    }
+
+    suspend fun getVolunteerByNickname(nickname: String): Volunteer? {
+        return volunteerDao.getVolunteerByNickname(nickname)
+    }
+
+    suspend fun getUserPreferences(userId: String): Resource<String> {
+        return try {
+            // Query the local database for the volunteer's preferences
+            val preferences = volunteerDao.getUserPreferences(userId)
+            if (preferences != null) {
+                Resource.Success(preferences)
+            } else {
+                Resource.Success("") // Return an empty json string if preferences are not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An error occurred while retrieving user preferences")
+        }
+    }
+
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
+        return try {
+            // Check if user exists in local database
+//            val volunteer = volunteerDao.getVolunteerById(userId) // Fetch the volunteer from Room database
+
+//            if (volunteer != null) {
+                // If volunteer exists, update their preferences locally
+                volunteerDao.updateUserPreferences(userId, preferredHomelessIds) // Assuming this DAO function exists
+                Resource.Success(Unit) // Successfully updated
+//            } else {
+//                Resource.Error("Volunteer not found") // Handle case where volunteer is not found
+//            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred") // Handle any exceptions
+        }
+    }
+
 
     fun getRequests(): Flow<List<Request>> {
         return requestDao.getAllRequests()

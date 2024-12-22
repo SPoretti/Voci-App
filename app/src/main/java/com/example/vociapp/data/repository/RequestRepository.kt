@@ -1,14 +1,20 @@
 package com.example.vociapp.data.repository
 
+import com.example.vociapp.data.local.RoomDataSource
+import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.remote.FirestoreDataSource
+import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class RequestRepository @Inject constructor(
-    private val firestoreDataSource: FirestoreDataSource
+    private val firestoreDataSource: FirestoreDataSource,
+    private val roomDataSource: RoomDataSource,
+    private val networkManager: NetworkManager,
+    private val syncQueueDao: SyncQueueDao
 ) {
 
     suspend fun addRequest(request: Request): Resource<String> {

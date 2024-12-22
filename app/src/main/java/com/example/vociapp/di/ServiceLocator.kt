@@ -36,29 +36,31 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         VociAppRoomDatabase.getDatabase(context)
     }
 
+    private val syncQueueDao = roomDatabase.syncQueueDao()
+
     private val roomDataSource: RoomDataSource = RoomDataSource(
         homelessDao = roomDatabase.homelessDao(),
         volunteerDao = roomDatabase.volunteerDao(),
         requestDao = roomDatabase.requestDao(),
-        syncQueueDao = roomDatabase.syncQueueDao()
+        syncQueueDao = syncQueueDao
     )
 
     private val networkManager: NetworkManager = NetworkManager(
-        context = TODO()
+        context = context
     )
 
     private val homelessRepository: HomelessRepository = HomelessRepository(
         firestoreDataSource = FirestoreDataSource(firestore),
         roomDataSource = roomDataSource,
         networkManager = networkManager,
-        syncQueueDao = roomDatabase.syncQueueDao()
+        syncQueueDao = syncQueueDao
     )
 
     // Repositories and ViewModels
-    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
+    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
 
-    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
+    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
     private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
 
