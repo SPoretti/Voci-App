@@ -120,7 +120,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                         ProfileInfoItem(
                             icon = Icons.Default.Phone,
                             label = "Numero di telefono",
-                            value = volunteer?.phone_number ?: "Numero di telefono non disponibile"
+                            value = volunteer?.phoneNumber ?: "Numero di telefono non disponibile"
                         )
                     }
 
