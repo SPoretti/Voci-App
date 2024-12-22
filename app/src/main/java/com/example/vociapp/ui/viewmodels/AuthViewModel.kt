@@ -55,12 +55,22 @@ class AuthViewModel : ViewModel() {
 
     suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthResult {
         return try {
+            if (!isPasswordValid(password)) {
+                return AuthResult.Failure("La password non soddisfa i requisiti minimi.")
+            }
             auth.createUserWithEmailAndPassword(email, password).await()
             AuthResult.Success
-        } catch (e: IllegalArgumentException) {
-            AuthResult.Failure("Uno o più campi sono vuoti")
+        } catch (e: Exception) {
+            AuthResult.Failure("Errore nella registrazione: ${e.message}")
         }
     }
+
+    private fun isPasswordValid(password: String): Boolean {
+        val passwordPattern =
+            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+        return password.matches(passwordPattern.toRegex())
+    }
+
 
     fun signOut() {
         auth.signOut()

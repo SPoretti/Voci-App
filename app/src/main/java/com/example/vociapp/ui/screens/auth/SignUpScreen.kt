@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.components.SnackbarManager
@@ -53,18 +53,16 @@ fun SignUpScreen(
     var isSigningUp by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     var showSnackbar by remember { mutableStateOf(false) }
 
     LaunchedEffect(isSigningUp) {
         if (isSigningUp) {
             val result = authViewModel.createUserWithEmailAndPassword(email, password)
             if (result is AuthResult.Failure) {
+                Log.e("SignUpScreen", "SignUp failed: $result")
                 errorMessage = result.message
                 showSnackbar = true
             } else {
-                val volunteer = Volunteer("", "", "", "", "", email)
-                volunteerViewModel.addVolunteer(volunteer)
                 authViewModel.sendVerificationEmail()
                 navController.navigate(Screens.EmailVerification.route) {
                     popUpTo(Screens.SignUp.route) { inclusive = true }
@@ -116,33 +114,6 @@ fun SignUpScreen(
                                 .padding(24.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-//                        AuthTextField(
-//                            value = name,
-//                            onValueChange = { name = it },
-//                            label = "Nome",
-//                            icon = Icons.Default.PersonOutline
-//                        )
-//
-//                        AuthTextField(
-//                            value = surname,
-//                            onValueChange = { surname = it },
-//                            label = "Cognome",
-//                            icon = Icons.Default.PersonOutline
-//                        )
-//
-//                        AuthTextField(
-//                            value = nickname,
-//                            onValueChange = { nickname = it },
-//                            label = "Nickname",
-//                            icon = Icons.Default.PersonOutline
-//                        )
-//
-//                        AuthTextField(
-//                            value = phoneNumber,
-//                            onValueChange = { phoneNumber = it },
-//                            label = "Numero di telefono",
-//                            icon = Icons.Default.Phone
-//                        )
 
                             AuthTextField(
                                 value = email,
@@ -165,6 +136,16 @@ fun SignUpScreen(
                                 label = "Conferma Password",
                                 icon = Icons.Default.Lock,
                                 isPassword = true
+                            )
+
+                            Text(
+                                text = "Criteri della password:" +
+                                        "\n Almeno 8 caratteri" +
+                                        "\n Almeno una lettera maiuscola" +
+                                        "\n Almeno una lettera minuscola" +
+                                        "\n Almeno un numero" +
+                                        "\n Almeno un carattere speciale",
+                                style = MaterialTheme.typography.bodySmall
                             )
 
                             Button(
