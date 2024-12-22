@@ -1,7 +1,5 @@
 package com.example.vociapp.ui.viewmodels
 
-import android.content.ContentValues.TAG
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.vociapp.data.types.AuthState
@@ -14,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
+import com.example.vociapp.data.util.ExceptionHandler
 
 class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
@@ -29,6 +28,8 @@ class AuthViewModel : ViewModel() {
             AuthState.Unauthenticated
         }
     }
+
+    private val exceptionHandler = ExceptionHandler()
 
     init {
         auth.addAuthStateListener(authStateListener)
@@ -46,28 +47,9 @@ class AuthViewModel : ViewModel() {
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             AuthResult.Failure("Password errata")
         } catch (e: FirebaseAuthException) {
-            handleAuthException(e)
-        } catch (e: Exception) {
-            handleGenericException(e)
-        }
-    }
-
-    //TODO: spostare in una classe a parte
-    private fun handleAuthException(e: FirebaseAuthException): AuthResult {
-        Log.e("Auth", "Errore FirebaseAuthException: ${e.message}", e)
-        return if (e.message?.contains("we have blocked all requests", ignoreCase = true) == true) {
-            AuthResult.Failure("Limite di tentativi raggiunto, riprova più tardi")
-        } else {
-            AuthResult.Failure("Errore di autenticazione: ${e.message}")
-        }
-    }
-
-    private fun handleGenericException(e: Exception): AuthResult {
-        Log.e("Auth", "Errore generico: ${e.message}", e)
-        return if (e.message?.contains("we have blocked all requests", ignoreCase = true) == true) {
-            AuthResult.Failure("Limite di tentativi raggiunto, riprova più tardi")
-        } else {
-            AuthResult.Failure("Errore sconosciuto: ${e.message}")
+            exceptionHandler.handleAuthException(e)
+        } catch (e: IllegalArgumentException) {
+            AuthResult.Failure("Uno o più campi sono vuoti")
         }
     }
 
@@ -75,8 +57,8 @@ class AuthViewModel : ViewModel() {
         return try {
             auth.createUserWithEmailAndPassword(email, password).await()
             AuthResult.Success
-        } catch (e: Exception) {
-            AuthResult.Failure(e.message ?: "An unknown error occurred")
+        } catch (e: IllegalArgumentException) {
+            AuthResult.Failure("Uno o più campi sono vuoti")
         }
     }
 
@@ -84,27 +66,12 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
     }
 
-    suspend fun updateUserProfile(displayName: String?, photoUrl: String?): AuthResult {
-        return try {
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .setPhotoUri(photoUrl?.let { Uri.parse(it) })
-                .build()
-
-            auth.currentUser?.updateProfile(profileUpdates)?.await()
-            AuthResult.Success
-        } catch (e: Exception) {
-            AuthResult.Failure(e.message ?: "An unknown error occurred")
-        }
-    }
-
     suspend fun updateUserProfile(displayName: String?): AuthResult {
+        Log.d("AuthViewModel", "updateUserProfile called with displayName: $displayName")
         return try {
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(displayName)
                 .build()
-            Log.d(TAG, "updateUserProfile: ${profileUpdates.displayName}")
-
             auth.currentUser?.updateProfile(profileUpdates)?.await()
             AuthResult.Success
         } catch (e: Exception) {
@@ -123,10 +90,14 @@ class AuthViewModel : ViewModel() {
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
+
+    fun sendVerificationEmail() {
+        auth.currentUser?.sendEmailVerification()
+    }
 }
 
 sealed class AuthResult {
-    object Success : AuthResult()
+    data object Success : AuthResult()
     data class Failure(val message: String) : AuthResult()
 }
 

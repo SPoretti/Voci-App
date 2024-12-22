@@ -1,13 +1,10 @@
 package com.example.vociapp.data.types
 
-import java.util.UUID
-
 data class Volunteer(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = "",
     var name: String = "",
     var surname: String = "",
     var nickname: String = "",
-    //var password: String = "",
-    var phone_number: String = "",
+    var phoneNumber: String = "",
     var email: String = "",
 )

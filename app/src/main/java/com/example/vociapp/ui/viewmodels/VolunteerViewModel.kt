@@ -1,7 +1,5 @@
 package com.example.vociapp.ui.viewmodels
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.VolunteerRepository
@@ -20,7 +18,6 @@ class VolunteerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
-    val snackbarMessage: StateFlow<String> = _snackbarMessage
 
     private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
 
@@ -33,7 +30,7 @@ class VolunteerViewModel @Inject constructor(
         getVolunteerById(id = "")
     }
 
-    fun getVolunteerById(id: String) {
+    private fun getVolunteerById(id: String) {
         volunteerRepository.getVolunteerById(id)
             .onEach { result ->
                 _volunteers.value = result
@@ -83,14 +80,13 @@ class VolunteerViewModel @Inject constructor(
     }
 
 
-    fun updateVolunteer(oldVolunteer: Volunteer, volunteer: Volunteer) {
+    fun updateVolunteer(oldVolunteer: Volunteer, newVolunteer: Volunteer) {
         viewModelScope.launch {
-            val result = volunteerRepository.updateVolunteer(oldVolunteer, volunteer)
-            Log.d(TAG, "updateVolunteer: $result")
-            when (result) {
+            when (val result = volunteerRepository.updateVolunteer(oldVolunteer, newVolunteer)) {
                 is Resource.Success -> {
-                    getVolunteerById(volunteer.id)
+                    getVolunteerById(newVolunteer.id)
                 }
+
                 is Resource.Error -> {
                     println("Errore nella modifica dell'utente: ${result.message}")
                 }
@@ -100,8 +96,19 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun clearSnackbarMessage() {
-        _snackbarMessage.value = ""
-    }
+    fun completeVolunteerProfile(volunteer: Volunteer) {
+        viewModelScope.launch {
+            when (val result = volunteerRepository.completeVolunteerProfile(volunteer)) {
+                is Resource.Success -> {
+                    getVolunteerById(volunteer.id)
+                }
 
+                is Resource.Error -> {
+                    println("Errore nella modifica dell'utente: ${result.message}")
+                }
+
+                is Resource.Loading -> TODO()
+            }
+        }
+    }
 }
