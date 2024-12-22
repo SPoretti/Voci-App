@@ -1,7 +1,6 @@
 package com.example.vociapp.ui.navigation
 
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
