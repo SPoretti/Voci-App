@@ -26,8 +26,8 @@ class HomelessRepository @Inject constructor(
         return firestoreDataSource.getHomeless(homelessID)
     }
 
-//    fun observeHomelesses(): Flow<Resource<List<Homeless>>> {
-//        return getHomelesses()
-//    }
-// to use in case of privatization of getHomelesses() for better abstraction and encapsulation
+    suspend fun updateHomeless(homeless: Homeless): Resource<Unit> {
+        return firestoreDataSource.updateHomeless(homeless)
+    }
+
 }

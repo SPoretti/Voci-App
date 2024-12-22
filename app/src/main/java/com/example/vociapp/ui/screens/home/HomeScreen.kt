@@ -83,14 +83,6 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-//            Image(
-//                painter = painterResource(R.drawable.voci_logo),
-//                contentDescription = "App Logo",
-//                modifier = Modifier
-//                    .height(64.dp)
-//                    .fillMaxWidth(),
-//                contentScale = ContentScale.Fit
-//            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -113,31 +105,12 @@ fun HomeScreen(
                                 .fillMaxSize()
                                 .weight(1f),
                             onSearch = { homelessViewModel.updateSearchQuery(it)},
-                            placeholderText = "Cerca...",
+                            placeholderText = "Cerca Senzatetto...",
                             unfocusedBorderColor = Color.Transparent,
                             onClick = { /* TODO() Handle click on search bar */ },
                             onDismiss = { homelessViewModel.updateSearchQuery("") },
                             navController = navController
                         )
-
-//                        Button(
-//                            onClick = {showAddHomelessDialog = true},
-//                            modifier = Modifier
-//                                .fillMaxHeight(),
-//                            colors = ButtonDefaults.buttonColors(
-//                                containerColor = MaterialTheme.colorScheme.primary,
-//                                contentColor = MaterialTheme.colorScheme.onPrimary
-//                            ),
-//                            content = {
-//                                Icon(
-//                                    imageVector = Icons.Filled.Add,
-//                                    contentDescription = "Add homeless",
-//                                    modifier = Modifier.size(32.dp)
-//                                )
-//                            },
-//                            contentPadding = PaddingValues(8.dp),
-//                            shape = CircleShape
-//                        )
                     }
 
                     val listToDisplay =
@@ -152,7 +125,7 @@ fun HomeScreen(
                     Text(
                         text = "Senzatetto",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.surfaceBright,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .align(Alignment.Start)
                             .padding(8.dp)
@@ -166,6 +139,9 @@ fun HomeScreen(
                         onListItemClick = {homeless ->
                             navController.navigate("profileHomeless/${homeless.name}")
                         },
+                        onSwipe = { homeless ->
+                            navController.navigate("UpdatesAddScreen/${homeless.id}")
+                        }
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileInfoItem
@@ -48,6 +51,8 @@ fun UserProfileScreen(
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
     val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val currentUser = authViewModel.getCurrentUserProfile()
+    Log.d("ProfileVolunteerScreen", "photoUrl: ${currentUser?.photoUrl}")
 
     val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
 
@@ -88,7 +93,9 @@ fun UserProfileScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
-                Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)) {
 
                     // Edit button
                     IconButton(
@@ -160,19 +167,30 @@ fun UserProfileScreen(
                             is Resource.Success -> {
                                 val volunteer = resource.data
                                 // Profile picture placeholder
-                                Box(
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
+                                if(currentUser?.photoUrl != null) {
+                                    AsyncImage(
+                                        model = currentUser.photoUrl,
                                         contentDescription = "Profile Picture",
-                                        modifier = Modifier.size(64.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
                                     )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Profile Picture",
+                                            modifier = Modifier.size(64.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
                                 Text(
                                     text = volunteer?.nickname ?: "User",

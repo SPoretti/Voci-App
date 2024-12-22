@@ -37,6 +37,7 @@ import com.example.vociapp.ui.components.IconCategory
 import com.example.vociapp.ui.components.IconSelector
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 
 @Composable
@@ -172,6 +173,8 @@ fun AddRequestDialog(
                     )
                     onAdd(newRequest)
                 },
+                modifier = Modifier
+                    .hapticFeedback(),
                 enabled =
                 !isAddingRequest and
                         requestTitle.isNotEmpty() and

@@ -80,7 +80,7 @@ fun RequestListItem(
                     Icon(
                         painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
                         contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
                             .size(24.dp)
                             .align(Alignment.Center)
