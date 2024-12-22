@@ -69,7 +69,7 @@ fun HomelessList(
                     }
                     is Resource.Success -> {
                         val sortedHomelessList = homelesses.data.orEmpty()
-                            .sortedByDescending { userPreferences.data?.contains(it.id) ?: false }
+                            .sortedByDescending { userPreferences.data?.contains(it.id) == true }
 
                         LazyVerticalGrid(
                             columns = GridCells.Fixed(1),

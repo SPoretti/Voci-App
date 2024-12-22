@@ -119,7 +119,8 @@ fun ModifyRequestDialog(
                     placeholderText = "Cerca un senzatetto...",
                     unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                     onClick = { },
-                    onDismiss = { }
+                    onDismiss = { },
+                    navController = navController
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

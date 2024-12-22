@@ -26,9 +26,7 @@ import com.example.vociapp.ui.navigation.currentRoute
 fun BottomBar(navController: NavHostController) {
     val items = listOf(
         Screens.Home,
-        Screens.Requests,
-        Screens.UserProfile,
-        //Screens.
+        Screens.Requests
     )
     val currentRoute = currentRoute(navController)
 
@@ -40,7 +38,7 @@ fun BottomBar(navController: NavHostController) {
         items.forEach { screen ->
             NavigationBarItem(
                 modifier = Modifier
-                    .padding(top = 10.dp),
+                    .padding(top = 8.dp),
                 icon = {
                     Box(
                         modifier = Modifier
@@ -48,7 +46,7 @@ fun BottomBar(navController: NavHostController) {
                             .background(
                                 color = MaterialTheme.colorScheme.surface
                             )
-                            .padding(10.dp)
+                            .padding(8.dp)
                     ){
                         Icon(
                             screen.icon,

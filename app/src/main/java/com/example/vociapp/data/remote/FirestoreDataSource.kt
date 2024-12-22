@@ -3,6 +3,7 @@ package com.example.vociapp.data.remote
 import android.util.Log
 import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.types.Update
 import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
@@ -295,6 +296,27 @@ class FirestoreDataSource @Inject constructor(
             }
         } catch (e: Exception) {
             return Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    // ------------------------------- Updates Functions ----------------------------------
+
+    suspend fun addUpdate(update: Update): Resource<String> {
+        return try {
+            val documentReference = firestore.collection("updates").add(update).await()
+            Resource.Success(documentReference.id)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun getUpdates(): Resource<List<Update>> {
+        return try {
+            val requests = firestore.collection("updates").get().await()
+                .toObjects(Update::class.java)
+            Resource.Success(requests)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 
