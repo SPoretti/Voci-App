@@ -139,6 +139,7 @@ fun HomeScreen(
                         onListItemClick = {homeless ->
                             navController.navigate("profileHomeless/${homeless.name}")
                         },
+                        navController = navController,
                         onSwipe = { homeless ->
                             navController.navigate("UpdatesAddScreen/${homeless.id}")
                         }

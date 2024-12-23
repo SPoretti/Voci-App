@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,6 +59,8 @@ fun AddRequestDialog(
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
 
+    var step by remember { mutableIntStateOf(1) }
+
     var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
 
     var isAddingRequest by remember { mutableStateOf(false) }
@@ -77,123 +80,166 @@ fun AddRequestDialog(
         },
         modifier = Modifier.fillMaxSize(),
         text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
+            when (step) {
+                1 -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        SearchBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            onSearch = { homelessViewModel.updateSearchQuery(it) },
+                            placeholderText = "Cerca un senzatetto...",
+                            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                            onClick = { },
+                            onDismiss = {
+                                //homelessViewModel.updateSearchQuery("")
+                            },
+                            navController = navController
+                        )
 
-                OutlinedTextField(
-                    value = requestTitle,
-                    onValueChange = { requestTitle = it },
-                    label = { Text("Titolo") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    ),
-                )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        val listToDisplay =
+                            if (searchQuery.isBlank())
+                                homelesses
+                            else
+                                filteredHomelesses
 
-                OutlinedTextField(
-                    value = requestDescription,
-                    onValueChange = { requestDescription = it },
-                    label = { Text("Descrizione") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    ),
-                )
+                        HomelessList(
+                            homelesses = listToDisplay,
+                            showPreferredIcon = false,
+                            onListItemClick = { homeless ->
+                                homelessID = homeless.id
+                                selectedHomeless = homeless
+                            },
+                            selectedHomeless = selectedHomeless,
+                            navController = navController,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+                2 -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = requestTitle,
+                            onValueChange = { requestTitle = it },
+                            label = { Text("Titolo") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                            ),
+                        )
 
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = requestDescription,
+                            onValueChange = { requestDescription = it },
+                            label = { Text("Descrizione") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                            ),
+                        )
 
-                IconSelector(
-                    onIconSelected = { iconCategory ->
-                        selectedIconCategory = iconCategory
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
 
-                SearchBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    onSearch = { homelessViewModel.updateSearchQuery(it) },
-                    placeholderText = "Cerca un senzatetto...",
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                    onClick = { },
-                    onDismiss = {
-                        //homelessViewModel.updateSearchQuery("")
-                    },
-                    navController = navController
-                )
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        IconSelector(
+                            onIconSelected = { iconCategory ->
+                                selectedIconCategory = iconCategory
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                        )
 
-                val listToDisplay =
-                    if (searchQuery.isBlank())
-                    homelesses
-                    else
-                    filteredHomelesses
-
-                HomelessList(
-                    homelesses = listToDisplay,
-                    showPreferredIcon = false,
-                    onListItemClick = { homeless ->
-                        homelessID = homeless.id
-                        selectedHomeless = homeless
-                    },
-                    selectedHomeless = selectedHomeless,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-
+                    }
+                }
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    isAddingRequest = true
-                    val newRequest = Request(
-                        title = requestTitle,
-                        description = requestDescription,
-                        homelessID = homelessID,
-                        creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
-                        iconCategory = selectedIconCategory
-                    )
-                    onAdd(newRequest)
-                },
-                modifier = Modifier
-                    .hapticFeedback(),
-                enabled =
-                !isAddingRequest and
-                        requestTitle.isNotEmpty() and
-                        requestDescription.isNotEmpty(),
-            ) {
-                Text("Aggiungi")
+            when(step) {
+                1 -> {
+                    Button(
+                        onClick = {
+                            step = 2
+                        },
+                        modifier = Modifier
+                            .hapticFeedback(),
+                    ) {
+                        Text("Avanti")
+                    }
+                }
+                2 -> {
+                    Button(
+                        onClick = {
+                            isAddingRequest = true
+                            val newRequest = Request(
+                                title = requestTitle,
+                                description = requestDescription,
+                                homelessID = homelessID,
+                                creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
+                                iconCategory = selectedIconCategory
+                            )
+                            onAdd(newRequest)
+                        },
+                        modifier = Modifier
+                            .hapticFeedback(),
+                        enabled =
+                        !isAddingRequest and
+                                requestTitle.isNotEmpty() and
+                                requestDescription.isNotEmpty(),
+                    ) {
+                        Text("Aggiungi")
+                    }
+                }
             }
+
         },
         dismissButton = {
-            OutlinedButton(
-                onClick = {onDismiss()},
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-            ) {
-                Text("Annulla")
+            when(step) {
+                1 -> {
+                    OutlinedButton(
+                        onClick = {onDismiss()},
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.onBackground,
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                    ) {
+                        Text("Annulla")
+                    }
+                }
+                2 -> {
+                    OutlinedButton(
+                        onClick = { step = 1 },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.onBackground,
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                    ) {
+                        Text("Annulla")
+                    }
+                }
             }
+
         },
         containerColor = MaterialTheme.colorScheme.surface,
         textContentColor = MaterialTheme.colorScheme.onBackground,

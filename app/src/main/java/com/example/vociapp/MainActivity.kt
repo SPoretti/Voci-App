@@ -14,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.data.types.AuthState
-import com.example.vociapp.di.ServiceLocator
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.di.ServiceLocator
 import com.example.vociapp.ui.components.BottomBar
 import com.example.vociapp.ui.navigation.NavGraph
 import com.example.vociapp.ui.navigation.Screens
