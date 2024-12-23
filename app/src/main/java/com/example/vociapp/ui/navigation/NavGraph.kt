@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.navigation
 
-import android.os.Build
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -12,6 +11,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,7 +31,6 @@ import com.example.vociapp.ui.screens.requests.RequestsHistoryScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
 import com.example.vociapp.ui.screens.updates.UpdateAddFormScreen
 import com.example.vociapp.ui.screens.updates.UpdateAddScreen
-import kotlin.text.compareTo
 
 @Composable
 fun NavGraph(
@@ -213,6 +212,12 @@ fun NavGraph(
 
 @Composable
 fun currentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
+}
+
+@Composable
+fun currentRoute(navController: NavController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
 }

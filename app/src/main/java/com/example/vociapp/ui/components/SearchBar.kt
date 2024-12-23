@@ -3,11 +3,8 @@ package com.example.vociapp.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,9 +29,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.navigation.currentRoute
 
 @Composable
 fun SearchBar(
@@ -51,6 +50,7 @@ fun SearchBar(
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.getAuthViewModel()
     val currentUser = authViewModel.getCurrentUserProfile()
+    val currentRoute = currentRoute(navController)
 
     OutlinedTextField(
         value = searchText,
@@ -98,54 +98,55 @@ fun SearchBar(
                     }
                 }
             } else {
-                if(currentUser?.photoUrl != null) {
-                    Row(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                    ) {
-                        IconButton(
-                            onClick = {
-                                navController.navigate("userProfile")
-                            },
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(48.dp)
-                                .clip(CircleShape)
-                                .hapticFeedback()
-                        ) {
-                            AsyncImage(
-                                model = currentUser.photoUrl,
-                                contentDescription = "Profile Picture",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .align(Alignment.CenterVertically)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+                if(currentRoute == "home") {
 
-                } else {
-                    Row(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                    ) {
-                        IconButton(
-                            onClick = {
-                                navController.navigate("userProfile")
-                            },
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .hapticFeedback()
+                    if(currentUser?.photoUrl != null) {
+
+                        Row(
+                            modifier = Modifier.padding(end = 8.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = "Account",
-                                tint = MaterialTheme.colorScheme.primary,
+                            IconButton(
+                                onClick = {
+                                    navController.navigate("userProfile")
+                                },
                                 modifier = Modifier
-                                    .size(32.dp)
-                            )
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .hapticFeedback()
+                            ) {
+                                AsyncImage(
+                                    model = currentUser.photoUrl,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate("userProfile")
+                                },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .hapticFeedback()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Person,
+                                    contentDescription = "Account",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                )
+                            }
                         }
                     }
                 }

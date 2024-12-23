@@ -16,10 +16,7 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlin.div
 import kotlin.random.Random
-import kotlin.text.toLong
 
 @Composable
 fun StatusLED(
