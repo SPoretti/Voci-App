@@ -5,13 +5,17 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.vociapp.di.ServiceLocator
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class SyncWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         Log.d("SyncWorker", "SyncWorker started")
         return try {
-            syncAllPendingActions()
+            val serviceLocator = ServiceLocator.getInstance()
+            syncAllPendingActions(serviceLocator)
             Result.success().also {
                 Log.d("SyncWorker", "SyncWorker completed successfully")
             }
@@ -21,13 +25,28 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
         }
     }
 
-    private suspend fun syncAllPendingActions(){
-        val homelessRepository = ServiceLocator.getInstance().getHomelessRepository()
-        val volunteerRepository = ServiceLocator.getInstance().getVolunteerRepository()
-        val requestRepository = ServiceLocator.getInstance().getRequestRepository()
+    private suspend fun syncAllPendingActions(serviceLocator: ServiceLocator){
 
-        homelessRepository.syncPendingActions()
-        volunteerRepository.syncPendingActions()
-        //requestRepository.syncPendingActions()
+        coroutineScope { // Create a new coroutine scope
+            Log.d("SyncWorker", "Starting homelessRepository.syncPendingActions()")
+            val homelessDeferred = async<Unit> {
+                serviceLocator.getHomelessRepository().syncPendingActions()
+            }
+            Log.d("SyncWorker", "Starting volunteerRepository.syncPendingActions()")
+
+            val volunteerDeferred = async<Unit> {
+                serviceLocator.getVolunteerRepository().syncPendingActions()
+            }
+            //Log.d("SyncWorker", "Starting requestRepository.syncPendingActions()")
+            // val requestDeferred = async<Unit> {
+            //     serviceLocator.getRequestRepository().syncPendingActions()
+            // }
+
+            awaitAll(
+                homelessDeferred,
+                volunteerDeferred,
+                //requestDeferred,
+                ) // Wait for all to complete
+        }
     }
 }
