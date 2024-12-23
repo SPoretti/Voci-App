@@ -47,11 +47,6 @@ class NetworkConnectivityListener(private val context: Context) {
     }
 
     private fun triggerSync() {
-        val uploadRequest: WorkRequest = OneTimeWorkRequestBuilder<UploadWorker>().build()
-        WorkManager
-            .getInstance(context)
-            .enqueue(uploadRequest)
-        Log.d("NetworkConnectivity", "UploadWorker triggered")
         val syncRequest: WorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
         WorkManager
             .getInstance(context)

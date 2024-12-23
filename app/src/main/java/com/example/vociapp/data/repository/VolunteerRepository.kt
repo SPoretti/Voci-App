@@ -181,7 +181,7 @@ class VolunteerRepository @Inject constructor(
                 val currentVolunteer = roomDataSource.getVolunteerById(userId)
                 val newVolunteer = currentVolunteer?.copy(preferredHomelessIds = preferredHomelessIds)
                 roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
-                queueSyncAction("Volunteer", "updatePreferences", newVolunteer!!)
+                queueSyncAction("Volunteer", "update_preferences", newVolunteer!!)
                 Resource.Error("No network connection. Data saved locally and queued for later sync.")
             }
         } catch (e: Exception) {
@@ -198,18 +198,30 @@ class VolunteerRepository @Inject constructor(
             syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect { pendingActions ->
 
                 for (action in pendingActions) {
-                    Log.d("SyncPendingActions", "Syncing action: $action")
-                    val data = Gson().fromJson(action.data, Volunteer::class.java)
-                    Log.d("SyncUserPrefernces", data.id + data.preferredHomelessIds.toString())
-                    when (action.operation) {
-                        "add" -> firestoreDataSource.addVolunteer(data)
-                        "update" -> firestoreDataSource.updateVolunteer(data)
-                        "updatePreferences" -> firestoreDataSource.updateUserPreferences(data.id, data.preferredHomelessIds)
-                        //"delete" -> firestoreDataSource.deleteVolunteer(data.id)
-                    }
 
-                    // Once synced, remove the action from the queue
-                    syncQueueDao.deleteSyncAction(action)
+                    if (action.entityType == "Volunteer"){
+                        val data = Gson().fromJson(action.data, Volunteer::class.java)
+                        Log.d("SyncPendingActions1", "Syncing action: $data")
+                        when (action.operation) {
+                            "add" -> firestoreDataSource.addVolunteer(data)
+                            "update" -> firestoreDataSource.updateVolunteer(data)
+                            "update_preferences" -> {
+                                //Log.d("SyncPendingActions", "Updating user preferences: ${data.preferredHomelessIds}")
+                                firestoreDataSource.updateUserPreferences(
+                                    data.id,
+                                    data.preferredHomelessIds
+                                )
+                            }//"delete" -> firestoreDataSource.deleteVolunteer(data.id)
+                            else -> {
+                                Log.d(
+                                    "SyncPendingActions",
+                                    "Unknown operation: ${action.operation}"
+                                )
+                            }
+                        }
+                        // Once synced, remove the action from the queue
+                        syncQueueDao.deleteSyncAction(action)
+                    }
                 }
             }
         }
