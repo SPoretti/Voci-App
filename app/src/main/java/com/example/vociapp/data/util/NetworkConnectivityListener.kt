@@ -11,7 +11,9 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.example.vociapp.worker.SyncWorker
+import com.example.vociapp.worker.UploadWorker
 import java.util.concurrent.TimeUnit
 
 class NetworkConnectivityListener(private val context: Context) {
@@ -45,23 +47,26 @@ class NetworkConnectivityListener(private val context: Context) {
     }
 
     private fun triggerSync() {
-        val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
-        WorkManager.getInstance(context)
-            .enqueueUniqueWork(
-                "SyncWorker",
-                ExistingWorkPolicy.KEEP, // Keep the existing sync if already enqueued
-                syncRequest
-            )
-        val periodicSyncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-            5, TimeUnit.MINUTES // Adjust the interval as needed
-        ).build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            "PeriodicSync",
-            ExistingPeriodicWorkPolicy.KEEP, // Keep the periodic work schedule
-            periodicSyncRequest
-        )
+        val uploadRequest: WorkRequest = OneTimeWorkRequestBuilder<UploadWorker>().build()
+        WorkManager
+            .getInstance(context)
+            .enqueue(uploadRequest)
+        Log.d("NetworkConnectivity", "UploadWorker triggered")
+        val syncRequest: WorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
+        WorkManager
+            .getInstance(context)
+            .enqueue(syncRequest)
         Log.d("NetworkConnectivity", "SyncWorker triggered")
+//        val periodicSyncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
+//            5, TimeUnit.MINUTES // Adjust the interval as needed
+//        ).build()
+//
+//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+//            "PeriodicSync",
+//            ExistingPeriodicWorkPolicy.KEEP, // Keep the periodic work schedule
+//            periodicSyncRequest
+//        )
+//        Log.d("NetworkConnectivity", "SyncWorker triggered")
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.repository.VolunteerRepository
@@ -40,8 +41,10 @@ class VolunteerViewModel @Inject constructor(
         firebaseAuth.addAuthStateListener { auth ->
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
+                Log.d("AuthStateListener", "User is logged in: ${firebaseUser.email}")
                 viewModelScope.launch {
                     val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
+                    Log.d("AuthStateListener", "Volunteer ID: $volunteerId")
                     if (volunteerId != null){
                         _currentUser.value =
                             Volunteer(email = firebaseUser.email!!, id = volunteerId)
@@ -124,7 +127,7 @@ class VolunteerViewModel @Inject constructor(
     fun updateVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
             val result = volunteerRepository.updateVolunteer(volunteer)
-            when (result) {
+            when (result){
                 is Resource.Success -> {
                     // Request updated successfully, you might want to refresh the requests list
                     getVolunteerById(volunteer.id)

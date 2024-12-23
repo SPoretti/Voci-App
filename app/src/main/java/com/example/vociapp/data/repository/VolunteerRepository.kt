@@ -1,5 +1,6 @@
 package com.example.vociapp.data.repository
 
+import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Converters
@@ -29,7 +30,7 @@ class VolunteerRepository @Inject constructor(
             firestoreDataSource.addVolunteer(volunteer)
         } else {
             // Offline: add to sync queue for later
-            queueSyncAction("volunteer", "add", volunteer)
+            queueSyncAction("Volunteer", "add", volunteer)
             Resource.Success("No network connection. Data saved locally and queued for later sync.")
         }
     }
@@ -68,7 +69,7 @@ class VolunteerRepository @Inject constructor(
             firestoreDataSource.updateVolunteer(volunteer)
         } else {
             // Offline: update locally and add to sync queue
-            queueSyncAction("volunteer", "update", volunteer)
+            queueSyncAction("Volunteer", "update", volunteer)
             Resource.Error("No network connection. Data saved locally and queued for later sync.")
         }
     }
@@ -103,7 +104,14 @@ class VolunteerRepository @Inject constructor(
     suspend fun getVolunteerIdByEmail(email: String): String? {
         return if (networkManager.isNetworkConnected()) {
             // Fetch from remote if connected
-            firestoreDataSource.getVolunteerIdByEmail(email)
+            val volunteerId = firestoreDataSource.getVolunteerIdByEmail(email)
+            if (volunteerId != null){
+                val volunteer = firestoreDataSource.getVolunteerById(volunteerId)
+                if (volunteer != null) {
+                    roomDataSource.insertVolunteer(volunteer)
+                }
+            }
+            volunteerId
         } else {
             // Fetch from local otherwise
             roomDataSource.getVolunteerIdByEmail(email)
@@ -190,8 +198,9 @@ class VolunteerRepository @Inject constructor(
             syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect { pendingActions ->
 
                 for (action in pendingActions) {
+                    Log.d("SyncPendingActions", "Syncing action: $action")
                     val data = Gson().fromJson(action.data, Volunteer::class.java)
-
+                    Log.d("SyncUserPrefernces", data.id + data.preferredHomelessIds.toString())
                     when (action.operation) {
                         "add" -> firestoreDataSource.addVolunteer(data)
                         "update" -> firestoreDataSource.updateVolunteer(data)

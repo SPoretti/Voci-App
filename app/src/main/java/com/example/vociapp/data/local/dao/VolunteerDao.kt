@@ -34,7 +34,7 @@ interface VolunteerDao {
     @Query("UPDATE volunteers SET preferredHomelessIds = :preferredHomelessIds WHERE id = :userId")
     suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(volunteer: Volunteer)
 
     @Update

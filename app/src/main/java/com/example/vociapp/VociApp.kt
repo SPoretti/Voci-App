@@ -1,11 +1,17 @@
 package com.example.vociapp
 
 import android.app.Application
+import android.content.Context
+import androidx.activity.result.launch
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.example.vociapp.data.local.database.VociAppRoomDatabase
 import com.example.vociapp.data.util.NetworkConnectivityListener
 import com.example.vociapp.di.ServiceLocator
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class VociApp : Application(){
     companion object {
@@ -22,6 +28,7 @@ class VociApp : Application(){
             applicationContext,
             FirebaseFirestore.getInstance()
         )
+        //clearDatabaseAndSyncQueue(context = applicationContext)
 //        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
 //        networkConnectivityListener.startMonitoring()
         //if (!WorkManager.isInitialized())
@@ -38,4 +45,13 @@ class VociApp : Application(){
 //        super.onTerminate()
 //        networkConnectivityListener.stopMonitoring()
 //    }
+
+
+    fun clearDatabaseAndSyncQueue(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val db = VociAppRoomDatabase.getDatabase(context)
+            db.clearAllTables()
+            WorkManager.getInstance(context).cancelAllWork()
+        }
+    }
 }
