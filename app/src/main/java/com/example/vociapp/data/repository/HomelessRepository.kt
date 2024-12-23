@@ -61,19 +61,18 @@ class HomelessRepository @Inject constructor(
 
                 for (action in pendingActions) {
                     // Deserialize the data
-                    Log.d("SyncPendingActions", "Syncing action: $action")
-                    val data = Gson().fromJson(action.data, Homeless::class.java)
+                    //Log.d("SyncPendingActions", "Syncing action: $action")
 
-                    Log.d("SyncPendingActions", "Syncing action: $action")
-
-                    when (action.operation) {
-                        "add" -> firestoreDataSource.addHomeless(data)
-                        "update" -> firestoreDataSource.updateHomeless(data)
-                        "delete" -> firestoreDataSource.deleteHomeless(data.id)
+                    if (action.entityType == "Homeless"){
+                        val data = Gson().fromJson(action.data, Homeless::class.java)
+                        when (action.operation) {
+                            "add" -> firestoreDataSource.addHomeless(data)
+                            "update" -> firestoreDataSource.updateHomeless(data)
+                            "delete" -> firestoreDataSource.deleteHomeless(data.id)
+                        }
+                        // Once synced, remove the action from the queue
+                        syncQueueDao.deleteSyncAction(action)
                     }
-
-                    // Once synced, remove the action from the queue
-                    syncQueueDao.deleteSyncAction(action)
                 }
             }
         }
