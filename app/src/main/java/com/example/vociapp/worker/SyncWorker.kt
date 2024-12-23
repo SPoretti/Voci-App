@@ -4,23 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.vociapp.data.repository.HomelessRepository
-import com.example.vociapp.data.repository.RequestRepository
-import com.example.vociapp.data.repository.VolunteerRepository
+import com.example.vociapp.di.ServiceLocator
 
-class SyncWorker(
-    appContext: Context,
-    workerParams: WorkerParameters,
-    private val homelessRepository: HomelessRepository,
-    private val volunteerRepository: VolunteerRepository,
-    private val requestRepository: RequestRepository
-) : CoroutineWorker(appContext, workerParams) {
+class SyncWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         Log.d("SyncWorker", "SyncWorker started")
         return try {
-            homelessRepository.syncPendingActions()
-            volunteerRepository.syncPendingActions()
+            syncAllPendingActions()
             Result.success().also {
                 Log.d("SyncWorker", "SyncWorker completed successfully")
             }
@@ -28,5 +19,15 @@ class SyncWorker(
             Log.e("SyncWorker", "SyncWorker failed", e)
             Result.retry()
         }
+    }
+
+    private suspend fun syncAllPendingActions(){
+        val homelessRepository = ServiceLocator.getInstance().getHomelessRepository()
+        val volunteerRepository = ServiceLocator.getInstance().getVolunteerRepository()
+        val requestRepository = ServiceLocator.getInstance().getRequestRepository()
+
+        homelessRepository.syncPendingActions()
+        volunteerRepository.syncPendingActions()
+        //requestRepository.syncPendingActions()
     }
 }

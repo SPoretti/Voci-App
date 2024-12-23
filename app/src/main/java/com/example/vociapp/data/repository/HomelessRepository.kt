@@ -61,6 +61,7 @@ class HomelessRepository @Inject constructor(
 
                 for (action in pendingActions) {
                     // Deserialize the data
+                    Log.d("SyncPendingActions", "Syncing action: $action")
                     val data = Gson().fromJson(action.data, Homeless::class.java)
 
                     Log.d("SyncPendingActions", "Syncing action: $action")
