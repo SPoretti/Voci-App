@@ -1,10 +1,18 @@
 package com.example.vociapp.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -14,9 +22,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.AsyncImage
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.navigation.currentRoute
 
 @Composable
 fun SearchBar(
@@ -25,28 +42,29 @@ fun SearchBar(
     placeholderText: String,
     unfocusedBorderColor: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit,
-    onDismiss: () -> Unit) {
+    onDismiss: () -> Unit,
+    navController: NavController
+) {
     var searchText by remember { mutableStateOf("") }
     var isSearchBarFocused by remember { mutableStateOf(false) }
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.getAuthViewModel()
+    val currentUser = authViewModel.getCurrentUserProfile()
+    val currentRoute = currentRoute(navController)
 
     OutlinedTextField(
         value = searchText,
         onValueChange = { newText ->
             searchText = newText
-            onSearch(newText) // Trigger search when text changes
+            onSearch(newText)
         },
         modifier = modifier
             .clickable { onClick() }
             .onFocusChanged { focusState ->
                 if (isSearchBarFocused && !focusState.isFocused) {
-                    // Focus was lost
                     isSearchBarFocused = false
-
-                    // Perform actions here, e.g., hide keyboard, clear search
-                    // Example:
                     onDismiss()
                 } else if (focusState.isFocused) {
-                    // Gained focus
                     isSearchBarFocused = true
                 }
             },
@@ -55,6 +73,84 @@ fun SearchBar(
                 imageVector = Icons.Filled.Search,
                 contentDescription = "Search"
             )
+        },
+        trailingIcon = {
+            if(
+                searchText.isNotEmpty()
+                && isSearchBarFocused
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                ) {
+                    IconButton(
+                        onClick = {
+                            searchText = ""
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Account",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .size(32.dp)
+                        )
+                    }
+                }
+            } else {
+                if(currentRoute == "home") {
+
+                    if(currentUser?.photoUrl != null) {
+
+                        Row(
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate("userProfile")
+                                },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .hapticFeedback()
+                            ) {
+                                AsyncImage(
+                                    model = currentUser.photoUrl,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    navController.navigate("userProfile")
+                                },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .hapticFeedback()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Person,
+                                    contentDescription = "Account",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         },
         placeholder = { Text(placeholderText) },
         singleLine = true,
