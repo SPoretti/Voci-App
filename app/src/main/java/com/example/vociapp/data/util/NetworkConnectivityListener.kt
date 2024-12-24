@@ -13,7 +13,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.example.vociapp.worker.SyncWorker
-import com.example.vociapp.worker.UploadWorker
 import java.util.concurrent.TimeUnit
 
 class NetworkConnectivityListener(private val context: Context) {
