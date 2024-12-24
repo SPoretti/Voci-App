@@ -1,21 +1,24 @@
 package com.example.vociapp.ui.navigation
 
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.home.HomeScreen
@@ -26,6 +29,8 @@ import com.example.vociapp.ui.screens.profiles.volunteer.ProfileVolunteerScreen
 import com.example.vociapp.ui.screens.requests.RequestDetailsScreen
 import com.example.vociapp.ui.screens.requests.RequestsHistoryScreen
 import com.example.vociapp.ui.screens.requests.RequestsScreen
+import com.example.vociapp.ui.screens.updates.UpdateAddFormScreen
+import com.example.vociapp.ui.screens.updates.UpdateAddScreen
 
 @Composable
 fun NavGraph(
@@ -158,11 +163,61 @@ fun NavGraph(
             val homelessId = backStackEntry.arguments?.getString("homelessId")
             ProfileHomelessScreen(homelessId)
         }
+
+        // Updates Screens
+
+        composable(
+            route = "UpdatesAddScreen/{homelessId}",
+            arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInVertically(
+                    animationSpec = tween(600),
+                    initialOffsetY = { it }
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    animationSpec = tween(600),
+                    targetOffsetY = { it }
+                )
+            }
+        ) {
+                backStackEntry ->
+            val homelessId = backStackEntry.arguments?.getString("homelessId")
+            UpdateAddScreen(navController, homelessId.toString())
+        }
+
+        composable(
+            route = "UpdateAddFormScreen/{buttonOption}/{homelessId}", // Add homelessId to route
+            arguments = listOf(
+                navArgument("buttonOption") { type = NavType.StringType },
+                navArgument("homelessId") { type = NavType.StringType }
+            ),
+        ) { backStackEntry ->
+            val buttonOptionString = backStackEntry.arguments?.getString("buttonOption")
+            val buttonOption = when (buttonOptionString) {
+                "Green" -> ButtonOption.Green
+                "Yellow" -> ButtonOption.Yellow
+                "Red" -> ButtonOption.Red
+                "Gray" -> ButtonOption.Gray
+                else -> ButtonOption.Green
+            }
+            val homelessId = backStackEntry.arguments?.getString("homelessId") ?: "" // Get homelessId
+
+            UpdateAddFormScreen(navController, buttonOption, homelessId) // Pass homelessId to UpdateAddFormScreen
+        }
+
     }
 }
 
 @Composable
 fun currentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.destination?.route
+}
+
+@Composable
+fun currentRoute(navController: NavController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
 }

@@ -55,7 +55,9 @@ fun ProfileVolunteerScreen(creatorId: String?) {
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Transparent)) {
 
             Column(
                 modifier = Modifier
@@ -87,6 +89,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
+
                         Text(
                             text = volunteer?.nickname ?: "Nickname non disponibile",
                             style = MaterialTheme.typography.headlineMedium,

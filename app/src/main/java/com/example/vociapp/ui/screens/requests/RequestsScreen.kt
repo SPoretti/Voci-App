@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,9 +40,10 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.SortButtons
 import com.example.vociapp.ui.components.requests.AddRequestDialog
 import com.example.vociapp.ui.components.requests.RequestList
-import com.example.vociapp.ui.components.SortButtons
+import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.navigation.Screens
 import kotlinx.coroutines.launch
 
@@ -145,11 +147,18 @@ fun RequestsScreen(
             elevation = FloatingActionButtonDefaults.elevation(50.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(16.dp)
+                .hapticFeedback(),
             containerColor = MaterialTheme.colorScheme.primary
 
         ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add request")
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add request")
+                Text("Aggiungi Richiesta")
+            }
         }
 
         if (showAddRequestDialog) {

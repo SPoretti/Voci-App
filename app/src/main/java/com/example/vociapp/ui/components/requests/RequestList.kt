@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components.requests
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
@@ -49,7 +52,7 @@ fun RequestList(
     requestViewModel: RequestViewModel,
     homeLessViewModel: HomelessViewModel,
 ) {
-    val filteredRequests = remember(requests, sortOption) { // Remember to avoid recalculation
+    val filteredRequests = remember(requests, sortOption) {
         requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
     }
 
@@ -74,6 +77,7 @@ fun RequestList(
                     ) {
                         items(filteredRequests) { request ->
                             // SwipeToDismissBoxState with necessary configuration
+                            val view = LocalView.current
                             val density = LocalDensity.current
                             val swipeState = remember(density) {
                                 SwipeToDismissBoxState(
@@ -92,6 +96,9 @@ fun RequestList(
 
                             // Observe dismissal state
                             LaunchedEffect(swipeState.currentValue) {
+                                if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
+                                    view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                }
                                 if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
                                     if(request.status == RequestStatus.TODO){
                                         requestViewModel.requestDone(request)
@@ -119,7 +126,9 @@ fun RequestList(
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = "Check",
-                                                tint = Color.White
+                                                tint = Color.White,
+                                                modifier = Modifier
+                                                    .size(32.dp)
                                             )
                                         }
                                     }
@@ -135,7 +144,9 @@ fun RequestList(
                                             Icon(
                                                 imageVector = Icons.Default.Delete,
                                                 contentDescription = "Delete",
-                                                tint = Color.White
+                                                tint = Color.White,
+                                                modifier = Modifier
+                                                    .size(32.dp)
                                             )
                                         }
                                     }

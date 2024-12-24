@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 
@@ -26,21 +27,20 @@ import com.example.vociapp.ui.navigation.currentRoute
 fun BottomBar(navController: NavHostController) {
     val items = listOf(
         Screens.Home,
-        Screens.Requests,
-        Screens.UserProfile,
-        //Screens.
+        Screens.Requests
     )
     val currentRoute = currentRoute(navController)
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primary,
+        containerColor = MaterialTheme.colorScheme.onPrimary,
         modifier = Modifier
             .offset(y = 0.dp)
     ) {
         items.forEach { screen ->
             NavigationBarItem(
                 modifier = Modifier
-                    .padding(top = 10.dp),
+                    .padding(top = 8.dp)
+                    .hapticFeedback(),
                 icon = {
                     Box(
                         modifier = Modifier
@@ -48,7 +48,7 @@ fun BottomBar(navController: NavHostController) {
                             .background(
                                 color = MaterialTheme.colorScheme.surface
                             )
-                            .padding(10.dp)
+                            .padding(8.dp)
                     ){
                         Icon(
                             screen.icon,
@@ -69,19 +69,7 @@ fun BottomBar(navController: NavHostController) {
                     )},
                 selected = currentRoute == screen.route,
                 onClick = {
-                    navController.navigate(screen.route) {
-                        /*
-                        by removing this we are able to navigate to the main screen
-                        i.e. if I go to the requests history screen and then tap on the
-                        requests item in the bottom bar it will navigate to the requests screen
-
-
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true*/
-                    }
+                    navController.navigate(screen.route)
                 },
                 colors = NavigationBarItemDefaults.colors(
                     unselectedTextColor = MaterialTheme.colorScheme.onSurface,

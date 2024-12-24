@@ -120,8 +120,9 @@ class HomelessRepository @Inject constructor(
             return roomDataSource.homelessDao.getHomelessById(homelessID)
         }
     }
+
+    suspend fun updateHomeless(homeless: Homeless): Resource<Unit> {
+        return firestoreDataSource.updateHomeless(homeless)
+    }
+
 }
-
-
-
-

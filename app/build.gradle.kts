@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended.v175)
     implementation(libs.material)
     implementation(libs.material3)
+    implementation(libs.coil.compose)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     // Annotation processor for Room
