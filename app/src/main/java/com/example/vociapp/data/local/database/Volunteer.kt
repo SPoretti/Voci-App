@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity(tableName = "volunteers")
+
 data class Volunteer(
     @PrimaryKey var id: String = UUID.randomUUID().toString(),
     var name: String = "",

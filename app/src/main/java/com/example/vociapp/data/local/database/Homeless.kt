@@ -15,4 +15,5 @@ data class Homeless(
     var pets: String = "No",
     var nationality: String = "",
     var description: String = "",
+    var status: UpdateStatus = UpdateStatus.GREEN
 )

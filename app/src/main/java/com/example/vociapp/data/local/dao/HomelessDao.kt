@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
+import androidx.room.Update
 import com.example.vociapp.data.local.database.Homeless
 import kotlinx.coroutines.flow.Flow
 
@@ -22,6 +23,12 @@ interface HomelessDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(homelessList: List<Homeless>)
+
+    @Update
+    suspend fun update(homeless: Homeless)
+
+    @Query("DELETE FROM homelesses WHERE id = :homelessID")
+    suspend fun deleteById(homelessID: String)
 }
 
 

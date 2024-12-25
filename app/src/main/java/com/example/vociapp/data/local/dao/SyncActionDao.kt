@@ -20,4 +20,11 @@ interface SyncQueueDao {
 
     @Query("DELETE FROM sync_queue")
     suspend fun clearAllSyncActions()
+
+    @Query("SELECT COUNT(*) FROM sync_queue")
+    suspend fun getRowCount(): Int
+
+    suspend fun isEmpty(): Boolean {
+        return getRowCount() == 0
+    }
 }

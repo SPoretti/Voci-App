@@ -3,6 +3,7 @@ package com.example.vociapp.data.remote
 import android.util.Log
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
@@ -31,7 +32,7 @@ class FirestoreDataSource @Inject constructor(
                 .toObjects(Request::class.java)
             Resource.Success(requests)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
+            Resource.Error(e.message ?: "Error fetching requests from remote data")
         }
     }
 
@@ -79,7 +80,6 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    //da aggiungere a RoomDataSource
     suspend fun getRequestById(requestId: String): Resource<Request> {
         return try {
             val querySnapshot = firestore.collection("requests")
@@ -167,6 +167,10 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    fun deleteHomeless(id: Any) {
+        TODO()//if needed
+    }
+    //----------------------------------TODO()-------------------------------
     // ------------------------------- Volunteer Functions ----------------------------------
 
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
@@ -300,13 +304,7 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    fun updateHomeless(data: Any) {
-        TODO()//if needed
-    }
 
-    fun deleteHomeless(id: Any) {
-        TODO()//if needed
-    }
 
     // ------------------------------- Updates Functions ----------------------------------
 

@@ -1,13 +1,12 @@
 package com.example.vociapp.data.local.database
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.example.vociapp.ui.components.IconCategory
+import androidx.room.ForeignKey
 import java.util.UUID
 
 @Entity(
-    tableName = "requests",
+    tableName = "updates",
     foreignKeys = [
         ForeignKey(
             entity = Homeless::class,
@@ -23,18 +22,19 @@ import java.util.UUID
         )
     ]
 )
-data class Request(
+data class Update(
     @PrimaryKey var id: String = UUID.randomUUID().toString(),
     var creatorId: String? = null,
     var homelessID: String = "",
     var title: String = "",
     var description: String = "",
-    var status: RequestStatus = RequestStatus.TODO,
-    var timestamp: Long = System.currentTimeMillis(),
-    var iconCategory: IconCategory = IconCategory.OTHER
+    var status: UpdateStatus = UpdateStatus.GREEN,
+    var timestamp: Long = System.currentTimeMillis()
 )
 
-enum class RequestStatus {
-    TODO,
-    DONE,
+enum class UpdateStatus {
+    GREEN,
+    YELLOW,
+    RED,
+    GRAY
 }
