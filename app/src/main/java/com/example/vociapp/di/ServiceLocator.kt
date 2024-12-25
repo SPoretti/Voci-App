@@ -44,6 +44,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         homelessDao = roomDatabase.homelessDao(),
         volunteerDao = roomDatabase.volunteerDao(),
         requestDao = roomDatabase.requestDao(),
+        updateDao = roomDatabase.updateDao(),
         syncQueueDao = syncQueueDao
     )
 
@@ -66,7 +67,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
 
-    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore))
+    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val updatesViewModel: UpdatesViewModel = UpdatesViewModel(updatesRepository)
 
     // Getters for repositories and view models
@@ -83,8 +84,6 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     fun getVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
 
     fun getAuthViewModel(): AuthViewModel = authViewModel
-
-
 }
 
 

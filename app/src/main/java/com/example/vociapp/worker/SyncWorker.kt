@@ -32,21 +32,28 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
             val homelessDeferred = async<Unit> {
                 serviceLocator.getHomelessRepository().syncPendingActions()
             }
+            Log.d("SyncWorker", "Starting requestRepository.syncPendingActions()")
+
+            val requestDeferred = async<Unit> {
+                serviceLocator.getRequestRepository().syncPendingActions()
+            }
+            Log.d("SyncWorker", "Starting volunteerRepository.syncPendingActions()")
+
+            val updateDeferred = async<Unit> {
+                serviceLocator.getUpdatesRepository().syncPendingActions()
+            }
             Log.d("SyncWorker", "Starting volunteerRepository.syncPendingActions()")
 
             val volunteerDeferred = async<Unit> {
                 serviceLocator.getVolunteerRepository().syncPendingActions()
             }
-            //Log.d("SyncWorker", "Starting requestRepository.syncPendingActions()")
-            // val requestDeferred = async<Unit> {
-            //     serviceLocator.getRequestRepository().syncPendingActions()
-            // }
 
             awaitAll(
                 homelessDeferred,
+                requestDeferred,
+                updateDeferred,
                 volunteerDeferred,
-                //requestDeferred,
-                ) // Wait for all to complete
+            ) // Wait for all to complete
         }
     }
 }

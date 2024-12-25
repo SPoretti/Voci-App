@@ -3,6 +3,7 @@ package com.example.vociapp.data.local
 import com.example.vociapp.data.local.dao.HomelessDao
 import com.example.vociapp.data.local.dao.RequestDao
 import com.example.vociapp.data.local.dao.SyncQueueDao
+import com.example.vociapp.data.local.dao.UpdateDao
 import com.example.vociapp.data.local.dao.VolunteerDao
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
@@ -15,18 +16,14 @@ import kotlinx.coroutines.flow.flow
 class RoomDataSource(
     val homelessDao: HomelessDao,
     private val volunteerDao: VolunteerDao,
-    private val requestDao: RequestDao,
+    val requestDao: RequestDao,
+    val updateDao: UpdateDao,
     val syncQueueDao: SyncQueueDao
 ) {
     // ------------------------------- Request Functions ----------------------------------
 
-    suspend fun insertRequest(request: Request): Resource<String>{
-        return try {
-            requestDao.insert(request)
-            Resource.Success("Richiesta aggiunta con successo")
-        } catch (e: Exception) {
-            Resource.Error("Error inserting request: ${e.localizedMessage}")
-        }
+    suspend fun insertRequest(request: Request){
+        requestDao.insert(request)
     }
 
     fun getRequests(): Flow<Resource<List<Request>>>  = flow {
@@ -40,28 +37,16 @@ class RoomDataSource(
         }
     }
 
-    fun updateRequest(request: Request):Resource<Unit> {
-        return try {
-            Resource.Success(requestDao.update(request))
-        } catch (e: Exception) {
-            Resource.Error("Error updating request: ${e.localizedMessage}")
-        }
+    fun updateRequest(request: Request) {
+        requestDao.update(request)
     }
 
-    fun deleteRequest(request: Request): Resource<Unit> {
-        return try{
-            Resource.Success(requestDao.delete(request))
-        }catch (e: Exception) {
-            Resource.Error("Error deleting request: ${e.localizedMessage}")
-        }
+    fun deleteRequest(request: Request){
+        requestDao.delete(request)
     }
 
-    fun getRequestById(requestId: String): Resource<Request> {
-        return try{
-            Resource.Success(requestDao.getRequestById(requestId))
-        } catch (e: Exception) {
-            Resource.Error("Error getting request by ID: ${e.localizedMessage}")
-        }
+    fun getRequestById(requestId: String): Request {
+        return requestDao.getRequestById(requestId)
     }
 
     // ------------------------------- Homeless Functions ----------------------------------
@@ -83,20 +68,12 @@ class RoomDataSource(
         }
     }
 
-    suspend fun getHomeless(homelessID: String): Resource<Homeless>{
-        val homeless = homelessDao.getHomelessById(homelessID)
-        if (homeless != null)
-            return Resource.Success(homeless)
-        else
-            return Resource.Error("Homeless not found")
+    suspend fun getHomeless(homelessID: String): Homeless?{
+        return homelessDao.getHomelessById(homelessID)
     }
 
-    suspend fun updateHomeless(homeless: Homeless): Resource<Unit> {
-        return try{
-            Resource.Success(homelessDao.update(homeless))
-        } catch (e: Exception){
-            Resource.Error("Errore durante l'aggiornamento del profilo: ${e.localizedMessage}")
-        }
+    suspend fun updateHomeless(homeless: Homeless){
+        homelessDao.update(homeless)
     }
 
     suspend fun deleteHomeless(homelessID: String) {
@@ -106,13 +83,8 @@ class RoomDataSource(
     //----------------------------------TODO()-------------------------------
     // ------------------------------- Volunteer Functions ----------------------------------
 
-    suspend fun insertVolunteer(volunteer: Volunteer): Resource<String> {
-        return try {
-            volunteerDao.insert(volunteer)
-            Resource.Success("Volunteer added successfully")
-        } catch (e: Exception) {
-            Resource.Error("Error inserting volunteer: ${e.localizedMessage}")
-        }
+    suspend fun insertVolunteer(volunteer: Volunteer){
+        volunteerDao.insert(volunteer)
     }
 
     suspend fun getVolunteerById(id: String): Volunteer? {
@@ -131,13 +103,8 @@ class RoomDataSource(
         return volunteerDao.getVolunteerIdByEmail(email)
     }
 
-    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
-        return try {
-            volunteerDao.update(volunteer)
-            Resource.Success(Unit)  // Return success without any data
-        } catch (e: Exception) {
-            Resource.Error("Error updating volunteer: ${e.localizedMessage}")
-        }
+    suspend fun updateVolunteer(volunteer: Volunteer){
+        volunteerDao.update(volunteer)
     }
 
     fun getVolunteers(): Flow<List<Volunteer>> {
@@ -160,23 +127,24 @@ class RoomDataSource(
         }
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
-        return try {
-            volunteerDao.updateUserPreferences(userId, preferredHomelessIds) // Assuming this DAO function exists
-            Resource.Success(Unit)
-        }
-        catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred") // Handle any exceptions
-        }
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>) {
+        volunteerDao.updateUserPreferences(userId, preferredHomelessIds)
     }
 
     // ------------------------------- Updates Functions ----------------------------------
 
-    suspend fun insertUpdate(update: Update): Resource<String> {
-        TODO()
+    suspend fun insertUpdate(update: Update) {
+        updateDao.insert(update)
     }
 
-    suspend fun getUpdates(): Resource<List<Update>> {
-        TODO()
+    fun getUpdates(): Flow<Resource<List<Update>>> = flow {
+        try {
+            emit(Resource.Loading()) // Indicate loading state
+            updateDao.getUpdates().collect { updates ->
+                emit(Resource.Success(updates)) // Emit success with the fetched list
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
+        }
     }
 }
