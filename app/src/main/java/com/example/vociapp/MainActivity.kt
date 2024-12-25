@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     val snackbarHostState = remember { SnackbarHostState() }
                     Scaffold(
                         bottomBar = {
-                            if (currentRoute(navController) !in listOf("signIn", "signUp", "emailVerification", "completeSignUp")) {
+                            if (currentRoute(navController) !in listOf("signIn", "signUp", "emailVerification", "completeSignUp", "forgotPassword")) {
                                 BottomBar(navController)
                             }
                         },

@@ -1,6 +1,5 @@
 package com.example.vociapp.data.util
 
-import android.util.Log
 import com.example.vociapp.ui.viewmodels.AuthResult
 import com.google.firebase.auth.FirebaseAuthException
 
