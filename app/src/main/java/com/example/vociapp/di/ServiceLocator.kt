@@ -51,20 +51,23 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         context = context
     )
 
+    // Repositories and ViewModels
     private val homelessRepository: HomelessRepository = HomelessRepository(
         firestoreDataSource = FirestoreDataSource(firestore),
         roomDataSource = roomDataSource,
         networkManager = networkManager,
         syncQueueDao = syncQueueDao
     )
+    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
 
-    // Repositories and ViewModels
     private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
 
     private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
-    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
+
+    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore))
+    private val updatesViewModel: UpdatesViewModel = UpdatesViewModel(updatesRepository)
 
     // Getters for repositories and view models
     fun getRequestRepository(): RequestRepository = instance.requestRepository
@@ -81,19 +84,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
 
     fun getAuthViewModel(): AuthViewModel = authViewModel
 
-    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore))
-    private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
 
-    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore))
-    private val updatesViewModel: UpdatesViewModel = UpdatesViewModel(updatesRepository)
-
-    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore))
-    private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
-
-    private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore))
-    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
-
-}
 }
 
 

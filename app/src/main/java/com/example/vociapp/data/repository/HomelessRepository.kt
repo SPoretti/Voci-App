@@ -1,6 +1,6 @@
 package com.example.vociapp.data.repository
 
-import android.util.Log
+import androidx.work.await
 import com.google.gson.Gson
 
 import com.example.vociapp.data.local.RoomDataSource
@@ -11,6 +11,7 @@ import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -22,19 +23,25 @@ class HomelessRepository @Inject constructor(
 ) {
 
     suspend fun addHomeless(homeless: Homeless): Resource<String> {
-        // Add to local data source
-        roomDataSource.insertHomeless(homeless)
+        return try {
+            // Add to local data source
+            roomDataSource.insertHomeless(homeless)
 
-        // Check if the network is available
-        return if (networkManager.isNetworkConnected()) {
-            // Sync with remote Firestore immediately
-            firestoreDataSource.addHomeless(homeless)
-        } else {
-            // Network is unavailable, queue for later synchronization
-            queueSyncAction("Homeless", "add", homeless)
-            Resource.Error("No network connection. Data saved locally and queued for later sync.")
+            // Check if the network is available
+            if (networkManager.isNetworkConnected()) {
+                // Sync with remote Firestore
+                firestoreDataSource.addHomeless(homeless)
+            } else {
+                // Network unavailable, queue for later synchronization
+                queueSyncAction("Homeless", "add", homeless)
+                Resource.Error("Nessuna connessione di rete. Dati salvati localmente e messi in coda per la sincronizzazione")
+            }
+        } catch (e: Exception) {
+            // Handle any unexpected errors
+            Resource.Error("Errore sconosciuto: ${e.message}")
         }
     }
+
 
     private suspend fun queueSyncAction(entityType: String, operation: String, data: Any) {
         // Serialize the data object to JSON
@@ -88,7 +95,8 @@ class HomelessRepository @Inject constructor(
             when (remoteHomelesses) {
                 is Resource.Success -> {
                     // Cache the fetched data in Room using RoomDataSource
-                    roomDataSource.homelessDao.insertAll(remoteHomelesses.data!!)
+                    if (roomDataSource.syncQueueDao.isEmpty())
+                        syncHomelessList(remoteHomelesses.data!!)
                     emit(remoteHomelesses) // Emit the remote data
                 }
                 is Resource.Error -> {
@@ -125,4 +133,32 @@ class HomelessRepository @Inject constructor(
         return firestoreDataSource.updateHomeless(homeless)
     }
 
+    private suspend fun syncHomelessList(firestoreHomelessList: List<Homeless>) {
+        try {
+            val localHomelessList = roomDataSource.homelessDao.getAllHomeless().first() // Assuming getAllHomeless() returns a Flow
+
+            for (firestoreHomeless in firestoreHomelessList) {
+                val localHomeless = localHomelessList.find { it.id == firestoreHomeless.id }
+
+                if (localHomeless != null) {
+                    if (localHomeless != firestoreHomeless) {
+                        roomDataSource.homelessDao.update(firestoreHomeless)
+                    }
+                } else {
+                    roomDataSource.homelessDao.insert(firestoreHomeless)
+                }
+            }
+
+            // Delete entries that exist locally but not in Firestore
+            val homelessIdsToDelete = localHomelessList.map { it.id } - firestoreHomelessList.map { it.id }
+                .toSet()
+            for (homelessId in homelessIdsToDelete) {
+                roomDataSource.homelessDao.deleteById(homelessId)
+            }
+
+            // Consider handling deletions if needed
+        } catch (e: Exception) {
+            // Handle error
+        }
+    }
 }

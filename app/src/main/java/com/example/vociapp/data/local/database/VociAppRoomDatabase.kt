@@ -8,11 +8,12 @@ import androidx.room.TypeConverters
 import com.example.vociapp.data.local.dao.HomelessDao
 import com.example.vociapp.data.local.dao.RequestDao
 import com.example.vociapp.data.local.dao.SyncQueueDao
+import com.example.vociapp.data.local.dao.UpdateDao
 import com.example.vociapp.data.local.dao.VolunteerDao
 
 @Database(
-    entities = [Homeless::class, Volunteer::class, Request::class, SyncAction::class],
-    version = 2,
+    entities = [Homeless::class, Volunteer::class, Request::class, Update::class, SyncAction::class],
+    version = 3,
     exportSchema = false // Set to true for schema versioning; useful for migrations
 )
 @TypeConverters(Converters::class)
@@ -22,6 +23,7 @@ abstract class VociAppRoomDatabase : RoomDatabase() {
     abstract fun homelessDao(): HomelessDao
     abstract fun volunteerDao(): VolunteerDao
     abstract fun requestDao(): RequestDao
+    abstract fun updateDao(): UpdateDao
     abstract fun syncQueueDao(): SyncQueueDao
 
     companion object {

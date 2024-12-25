@@ -32,9 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Update
-import com.example.vociapp.data.types.UpdateStatus
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Update
+import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.components.updates.FormText

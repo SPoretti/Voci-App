@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.updates.StatusLED
@@ -57,9 +58,9 @@ fun HomelessListItem(
     val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
     val backgroundColor =
         if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
             MaterialTheme.colorScheme.surface
+        } else {
+            MaterialTheme.colorScheme.background
         }
 
     var isPreferred by remember { mutableStateOf(false) }
