@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import com.example.vociapp.data.util.ExceptionHandler
+import com.google.firebase.auth.FirebaseAuthEmailException
 
 class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
@@ -103,6 +104,18 @@ class AuthViewModel : ViewModel() {
 
     fun sendVerificationEmail() {
         auth.currentUser?.sendEmailVerification()
+    }
+
+    fun sendPasswordResetEmail(email: String): AuthResult {
+        return try {
+            auth.sendPasswordResetEmail(email)
+            Log.d("AuthViewModel", "Password reset email sent to: $email")
+            AuthResult.Success
+        } catch (e: FirebaseAuthEmailException) {
+            AuthResult.Failure("Email non valida")
+        } catch (e: Exception) {
+            AuthResult.Failure("Errore nell'invio dell'email")
+        }
     }
 }
 
