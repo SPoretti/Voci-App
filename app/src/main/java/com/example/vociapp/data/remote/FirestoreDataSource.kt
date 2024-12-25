@@ -327,4 +327,12 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    fun updateUpdate(data: Update?) {
+        TODO() //if needed
+    }
+
+    fun deleteUpdate(id: String) {
+        TODO() //if needed
+    }
+
 }

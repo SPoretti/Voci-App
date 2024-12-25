@@ -11,11 +11,17 @@ import kotlinx.coroutines.flow.Flow
 interface UpdateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUpdate(update: Update): Long
+    suspend fun insert(update: Update): Long
 
     @Query("SELECT * FROM updates")
     fun getUpdates(): Flow<List<Update>>
 
     @Query("DELETE FROM updates")
     suspend fun deleteAllUpdates()
+
+    @Query("DELETE FROM updates WHERE id = :updateId")
+    fun deleteById(updateId: String)
+
+    @androidx.room.Update
+    suspend fun update(update: Update)
 }

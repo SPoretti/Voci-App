@@ -28,4 +28,6 @@ interface RequestDao {
 
     @Delete
     fun delete(request: Request)
+    @Query("DELETE FROM requests WHERE id = :requestId")
+    fun deleteById(requestId: String)
 }

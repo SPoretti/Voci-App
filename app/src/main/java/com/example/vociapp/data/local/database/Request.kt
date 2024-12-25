@@ -32,9 +32,40 @@ data class Request(
     var status: RequestStatus = RequestStatus.TODO,
     var timestamp: Long = System.currentTimeMillis(),
     var iconCategory: IconCategory = IconCategory.OTHER
-)
+){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Request
+
+        if (id != other.id) return false
+        if (creatorId != other.creatorId) return false
+        if (homelessID != other.homelessID) return false
+        if (title != other.title) return false
+        if (description != other.description) return false
+        if (status != other.status) return false
+        if (timestamp != other.timestamp) return false
+        if (iconCategory != other.iconCategory) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (creatorId?.hashCode() ?: 0)
+        result = 31 * result + homelessID.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + iconCategory.hashCode()
+        return result
+    }
+}
 
 enum class RequestStatus {
     TODO,
     DONE,
 }
+

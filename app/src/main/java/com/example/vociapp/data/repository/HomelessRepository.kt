@@ -1,8 +1,5 @@
 package com.example.vociapp.data.repository
 
-import androidx.work.await
-import com.google.gson.Gson
-
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Homeless
@@ -10,6 +7,7 @@ import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -86,6 +84,28 @@ class HomelessRepository @Inject constructor(
     }
 
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
+        // 1. Emit cached data from Room immediately
+        emit(Resource.Loading())
+        roomDataSource.getHomelesses().collect { emit(it) }
+
+        // 2. If online, fetch from Firestore and update Room
+        if (networkManager.isNetworkConnected()) {
+            try {
+                val firestoreHomelesses = firestoreDataSource.getHomelesses().data!!
+                syncHomelessList(firestoreHomelesses) // Update Room
+
+                // 3. Emit updated data if it differs from cache
+                val localHomelesses = roomDataSource.getHomelesses().first().data!!
+                if (localHomelesses != firestoreHomelesses) {
+                    emit(Resource.Success(localHomelesses))
+                }
+            } catch (e: Exception) {
+                emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
+            }
+        }
+    }
+
+    fun getHomelessesOld(): Flow<Resource<List<Homeless>>> = flow {
         emit(Resource.Loading()) // Emit loading state
 
         if (networkManager.isNetworkConnected()) {
