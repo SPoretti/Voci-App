@@ -14,6 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.vociapp.ui.screens.auth.CompleteSignUpScreen
 import com.example.vociapp.ui.screens.auth.EmailVerification
+import com.example.vociapp.ui.screens.auth.PasswordRecover
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.home.HomeScreen
@@ -45,6 +46,7 @@ fun NavGraph(
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
         composable(route = Screens.EmailVerification.route) { EmailVerification(navController) }
         composable(route = Screens.CompleteSignUp.route) { CompleteSignUpScreen(navController) }
+        composable(route = Screens.ForgotPassword.route) {PasswordRecover(navController)}
 
         composable(
             route = "ProfileVolontario/{creatorId}",

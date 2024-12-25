@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
@@ -149,20 +151,38 @@ fun UserProfileScreen(
                                 is Resource.Success -> {
                                     val volunteer = resource.data
                                     // Profile picture placeholder
+//                                    Box(
+//                                        modifier = Modifier
+//                                            .size(120.dp)
+//                                            .clip(CircleShape)
+//                                            .background(MaterialTheme.colorScheme.surface),
+//                                        contentAlignment = Alignment.Center
+//                                    ) {
+//                                        Icon(
+//                                            imageVector = Icons.Default.Person,
+//                                            contentDescription = "Profile Picture",
+//                                            modifier = Modifier.size(64.dp),
+//                                            tint = MaterialTheme.colorScheme.primary
+//                                        )
+//                                    }
+
+                                    val initials = "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+
                                     Box(
+                                        contentAlignment = Alignment.Center,
                                         modifier = Modifier
-                                            .size(120.dp)
+                                            .size(130.dp)
                                             .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.surface),
-                                        contentAlignment = Alignment.Center
+                                            .background(MaterialTheme.colorScheme.primary)
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = "Profile Picture",
-                                            modifier = Modifier.size(64.dp),
-                                            tint = MaterialTheme.colorScheme.primary
+                                        Text(
+                                            text = initials,
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 60.sp
                                         )
                                     }
+
                                     Text(
                                         text = volunteer?.nickname ?: "Unknown Volunteer",
                                         style = MaterialTheme.typography.headlineMedium,
@@ -171,19 +191,11 @@ fun UserProfileScreen(
 
                                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                                    // name
-                                    ProfileInfoItem(
-                                        icon = Icons.Default.Person,
-                                        label = "Name",
-                                        value = volunteer?.name ?: "Unknown Volunteer"
-                                    )
-
-                                    // surname
-                                    ProfileInfoItem(
-                                        icon = Icons.Default.Person,
-                                        label = "Surname",
-                                        value = volunteer?.surname ?: "Unknown Volunteer"
-                                    )
+                                        ProfileInfoItem(
+                                            icon = Icons.Default.Person,
+                                            label = "Volontario",
+                                            value = "${volunteer?.name ?: "Unknown Volunteer"} ${volunteer?.surname ?: "Unknown Volunteer"}",
+                                        )
 
                                     // email
                                     ProfileInfoItem(
