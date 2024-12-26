@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -59,6 +57,7 @@ fun SignInScreen(
             val result = authViewModel.signInWithEmailAndPassword(email, password)
             if (result is AuthResult.Failure) {
                 SnackbarManager.showSnackbar(result.message)
+                isSigningIn = false
             } else {
                 volunteerViewModel.getVolunteerByEmail(email)
                 navController.navigate(Screens.Home.route) {
@@ -139,18 +138,11 @@ fun SignInScreen(
 
                             Button(
                                 onClick = { isSigningIn = true },
-                                enabled = !isSigningIn,
+                                enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                if (isSigningIn) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(24.dp),
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                } else {
-                                    Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
-                                }
+                                Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
                             }
                         }
                     }
