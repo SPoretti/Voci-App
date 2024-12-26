@@ -27,6 +27,9 @@ interface HomelessDao {
     @Update
     suspend fun update(homeless: Homeless)
 
+    @Update
+    suspend fun updateAll(homelessList: List<Homeless>)
+
     @Query("DELETE FROM homelesses WHERE id = :homelessID")
     suspend fun deleteById(homelessID: String)
 }
