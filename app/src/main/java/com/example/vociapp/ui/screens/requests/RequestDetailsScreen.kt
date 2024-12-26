@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,14 +35,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.types.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.data.util.Resource
@@ -49,6 +53,7 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.iconCategoryMap
 import com.example.vociapp.ui.components.requests.ModifyRequestDialog
 import com.example.vociapp.ui.components.requests.RequestChip
+import com.example.vociapp.ui.components.updates.StatusLED
 
 @Composable
 fun RequestDetailsScreen(
@@ -96,9 +101,10 @@ fun RequestDetailsScreen(
                 contentDescription = "Modify"
             )
         }
+
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp)
         ) {
             when (requestResource) {
@@ -118,7 +124,7 @@ fun RequestDetailsScreen(
                         Box(
                             modifier = Modifier
                                 .padding(8.dp)
-                                .size(48.dp)
+                                .size(64.dp)
                                 .background(
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = CircleShape
@@ -130,11 +136,33 @@ fun RequestDetailsScreen(
                                     id = iconCategoryMap[request?.iconCategory ?: ""]!!
                                 ),
                                 contentDescription = "Request icon",
-                                tint = MaterialTheme.colorScheme.onPrimary,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
-                                    .size(24.dp)
+                                    .size(48.dp)
                                     .align(Alignment.Center)
                             )
+                            when(requestResource.data?.status){
+                                RequestStatus.TODO -> {
+                                    StatusLED(
+                                        color = Color.Green,
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .align(Alignment.TopEnd)
+                                    )
+                                }
+                                RequestStatus.DONE -> {
+                                    StatusLED(
+                                        color = Color.Gray,
+                                        isPulsating = false,
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .align(Alignment.TopEnd)
+                                    )
+                                }
+                                null -> {
+
+                                }
+                            }
                         }
 
                         Row(
@@ -144,13 +172,11 @@ fun RequestDetailsScreen(
                         ) {
                             Text(
                                 text = request?.title ?: "Title not available",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold
                                 ),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(1f)
                             )
 
@@ -159,22 +185,26 @@ fun RequestDetailsScreen(
                                     request?.timestamp ?: 0
                                 ) + '\n' +
                                         dateTimeFormatter.formatTime(request?.timestamp ?: 0),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    textAlign = TextAlign.End
+                                ),
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(6.dp)
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .align(Alignment.CenterVertically)
                             )
 
                         }
                         Text(
                             text = request?.description ?: "Description not available",
-                            fontSize = 16.sp,
-                            lineHeight = 1.5.em
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textAlign = TextAlign.Justify
+                            ),
+                            lineHeight = 1.5.em,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Text(
-                            text = request?.status.toString(),
-                            fontSize = 16.sp,
-                            lineHeight = 1.5.em
-                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider()
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),

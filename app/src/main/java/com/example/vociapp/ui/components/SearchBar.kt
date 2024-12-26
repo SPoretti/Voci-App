@@ -86,6 +86,7 @@ fun SearchBar(
                     IconButton(
                         onClick = {
                             searchText = ""
+                            onSearch("")
                         }
                     ) {
                         Icon(
