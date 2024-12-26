@@ -80,7 +80,14 @@ class RoomDataSource(
         homelessDao.deleteById(homelessID)
     }
 
-    //----------------------------------TODO()-------------------------------
+    suspend fun insertHomelessList(homelessList: List<Homeless>) {
+        homelessDao.insertAll(homelessList)
+    }
+
+    suspend fun updateHomelessList(homelessList: List<Homeless>) {
+        homelessDao.updateAll(homelessList)
+    }
+
     // ------------------------------- Volunteer Functions ----------------------------------
 
     suspend fun insertVolunteer(volunteer: Volunteer){

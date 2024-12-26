@@ -16,4 +16,11 @@ data class Homeless(
     var nationality: String = "",
     var description: String = "",
     var status: UpdateStatus = UpdateStatus.GREEN
-)
+){
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Homeless
+        return id == other.id
+    }
+}
