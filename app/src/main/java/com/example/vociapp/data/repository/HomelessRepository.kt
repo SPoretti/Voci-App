@@ -12,6 +12,7 @@ import com.example.vociapp.data.util.Resource
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -88,24 +89,16 @@ class HomelessRepository @Inject constructor(
         }
     }
 
-    fun getHomelessesNew(): Flow<Resource<List<Homeless>>> = flow {
-        // 1. Emit cached data from Room immediately
+    // Repository
+    fun getHomelessesV2(): Flow<Resource<List<Homeless>>> = flow {
         emit(Resource.Loading())
-        roomDataSource.getHomelesses().collect { emit(it) }
-        Log.d("getHomelesses", "Fetching from Room")
-        // 2. If online, fetch from Firestore and update Room
+        emitAll(roomDataSource.getHomelesses())
+
         if (networkManager.isNetworkConnected()) {
-            Log.d("getHomelesses", "Fetching from Firestore")
             try {
                 val firestoreHomelesses = firestoreDataSource.getHomelesses().data!!
-                syncHomelessList(firestoreHomelesses) // Update Room
-
-                roomDataSource.getHomelesses().collect { emit(it) }
-                // 3. Emit updated data if it differs from cache
-//                val localHomelesses = roomDataSource.getHomelesses().first().data!!
-//                if (localHomelesses != firestoreHomelesses) {
-//                    emit(Resource.Success(localHomelesses))
-//                }
+                syncHomelessList(firestoreHomelesses)
+                emitAll(roomDataSource.getHomelesses())
             } catch (e: Exception) {
                 emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
             }
@@ -113,6 +106,31 @@ class HomelessRepository @Inject constructor(
     }
 
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
+        emit(Resource.Loading())
+
+        if (networkManager.isNetworkConnected()) {
+            try {
+                val firestoreHomelesses = firestoreDataSource.getHomelesses()
+                when (firestoreHomelesses) {
+                    is Resource.Success -> {
+                        syncHomelessList(firestoreHomelesses.data!!)
+                        roomDataSource.getHomelesses().collect { emit(it) } // Emit updated Room data
+                    }
+                    is Resource.Error -> {
+                        emit(Resource.Error(firestoreHomelesses.message!!))
+                    }
+                    is Resource.Loading -> {}
+                }
+            } catch (e: Exception) {
+                emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
+            }
+        } else {
+            // Offline, emit data from Room
+            roomDataSource.getHomelesses().collect { emit(it) }
+        }
+    }
+
+    fun getHomelessesOld(): Flow<Resource<List<Homeless>>> = flow {
         emit(Resource.Loading()) // Emit loading state
 
         if (networkManager.isNetworkConnected()) {
@@ -160,26 +178,16 @@ class HomelessRepository @Inject constructor(
         return firestoreDataSource.updateHomeless(homeless)
     }
 
-    private suspend fun mockSyncHomelessList(){
-        try{
-
-        }catch (e: Exception){
-
-        }
-    }
-
     private suspend fun syncHomelessList(firestoreHomelessList: List<Homeless>){
         roomDataSource.insertHomelessList(firestoreHomelessList)
         if (roomDataSource.syncQueueDao.isEmpty()){
-            val localHomelessList = roomDataSource.getHomelesses().first().data
+            val localHomelessList = roomDataSource.getHomelessesSnapshot()
             //Delete entries that exist locally but not in Firestore
             val homelessIdsToDelete =
-                localHomelessList?.map { it.id }?.minus(firestoreHomelessList.map { it.id }
+                localHomelessList.map { it.id }.minus(firestoreHomelessList.map { it.id }
                     .toSet())
-            if (homelessIdsToDelete != null) {
-                for (homelessId in homelessIdsToDelete) {
-                    roomDataSource.deleteHomeless(homelessId)
-                }
+            for (homelessId in homelessIdsToDelete) {
+                roomDataSource.deleteHomeless(homelessId)
             }
         }
     }

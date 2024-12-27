@@ -28,14 +28,6 @@ class VociApp : Application(){
         //clearDatabaseAndSyncQueue(context = applicationContext)
 //        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
 //        networkConnectivityListener.startMonitoring()
-        //if (!WorkManager.isInitialized())
-            //initializeWorkManager()
-    }
-
-    private fun initializeWorkManager() {
-        val workManagerConfiguration = Configuration.Builder()
-            .build() // No need for a custom WorkerFactory, dependencies will be injected directly
-        WorkManager.initialize(this, workManagerConfiguration)
     }
 
 //    override fun onTerminate() {
@@ -43,7 +35,7 @@ class VociApp : Application(){
 //        networkConnectivityListener.stopMonitoring()
 //    }
 
-
+    //for debugging
     fun clearDatabaseAndSyncQueue(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             val db = VociAppRoomDatabase.getDatabase(context)
