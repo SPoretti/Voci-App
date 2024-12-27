@@ -18,6 +18,9 @@ interface HomelessDao {
     @Query("SELECT * FROM homelesses")
     fun getAllHomeless(): Flow<List<Homeless>>
 
+    @Query("SELECT * FROM homelesses")
+    suspend fun getAllHomelessesSnapshot(): List<Homeless>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(homeless: Homeless)
 

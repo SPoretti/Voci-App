@@ -10,8 +10,10 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 
 class RoomDataSource(
     val homelessDao: HomelessDao,
@@ -66,6 +68,10 @@ class RoomDataSource(
         } catch (e: Exception) {
             emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
         }
+    }
+
+    suspend fun getHomelessesSnapshot(): List<Homeless> = withContext(Dispatchers.IO) {
+        homelessDao.getAllHomelessesSnapshot()
     }
 
     suspend fun getHomeless(homelessID: String): Homeless?{
