@@ -14,8 +14,11 @@ interface RequestDao {
     @Query("SELECT * FROM requests")
     fun getAllRequests(): Flow<List<Request>>
 
+    @Query("SELECT * FROM requests")
+    suspend fun getAllRequestsSnapshot(): List<Request>
+
     @Query("SELECT * FROM requests WHERE id = :requestId LIMIT 1")
-    fun getRequestById(requestId: String): Request
+    suspend fun getRequestById(requestId: String): Request
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(request: Request)
@@ -24,10 +27,11 @@ interface RequestDao {
     suspend fun insertAll(requestsList: List<Request>)
 
     @Update
-    fun update(request: Request)
+    suspend fun update(request: Request)
 
     @Delete
-    fun delete(request: Request)
+    suspend fun delete(request: Request)
+
     @Query("DELETE FROM requests WHERE id = :requestId")
-    fun deleteById(requestId: String)
+    suspend fun deleteById(requestId: String)
 }

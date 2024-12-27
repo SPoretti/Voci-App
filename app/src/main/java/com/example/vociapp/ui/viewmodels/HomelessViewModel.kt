@@ -58,7 +58,7 @@ class HomelessViewModel @Inject constructor(
 
     private fun filterHomelessPeople(query: String, homelessList: List<Homeless>): Resource<List<Homeless>> {
         return if (homelessList.isEmpty()) {
-            Resource.Error("Nessun senzatetto trovato")
+            Resource.Error("Nessun risultato")
         } else {
             val filteredList = homelessList.filter { homeless ->
                 homeless.name.contains(query, ignoreCase = true) or
@@ -77,7 +77,7 @@ class HomelessViewModel @Inject constructor(
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {
-        return homelessRepository.getHomeless(homelessID)
+        return homelessRepository.getHomelessById(homelessID)
     }
 
     fun addHomeless(homeless: Homeless) {

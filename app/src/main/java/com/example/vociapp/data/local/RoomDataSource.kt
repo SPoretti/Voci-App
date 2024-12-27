@@ -39,15 +39,27 @@ class RoomDataSource(
         }
     }
 
-    fun updateRequest(request: Request) {
+    suspend fun getRequestsSnapshot(): List<Request> = withContext(Dispatchers.IO) {
+        requestDao.getAllRequestsSnapshot()
+    }
+
+    suspend fun insertRequestList(firestoreRequestList: List<Request>) {
+        requestDao.insertAll(firestoreRequestList)
+    }
+
+    suspend fun updateRequest(request: Request) {
         requestDao.update(request)
     }
 
-    fun deleteRequest(request: Request){
+    suspend fun deleteRequest(request: Request){
         requestDao.delete(request)
     }
 
-    fun getRequestById(requestId: String): Request {
+    suspend fun deleteRequestById(requestId: String) {
+        requestDao.deleteById(requestId)
+    }
+
+    suspend fun getRequestById(requestId: String): Request {
         return requestDao.getRequestById(requestId)
     }
 
