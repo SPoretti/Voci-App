@@ -54,7 +54,7 @@ fun RequestsScreen(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.getRequestViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
     val homelessViewModel = serviceLocator.getHomelessViewModel()
 
     val requests by requestViewModel.requests.collectAsState()
@@ -84,6 +84,10 @@ fun RequestsScreen(
                 requestViewModel.clearSnackbarMessage() // Reset dello stato dopo aver mostrato
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        requestViewModel.getRequests()
     }
 
     Box(
@@ -168,7 +172,7 @@ fun RequestsScreen(
                     requestViewModel.addRequest(it)
                     showAddRequestDialog = false
                 },
-                authViewModel = authViewModel,
+                volunteerViewModel = volunteerViewModel,
                 navController = navController,
             )
         }

@@ -40,12 +40,13 @@ import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
 import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.viewmodels.AuthViewModel
+import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @Composable
 fun AddRequestDialog(
     onDismiss: () -> Unit,
     onAdd: (Request) -> Unit,
-    authViewModel: AuthViewModel,
+    volunteerViewModel: VolunteerViewModel,
     navController: NavHostController,
 ) {
     val serviceLocator = LocalServiceLocator.current
@@ -90,7 +91,7 @@ fun AddRequestDialog(
                         SearchBar(
                             modifier = Modifier.fillMaxWidth(),
                             onSearch = { homelessViewModel.updateSearchQuery(it) },
-                            placeholderText = "Cerca un senzatetto...",
+                            placeholderText = "Ricevente...",
                             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                             onClick = { },
                             onDismiss = {
@@ -194,7 +195,7 @@ fun AddRequestDialog(
                                 title = requestTitle,
                                 description = requestDescription,
                                 homelessID = homelessID,
-                                creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
+                                creatorId = volunteerViewModel.currentUser.value!!.id,
                                 iconCategory = selectedIconCategory
                             )
                             onAdd(newRequest)

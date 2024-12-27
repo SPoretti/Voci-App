@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 @TypeConverters
 interface HomelessDao {
-    @Query("SELECT * FROM homelesses WHERE id = :homelessID LIMIT 1")
-    suspend fun getHomelessById(homelessID: String): Homeless?
-
     @Query("SELECT * FROM homelesses")
     fun getAllHomeless(): Flow<List<Homeless>>
 
     @Query("SELECT * FROM homelesses")
     suspend fun getAllHomelessesSnapshot(): List<Homeless>
+
+    @Query("SELECT * FROM homelesses WHERE id = :homelessID LIMIT 1")
+    suspend fun getHomelessById(homelessID: String): Homeless?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(homeless: Homeless)
