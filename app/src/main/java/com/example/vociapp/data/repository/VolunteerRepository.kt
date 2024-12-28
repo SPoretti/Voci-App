@@ -5,11 +5,11 @@ import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Converters
 import com.example.vociapp.data.local.database.SyncAction
-import com.google.gson.Gson
-import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.local.database.Volunteer
+import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -189,6 +189,30 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
+    suspend fun fetchVolunteersFromFirestoreToRoom(){
+        if (networkManager.isNetworkConnected()){
+            val firestoreVolunteersListResource = firestoreDataSource.getVolunteers()
+
+            if (firestoreVolunteersListResource is Resource.Success) {
+                val firestoreVolunteersList = firestoreVolunteersListResource.data!!
+
+                firestoreVolunteersList.forEach { remoteVolunteer ->
+                    roomDataSource.insertOrUpdateVolunteer(remoteVolunteer)
+                }
+
+                if (roomDataSource.syncQueueDao.isEmpty()) {
+                    val localVolunteerList = roomDataSource.getVolunteersSnapshot()
+                    //Delete entries that exist locally but not in Firestore
+                    val volunteerIdsToDelete =
+                        localVolunteerList.map { it.id }.minus(firestoreVolunteersList.map { it.id }
+                            .toSet())
+                    for (volunteerId in volunteerIdsToDelete) {
+                        roomDataSource.deleteVolunteerById(volunteerId)
+                    }
+                }
+            }
+        }
+    }
 
     // Sync actions from the sync queue
     suspend fun syncPendingActions() {

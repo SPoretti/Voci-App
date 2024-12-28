@@ -53,9 +53,11 @@ fun RequestsScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val requestViewModel = serviceLocator.getRequestViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+
+    val currentUser = volunteerViewModel.currentUser
 
     val requests by requestViewModel.requests.collectAsState()
     val sortOptions = listOf(
@@ -84,6 +86,10 @@ fun RequestsScreen(
                 requestViewModel.clearSnackbarMessage() // Reset dello stato dopo aver mostrato
             }
         }
+    }
+
+    LaunchedEffect(currentUser){
+        requestViewModel.fetchRequests()
     }
 
     LaunchedEffect(Unit) {

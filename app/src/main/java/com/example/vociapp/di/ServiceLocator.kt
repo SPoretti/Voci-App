@@ -59,31 +59,35 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         networkManager = networkManager,
         syncQueueDao = syncQueueDao
     )
+
     private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
 
     private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
 
     private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
-    private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
-
+    private val requestViewModel: RequestViewModel by lazy {
+        RequestViewModel(requestRepository)
+    }
     private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
-    private val updatesViewModel: UpdatesViewModel = UpdatesViewModel(updatesRepository)
+    private val updatesViewModel: UpdatesViewModel by lazy{
+        UpdatesViewModel(updatesRepository)
+    }
 
     // Getters for repositories and view models
-    fun getRequestRepository(): RequestRepository = instance.requestRepository
-    fun getRequestViewModel(): RequestViewModel = instance.requestViewModel
+    fun obtainRequestRepository(): RequestRepository = instance.requestRepository
+    fun obtainRequestViewModel(): RequestViewModel = instance.requestViewModel
 
-    fun getUpdatesRepository(): UpdatesRepository = instance.updatesRepository
-    fun getUpdatesViewModel(): UpdatesViewModel = instance.updatesViewModel
+    fun obtainUpdatesRepository(): UpdatesRepository = instance.updatesRepository
+    fun obtainUpdatesViewModel(): UpdatesViewModel = instance.updatesViewModel
 
-    fun getHomelessRepository(): HomelessRepository = instance.homelessRepository
-    fun getHomelessViewModel(): HomelessViewModel = instance.homelessViewModel
+    fun obtainHomelessRepository(): HomelessRepository = instance.homelessRepository
+    fun obtainHomelessViewModel(): HomelessViewModel = instance.homelessViewModel
 
-    fun getVolunteerRepository(): VolunteerRepository = instance.volunteerRepository
-    fun getVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
+    fun obtainVolunteerRepository(): VolunteerRepository = instance.volunteerRepository
+    fun obtainVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
 
-    fun getAuthViewModel(): AuthViewModel = authViewModel
+    fun obtainAuthViewModel(): AuthViewModel = authViewModel
 }
 
 

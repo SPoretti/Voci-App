@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -44,8 +43,8 @@ fun ModifyRequestDialog(
     request: Request
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val requestViewModel = serviceLocator.getRequestViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
 
     var requestTitle by remember { mutableStateOf(request.title) }
     var requestDescription by remember { mutableStateOf(request.description) }

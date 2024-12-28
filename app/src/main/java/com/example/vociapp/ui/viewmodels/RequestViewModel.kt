@@ -3,9 +3,10 @@ package com.example.vociapp.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.local.database.Request
-import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.local.database.RequestStatus
+import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +28,27 @@ class RequestViewModel @Inject constructor(
     private val _requestById = MutableStateFlow<Resource<Request>>(Resource.Loading())
     val requestById: StateFlow<Resource<Request>> = _requestById.asStateFlow()
 
-    init {
-        getRequests()
+    private val firebaseAuth = FirebaseAuth.getInstance()
+
+//    init {
+//        fetchRequests()
+//        getRequests()
+//    }
+
+    init{
+        firebaseAuth.addAuthStateListener { auth ->
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                fetchRequests()
+                getRequests()
+            }
+        }
+    }
+
+    fun fetchRequests() {
+        viewModelScope.launch {
+            requestRepository.fetchRequestsFromFirestoreToRoom()
+        }
     }
 
     fun getRequests() {

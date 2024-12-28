@@ -29,7 +29,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.utils.hapticFeedback
@@ -48,7 +47,7 @@ fun SearchBar(
     var searchText by remember { mutableStateOf("") }
     var isSearchBarFocused by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val currentUser = authViewModel.getCurrentUserProfile()
     val currentRoute = currentRoute(navController)
 

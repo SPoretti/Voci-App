@@ -31,15 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.IconCategory
 import com.example.vociapp.ui.components.IconSelector
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
 import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @Composable
@@ -50,7 +49,7 @@ fun AddRequestDialog(
     navController: NavHostController,
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }

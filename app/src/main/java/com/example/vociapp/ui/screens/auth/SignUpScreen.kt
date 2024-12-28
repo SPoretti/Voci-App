@@ -61,8 +61,8 @@ fun SignUpScreen(
     var errorMessage by remember { mutableStateOf("") }
     var isSigningUp by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     Box(
         modifier = Modifier
@@ -204,7 +204,7 @@ fun SignUpScreen(
                 errorMessage = result.message
             } else {
                 val id: String = UUID.randomUUID().toString()
-                val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+                val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
                 volunteerViewModel.getVolunteerById(id)
 

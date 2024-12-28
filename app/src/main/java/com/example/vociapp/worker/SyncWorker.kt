@@ -30,22 +30,22 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
         coroutineScope { // Create a new coroutine scope
             Log.d("SyncWorker", "Starting homelessRepository.syncPendingActions()")
             val homelessDeferred = async<Unit> {
-                serviceLocator.getHomelessRepository().syncPendingActions()
+                serviceLocator.obtainHomelessRepository().syncPendingActions()
             }
             Log.d("SyncWorker", "Starting requestRepository.syncPendingActions()")
 
             val requestDeferred = async<Unit> {
-                serviceLocator.getRequestRepository().syncPendingActions()
+                serviceLocator.obtainRequestRepository().syncPendingActions()
             }
             Log.d("SyncWorker", "Starting volunteerRepository.syncPendingActions()")
 
             val updateDeferred = async<Unit> {
-                serviceLocator.getUpdatesRepository().syncPendingActions()
+                serviceLocator.obtainUpdatesRepository().syncPendingActions()
             }
             Log.d("SyncWorker", "Starting volunteerRepository.syncPendingActions()")
 
             val volunteerDeferred = async<Unit> {
-                serviceLocator.getVolunteerRepository().syncPendingActions()
+                serviceLocator.obtainVolunteerRepository().syncPendingActions()
             }
 
             awaitAll(

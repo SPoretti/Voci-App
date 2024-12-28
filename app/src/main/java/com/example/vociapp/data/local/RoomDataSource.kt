@@ -47,6 +47,10 @@ class RoomDataSource(
         requestDao.insertAll(firestoreRequestList)
     }
 
+    suspend fun insertOrUpdateRequest(request: Request) {
+        requestDao.insertOrUpdate(request)
+    }
+
     suspend fun updateRequest(request: Request) {
         requestDao.update(request)
     }
@@ -94,16 +98,12 @@ class RoomDataSource(
         homelessDao.update(homeless)
     }
 
+    suspend fun insertOrUpdateHomeless(homeless: Homeless) {
+        homelessDao.insertOrUpdate(homeless)
+    }
+
     suspend fun deleteHomeless(homelessID: String) {
         homelessDao.deleteById(homelessID)
-    }
-
-    suspend fun insertHomelessList(homelessList: List<Homeless>) {
-        homelessDao.insertAll(homelessList)
-    }
-
-    suspend fun updateHomelessList(homelessList: List<Homeless>) {
-        homelessDao.updateAll(homelessList)
     }
 
     // ------------------------------- Volunteer Functions ----------------------------------
@@ -136,6 +136,22 @@ class RoomDataSource(
         return volunteerDao.getAllVolunteers()
     }
 
+    suspend fun getVolunteersSnapshot(): List<Volunteer> {
+        return volunteerDao.getAllVolunteersSnapshot()
+    }
+
+    suspend fun insertVolunteers(volunteers: List<Volunteer>) {
+        volunteerDao.insertAll(volunteers)
+    }
+
+    suspend fun insertOrUpdateVolunteer(volunteer: Volunteer) {
+        volunteerDao.insertOrUpdate(volunteer)
+    }
+
+    suspend fun deleteVolunteerById(volunteerId: String) {
+        volunteerDao.deleteById(volunteerId)
+    }
+
     // ------------------------------- Preferences Functions ----------------------------------
 
     suspend fun getUserPreferences(userId: String): Resource<String> {
@@ -165,11 +181,27 @@ class RoomDataSource(
     fun getUpdates(): Flow<Resource<List<Update>>> = flow {
         try {
             emit(Resource.Loading()) // Indicate loading state
-            updateDao.getUpdates().collect { updates ->
+            updateDao.getAllUpdates().collect { updates ->
                 emit(Resource.Success(updates)) // Emit success with the fetched list
             }
         } catch (e: Exception) {
             emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
         }
     }
+
+    suspend fun getUpdatesSnapshot(): List<Update> = withContext(Dispatchers.IO) {
+        updateDao.getAllUpdatesSnapshot()
+    }
+
+    suspend fun insertOrUpdateUpdate(update: Update) {
+        updateDao.insertOrUpdate(update)
+    }
+
+    suspend fun deleteUpdateById(updateId: String) {
+        updateDao.deleteById(updateId)
+    }
+
+
+
+
 }
