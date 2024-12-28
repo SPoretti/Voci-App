@@ -38,7 +38,7 @@ import com.example.vociapp.ui.components.ProfileInfoItem
 @Composable
 fun ProfileVolunteerScreen(creatorId: String?) {
     val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     LaunchedEffect(creatorId) {
         creatorId?.let {

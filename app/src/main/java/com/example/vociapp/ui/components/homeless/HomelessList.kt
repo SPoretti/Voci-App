@@ -36,8 +36,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.currentRoute
@@ -55,9 +55,9 @@ fun HomelessList(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val isLoggedIn by authViewModel.authState.collectAsState()
 
     val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value?.id)}

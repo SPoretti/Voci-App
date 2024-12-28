@@ -41,7 +41,7 @@ fun UpdateUserProfileScreen(
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val currentProfile = authViewModel.getCurrentUserProfile()
     var displayName by remember { mutableStateOf(currentProfile?.displayName ?: "") }
     var photoUrl by remember { mutableStateOf(currentProfile?.photoUrl ?: "") }

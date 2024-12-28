@@ -9,7 +9,6 @@ import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -41,23 +40,23 @@ class UpdatesRepository @Inject constructor(
     fun getUpdates(): Flow<Resource<List<Update>>> = flow {
         // 1. Emit cached data from Room immediately
         emit(Resource.Loading())
-        roomDataSource.updateDao.getUpdates().collect { emit(Resource.Success(it)) }
+        roomDataSource.getUpdates().collect { emit(it) }
 
         // 2. If online, fetch from Firestore and update Room
-        if (networkManager.isNetworkConnected()) {
-            try {
-                val firestoreUpdates = firestoreDataSource.getUpdates().data!!
-                syncUpdatesList(firestoreUpdates) // Update Room
-
-                // 3. Emit updated data if it differs from cache
-                val localUpdates = roomDataSource.updateDao.getUpdates().first()
-                if (localUpdates != firestoreUpdates) {
-                    emit(Resource.Success(localUpdates))
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
-            }
-        }
+//        if (networkManager.isNetworkConnected()) {
+//            try {
+//                val firestoreUpdates = firestoreDataSource.getUpdates().data!!
+//                fetchUpdatesFromFirestoreToRoom(firestoreUpdates) // Update Room
+//
+//                // 3. Emit updated data if it differs from cache
+//                val localUpdates = roomDataSource.updateDao.getAllUpdates().first()
+//                if (localUpdates != firestoreUpdates) {
+//                    emit(Resource.Success(localUpdates))
+//                }
+//            } catch (e: Exception) {
+//                emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
+//            }
+//        }
     }
 
     suspend fun syncPendingActions() {
@@ -101,32 +100,28 @@ class UpdatesRepository @Inject constructor(
         syncQueueDao.addSyncAction(syncAction)
     }
 
-    private suspend fun syncUpdatesList(firestoreUpdatesList: List<Update>) {
-        try {
-            val localUpdatesList = roomDataSource.updateDao.getUpdates().first() // Assuming getUpdates() returns a Flow
+    suspend fun fetchUpdatesFromFirestoreToRoom(){
+        if (networkManager.isNetworkConnected()){
+            val firestoreUpdatesListResource = firestoreDataSource.getUpdates()
 
-            for (firestoreUpdate in firestoreUpdatesList) {
-                val localUpdate = localUpdatesList.find { it.id == firestoreUpdate.id }
+            if (firestoreUpdatesListResource is Resource.Success) {
+                val firestoreUpdatesList = firestoreUpdatesListResource.data!!
 
-                if (localUpdate != null) {
-                    if (localUpdate != firestoreUpdate) {
-                        roomDataSource.updateDao.update(firestoreUpdate)
+                firestoreUpdatesList.forEach { remoteUpdate ->
+                    roomDataSource.insertOrUpdateUpdate(remoteUpdate)
+                }
+
+                if (roomDataSource.syncQueueDao.isEmpty()) {
+                    val localUpdatesList = roomDataSource.getUpdatesSnapshot()
+                    //Delete entries that exist locally but not in Firestore
+                    val updateIdsToDelete =
+                        localUpdatesList.map { it.id }.minus(firestoreUpdatesList.map { it.id }
+                            .toSet())
+                    for (updateId in updateIdsToDelete) {
+                        roomDataSource.deleteUpdateById(updateId)
                     }
-                } else {
-                    roomDataSource.updateDao.insert(firestoreUpdate)
                 }
             }
-
-            // Delete entries that exist locally but not in Firestore
-            val updateIdsToDelete = localUpdatesList.map { it.id } - firestoreUpdatesList.map { it.id }
-                .toSet()
-            for (updateId in updateIdsToDelete) {
-                roomDataSource.updateDao.deleteById(updateId)
-            }
-
-            // Consider handling deletions if needed
-        } catch (e: Exception) {
-            // Handle error
         }
     }
 }

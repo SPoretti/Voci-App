@@ -35,8 +35,8 @@ fun RequestsHistoryScreen(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val requestViewModel = serviceLocator.getRequestViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
 
 

@@ -40,7 +40,6 @@ import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.updates.StatusLED
 import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.state.HomelessItemUiState
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -53,7 +52,7 @@ fun HomelessListItem(
 ){
 
     val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val userId = volunteerViewModel.currentUser.value?.id
     val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
     val backgroundColor =

@@ -49,8 +49,8 @@ fun SignInScreen(
     var errorMessage by remember { mutableStateOf("") }
     var isSigningIn by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
 
     fun checkPassword(firstCredential: String) {
         if(password.isEmpty()){

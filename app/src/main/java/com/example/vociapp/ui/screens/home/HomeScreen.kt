@@ -43,7 +43,7 @@ fun HomeScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()

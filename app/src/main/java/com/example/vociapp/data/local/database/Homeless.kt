@@ -2,6 +2,7 @@ package com.example.vociapp.data.local.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.vociapp.data.types.Area
 import com.example.vociapp.data.types.Gender
 import java.util.UUID
 
@@ -15,12 +16,6 @@ data class Homeless(
     var pets: String = "No",
     var nationality: String = "",
     var description: String = "",
-    var status: UpdateStatus = UpdateStatus.GREEN
-){
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as Homeless
-        return id == other.id
-    }
-}
+    var status: UpdateStatus = UpdateStatus.GREEN,
+    var area: Area = Area.OVEST,
+)

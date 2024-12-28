@@ -8,10 +8,8 @@ import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class RequestRepository @Inject constructor(
@@ -48,17 +46,17 @@ class RequestRepository @Inject constructor(
         // 1. If online, fetch from Firestore and update Room
         if (networkManager.isNetworkConnected()) {
             try {
-                val firestoreRequests = firestoreDataSource.getRequests()
-                when (firestoreRequests) {
-                    is Resource.Success -> {
-                        syncRequestList(firestoreRequests.data!!)
+//                val firestoreRequests = firestoreDataSource.getRequests()
+//                when (firestoreRequests) {
+//                    is Resource.Success -> {
+                        //fetchRequestsFromFirestoreToRoom()
                         roomDataSource.getRequests().collect { emit(it) }
-                    }
-                    is Resource.Error -> {
-                        emit(Resource.Error(firestoreRequests.message!!))
-                    }
-                    is Resource.Loading -> {}
-                }
+//                    }
+//                    is Resource.Error -> {
+//                        emit(Resource.Error(firestoreRequests.message!!))
+//                    }
+//                    is Resource.Loading -> {}
+//                }
             } catch (e: Exception) {
                 emit(Resource.Error("Errore durante la sincronizzazione: ${e.message}"))
             }
@@ -179,16 +177,27 @@ class RequestRepository @Inject constructor(
         syncQueueDao.addSyncAction(syncAction)
     }
 
-    private suspend fun syncRequestList(firestoreRequestList: List<Request>){
-        roomDataSource.insertRequestList(firestoreRequestList)
-        if (roomDataSource.syncQueueDao.isEmpty()){
-            val localRequestList = roomDataSource.getRequestsSnapshot()
-            //Delete entries that exist locally but not in Firestore
-            val requestIdsToDelete =
-                localRequestList.map { it.id }.minus(firestoreRequestList.map { it.id }
-                    .toSet())
-            for (requestId in requestIdsToDelete) {
-                roomDataSource.deleteRequestById(requestId)
+    suspend fun fetchRequestsFromFirestoreToRoom(){
+        if (networkManager.isNetworkConnected()){
+            val firestoreRequestListResource = firestoreDataSource.getRequests()
+
+            if (firestoreRequestListResource is Resource.Success){
+                val firestoreRequestList = firestoreRequestListResource.data!!
+
+                firestoreRequestList.forEach { remoteRequest ->
+                    roomDataSource.insertOrUpdateRequest(remoteRequest)
+                }
+
+                if (roomDataSource.syncQueueDao.isEmpty()) {
+                    val localRequestList = roomDataSource.getRequestsSnapshot()
+                    //Delete entries that exist locally but not in Firestore
+                    val requestIdsToDelete =
+                        localRequestList.map { it.id }.minus(firestoreRequestList.map { it.id }
+                            .toSet())
+                    for (requestId in requestIdsToDelete) {
+                        roomDataSource.deleteRequestById(requestId)
+                    }
+                }
             }
         }
     }

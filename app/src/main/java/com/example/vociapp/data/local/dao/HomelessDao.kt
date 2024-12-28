@@ -4,9 +4,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.types.Area
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,11 +23,21 @@ interface HomelessDao {
     @Query("SELECT * FROM homelesses WHERE id = :homelessID LIMIT 1")
     suspend fun getHomelessById(homelessID: String): Homeless?
 
+    @Query("SELECT * FROM homelesses WHERE area = :area")
+    fun getHomelessesByArea(area: Area): Flow<List<Homeless>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(homeless: Homeless)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(homelessList: List<Homeless>)
+    @Transaction
+    suspend fun insertOrUpdate(homeless: Homeless) {
+        val existingHomeless = getHomelessById(homeless.id)
+        if (existingHomeless == null) {
+            insert(homeless)
+        } else {
+            update(homeless)
+        }
+    }
 
     @Update
     suspend fun update(homeless: Homeless)

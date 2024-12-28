@@ -2,11 +2,8 @@ package com.example.vociapp
 
 import android.app.Application
 import android.content.Context
-import androidx.activity.result.launch
-import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.example.vociapp.data.local.database.VociAppRoomDatabase
-import com.example.vociapp.data.util.NetworkConnectivityListener
 import com.example.vociapp.di.ServiceLocator
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -24,8 +21,9 @@ class VociApp : Application(){
 
     override fun onCreate() {
         super.onCreate()
+        clearDatabaseAndSyncQueue(context = applicationContext)
+
         ServiceLocator.initialize(this, FirebaseFirestore.getInstance())
-        //clearDatabaseAndSyncQueue(context = applicationContext)
 //        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
 //        networkConnectivityListener.startMonitoring()
     }
@@ -36,7 +34,7 @@ class VociApp : Application(){
 //    }
 
     //for debugging
-    fun clearDatabaseAndSyncQueue(context: Context) {
+    private fun clearDatabaseAndSyncQueue(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             val db = VociAppRoomDatabase.getDatabase(context)
             db.clearAllTables()

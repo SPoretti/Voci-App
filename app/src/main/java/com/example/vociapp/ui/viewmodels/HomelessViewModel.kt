@@ -3,8 +3,8 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,12 +36,19 @@ class HomelessViewModel @Inject constructor(
     val homelessNames: StateFlow<Map<String, String>> = _homelessNames.asStateFlow()
 
     init {
+        fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
         updateSearchQuery("")
     }
 
     private var searchJob: Job? = null
+
+    private fun fetchHomelesses() {
+        viewModelScope.launch {
+            homelessRepository.fetchHomelessesFromFirestoreToRoom()
+        }
+    }
 
     fun updateSearchQuery(query: String) {
         searchJob?.cancel()

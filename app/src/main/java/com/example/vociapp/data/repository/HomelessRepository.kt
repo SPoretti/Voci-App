@@ -87,21 +87,21 @@ class HomelessRepository @Inject constructor(
         emit(Resource.Loading())
 
         if (networkManager.isNetworkConnected()) {
-            try {
-                val firestoreHomelesses = firestoreDataSource.getHomelesses()
-                when (firestoreHomelesses) {
-                    is Resource.Success -> {
-                        syncHomelessList(firestoreHomelesses.data!!)
+//            try {
+//                val firestoreHomelesses = firestoreDataSource.getHomelesses()
+//                when (firestoreHomelesses) {
+//                    is Resource.Success -> {
+//                        fetchHomelessesFromFirestoreToRoom(firestoreHomelesses.data!!)
                         roomDataSource.getHomelesses().collect { emit(it) } // Emit updated Room data
-                    }
-                    is Resource.Error -> {
-                        emit(Resource.Error(firestoreHomelesses.message!!))
-                    }
-                    is Resource.Loading -> {}
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Errore durante la sincronizzazione: ${e.message}"))
-            }
+//                    }
+//                    is Resource.Error -> {
+//                        emit(Resource.Error(firestoreHomelesses.message!!))
+//                    }
+//                    is Resource.Loading -> {}
+//                }
+//            } catch (e: Exception) {
+//                emit(Resource.Error("Errore durante la sincronizzazione: ${e.message}"))
+//            }
         } else {// 2. If offline, fetch from Room
             roomDataSource.getHomelesses().collect { emit(it) }
         }
@@ -142,16 +142,26 @@ class HomelessRepository @Inject constructor(
         }
     }
 
-    private suspend fun syncHomelessList(firestoreHomelessList: List<Homeless>){
-        roomDataSource.insertHomelessList(firestoreHomelessList)
-        if (roomDataSource.syncQueueDao.isEmpty()){
-            val localHomelessList = roomDataSource.getHomelessesSnapshot()
-            //Delete entries that exist locally but not in Firestore
-            val homelessIdsToDelete =
-                localHomelessList.map { it.id }.minus(firestoreHomelessList.map { it.id }
-                    .toSet())
-            for (homelessId in homelessIdsToDelete) {
-                roomDataSource.deleteHomeless(homelessId)
+    suspend fun fetchHomelessesFromFirestoreToRoom(){
+        if (networkManager.isNetworkConnected()){
+            val firestoreHomelessListResource = firestoreDataSource.getHomelesses()
+
+            if (firestoreHomelessListResource is Resource.Success) {
+                val firestoreHomelessList = firestoreHomelessListResource.data!!
+                firestoreHomelessList.forEach { remoteHomeless ->
+                    roomDataSource.insertOrUpdateHomeless(remoteHomeless)
+                }
+
+                if (roomDataSource.syncQueueDao.isEmpty()) {
+                    val localHomelessList = roomDataSource.getHomelessesSnapshot()
+                    //Delete entries that exist locally but not in Firestore
+                    val homelessIdsToDelete =
+                        localHomelessList.map { it.id }.minus(firestoreHomelessList.map { it.id }
+                            .toSet())
+                    for (homelessId in homelessIdsToDelete) {
+                        roomDataSource.deleteHomeless(homelessId)
+                    }
+                }
             }
         }
     }
