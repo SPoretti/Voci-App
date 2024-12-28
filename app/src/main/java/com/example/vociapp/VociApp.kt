@@ -21,7 +21,7 @@ class VociApp : Application(){
 
     override fun onCreate() {
         super.onCreate()
-        clearDatabaseAndSyncQueue(context = applicationContext)
+        //clearDatabaseAndSyncQueue(context = applicationContext)
 
         ServiceLocator.initialize(this, FirebaseFirestore.getInstance())
 //        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
