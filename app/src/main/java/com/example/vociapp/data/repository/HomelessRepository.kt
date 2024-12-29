@@ -108,18 +108,7 @@ class HomelessRepository @Inject constructor(
     }
 
     suspend fun getHomelessById(homelessID: String): Homeless? {
-        return if (networkManager.isNetworkConnected()) {
-            // If online, fetch from Firestore
-            val remoteHomeless = firestoreDataSource.getHomeless(homelessID)
-            if (remoteHomeless != null) {
-                // Cache the fetched data into Room using RoomDataSource
-                roomDataSource.homelessDao.insert(remoteHomeless)
-            }
-            remoteHomeless // Return the fetched data from Firestore
-        } else {
-            // If offline, fetch from the local Room database
-            return roomDataSource.homelessDao.getHomelessById(homelessID)
-        }
+        return roomDataSource.getHomelessById(homelessID)
     }
 
     suspend fun updateHomeless(homeless: Homeless): Resource<Homeless> {

@@ -22,7 +22,7 @@ class UpdatesRepository @Inject constructor(
     suspend fun addUpdate(update: Update): Resource<String> {
         return try {
             // 1. Add to Room
-            roomDataSource.updateDao.insert(update)
+            roomDataSource.insertUpdate(update)
 
             // 2. If online, sync with Firestore
             if (networkManager.isNetworkConnected()) {

@@ -26,7 +26,7 @@ interface HomelessDao {
     @Query("SELECT * FROM homelesses WHERE area = :area")
     fun getHomelessesByArea(area: Area): Flow<List<Homeless>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(homeless: Homeless)
 
     @Transaction

@@ -42,11 +42,8 @@ interface VolunteerDao {
     @Query("UPDATE volunteers SET preferredHomelessIds = :preferredHomelessIds WHERE id = :userId")
     suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(volunteer: Volunteer)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(volunteers: List<Volunteer>)
 
     @Transaction
     suspend fun insertOrUpdate(volunteer: Volunteer) {

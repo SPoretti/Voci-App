@@ -43,10 +43,6 @@ class RoomDataSource(
         requestDao.getAllRequestsSnapshot()
     }
 
-    suspend fun insertRequestList(firestoreRequestList: List<Request>) {
-        requestDao.insertAll(firestoreRequestList)
-    }
-
     suspend fun insertOrUpdateRequest(request: Request) {
         requestDao.insertOrUpdate(request)
     }
@@ -90,7 +86,7 @@ class RoomDataSource(
         homelessDao.getAllHomelessesSnapshot()
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless?{
+    suspend fun getHomelessById(homelessID: String): Homeless?{
         return homelessDao.getHomelessById(homelessID)
     }
 
@@ -138,10 +134,6 @@ class RoomDataSource(
 
     suspend fun getVolunteersSnapshot(): List<Volunteer> {
         return volunteerDao.getAllVolunteersSnapshot()
-    }
-
-    suspend fun insertVolunteers(volunteers: List<Volunteer>) {
-        volunteerDao.insertAll(volunteers)
     }
 
     suspend fun insertOrUpdateVolunteer(volunteer: Volunteer) {
