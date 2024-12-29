@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +46,7 @@ fun AddHomelessDialog(
         modifier = Modifier.fillMaxSize(),
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false),
+        shape = RoundedCornerShape(0.dp),
         title = { Text("Aggiungi Senzatetto") },
         text = {
             Column(
@@ -127,7 +129,7 @@ fun AddHomelessDialog(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         textContentColor = MaterialTheme.colorScheme.onBackground,
     )
 }
@@ -147,7 +149,7 @@ fun Step1(
         onValueChange = {
             name = it
             homeless.name = it
-            onFieldsChanged(it, location) // Aggiorna errori in tempo reale
+            onFieldsChanged(it, location)
         },
         label = { Text("Nome") },
         modifier = Modifier.fillMaxWidth(),
@@ -169,7 +171,7 @@ fun Step1(
         onValueChange = {
             location = it
             homeless.location = it
-            onFieldsChanged(name, it) // Aggiorna errori in tempo reale
+            onFieldsChanged(name, it)
         },
         label = { Text("Luogo") },
         modifier = Modifier.fillMaxWidth(),
