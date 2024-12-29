@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.vociapp.ui.components.updates.ButtonOption
+import com.example.vociapp.ui.screens.ApiTesting
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.home.HomeScreen
@@ -188,7 +189,7 @@ fun NavGraph(
         }
 
         composable(
-            route = "UpdateAddFormScreen/{buttonOption}/{homelessId}", // Add homelessId to route
+            route = "UpdateAddFormScreen/{buttonOption}/{homelessId}",
             arguments = listOf(
                 navArgument("buttonOption") { type = NavType.StringType },
                 navArgument("homelessId") { type = NavType.StringType }
@@ -202,9 +203,18 @@ fun NavGraph(
                 "Gray" -> ButtonOption.Gray
                 else -> ButtonOption.Green
             }
-            val homelessId = backStackEntry.arguments?.getString("homelessId") ?: "" // Get homelessId
+            val homelessId = backStackEntry.arguments?.getString("homelessId") ?: ""
 
-            UpdateAddFormScreen(navController, buttonOption, homelessId) // Pass homelessId to UpdateAddFormScreen
+            UpdateAddFormScreen(navController, buttonOption, homelessId)
+        }
+
+        composable(
+            route = "apiTesting",
+        ) {
+            ApiTesting(
+                navController = navController,
+                snackbarHostState = snackbarHostState
+            )
         }
 
     }

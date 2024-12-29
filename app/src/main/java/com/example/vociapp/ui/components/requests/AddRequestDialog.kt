@@ -105,7 +105,8 @@ fun AddRequestDialog(
                             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                             onClick = { },
                             onDismiss = { },
-                            navController = navController
+                            navController = navController,
+                            onLeadingIconClick = {  }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
