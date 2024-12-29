@@ -13,12 +13,14 @@ import java.util.UUID
             entity = Homeless::class,
             parentColumns = ["id"],
             childColumns = ["homelessID"],
+            onUpdate = ForeignKey.NO_ACTION,
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Volunteer::class,
             parentColumns = ["id"],
             childColumns = ["creatorId"],
+            onUpdate = ForeignKey.NO_ACTION,
             onDelete = ForeignKey.CASCADE
         )
     ]

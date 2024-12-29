@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UpdateDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(update: Update): Long
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(update: Update)
 
     @Query("SELECT * FROM updates")
     fun getAllUpdates(): Flow<List<Update>>

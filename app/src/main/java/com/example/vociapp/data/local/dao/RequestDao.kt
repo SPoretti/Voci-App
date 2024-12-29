@@ -25,11 +25,8 @@ interface RequestDao {
     @Query("SELECT * FROM requests WHERE area = :area")
     fun getRequestsByArea(area: Area): Flow<List<Request>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(request: Request)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(requestsList: List<Request>)
 
     @Transaction
     suspend fun insertOrUpdate(request: Request) {
