@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Dehaze
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -42,7 +43,8 @@ fun SearchBar(
     unfocusedBorderColor: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    onLeadingIconClick: (() -> Unit)? = null
 ) {
     var searchText by remember { mutableStateOf("") }
     var isSearchBarFocused by remember { mutableStateOf(false) }
@@ -68,10 +70,35 @@ fun SearchBar(
                 }
             },
         leadingIcon = {
-            Icon(
-                imageVector = Icons.Filled.Search,
-                contentDescription = "Search"
-            )
+            if (onLeadingIconClick != null){
+                Row(
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                ) {
+                    IconButton(
+                        onClick = {
+                            onLeadingIconClick()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Dehaze,
+                            contentDescription = "Drawer",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .size(32.dp)
+                        )
+                    }
+                }
+            } else {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
+
         },
         trailingIcon = {
             if(
@@ -85,6 +112,7 @@ fun SearchBar(
                     IconButton(
                         onClick = {
                             searchText = ""
+                            onSearch("")
                         }
                     ) {
                         Icon(
