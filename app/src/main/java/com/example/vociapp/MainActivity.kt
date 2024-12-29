@@ -1,9 +1,17 @@
 package com.example.vociapp
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -12,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.di.LocalServiceLocator
@@ -22,10 +31,60 @@ import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.theme.VociAppTheme
 import com.google.firebase.firestore.FirebaseFirestore
+import android.Manifest
 
 class MainActivity : ComponentActivity() {
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission granted, proceed with notification setup
+                Log.d("NotificationPermission", "Permission granted")
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+                Log.d("NotificationPermission", "Permission denied")
+            }
+        }
+
+    private val locationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.d("LocationPermission", "Permission granted")
+                // You can now access location data
+            } else {
+                Log.d("LocationPermission", "Permission denied")
+                // Handle permission denial (e.g., show a message)
+            }
+        }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Handler(Looper.getMainLooper()).postDelayed({
+            // Check and request notification permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                // Permission already granted
+                Log.d("NotificationPermission", "Permission already granted")
+            }
+        }, 1000) // Delay for 1 second
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            } else {
+                Log.d("LocationPermission", "Permission already granted")
+            }
+        }, 1000) // Delay for 1 second
+
         enableEdgeToEdge()
         setContent {
             val serviceLocator = remember {
