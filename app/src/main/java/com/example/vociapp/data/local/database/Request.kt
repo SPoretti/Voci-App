@@ -22,7 +22,7 @@ import java.util.UUID
             parentColumns = ["id"],
             childColumns = ["creatorId"],
             onUpdate = ForeignKey.NO_ACTION,
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_DEFAULT
         )
     ]
 )

@@ -120,25 +120,18 @@ fun HomeScreen(
                             .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(
+                        SearchBar(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(4.dp)
-                                .height(58.dp)
-                        ) {
-                            SearchBar(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .weight(1f),
-                                onSearch = { homelessViewModel.updateSearchQuery(it)},
-                                placeholderText = "Cerca Senzatetto...",
-                                unfocusedBorderColor = Color.Transparent,
-                                onClick = {  },
-                                onDismiss = { homelessViewModel.updateSearchQuery("") },
-                                navController = navController,
-                                onLeadingIconClick = { openDrawer() }
-                            )
-                        }
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            onSearch = { homelessViewModel.updateSearchQuery(it)},
+                            placeholderText = "Cerca...",
+                            unfocusedBorderColor = Color.Transparent,
+                            onClick = {  },
+                            onDismiss = { homelessViewModel.updateSearchQuery("") },
+                            navController = navController,
+                            onLeadingIconClick = { openDrawer() }
+                        )
 
                         val listToDisplay =
                             if (searchQuery.isBlank()) {
@@ -150,9 +143,9 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "Senzatetto",
+                            text = "Persone",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .align(Alignment.Start)
                                 .padding(8.dp)
@@ -233,8 +226,8 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add homeless", tint = MaterialTheme.colorScheme.onBackground)
-                    Text("Aggiungi Senzatetto", color = MaterialTheme.colorScheme.onBackground)
+                    Icon(Icons.Filled.Add, contentDescription = "Add homeless", tint = MaterialTheme.colorScheme.onPrimary)
+                    Text("Aggiungi Senzatetto", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }

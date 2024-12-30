@@ -1,6 +1,6 @@
 package com.example.vociapp.ui.screens.updates
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -52,7 +51,7 @@ fun UpdateAddScreen(
             ) {
 
                 Text(
-                    text = "Scegli uno stato per la tua update:",
+                    text = "Scegli uno stato per il tuo aggiornamento:",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -63,17 +62,17 @@ fun UpdateAddScreen(
                     },
                     modifier = Modifier
                         .width(200.dp)
-                        .border(
-                            width = 2.dp,
-                            color = Color.Green,
-                            shape = RoundedCornerShape(8.dp)
-                        )
                         .hapticFeedback(),
-                ) {
-                    Text(
-                        text = "Stabile",
-                        color = Color.Green
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = Color.Green,
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Green,
+                        contentColor = Color.Black
                     )
+                ) {
+                    Text("Stabile")
                 }
 
                 OutlinedButton(
@@ -82,17 +81,17 @@ fun UpdateAddScreen(
                     },
                     modifier = Modifier
                         .width(200.dp)
-                        .border(
-                            width = 2.dp,
-                            color = Color.Yellow,
-                            shape = RoundedCornerShape(8.dp)
-                        )
                         .hapticFeedback(),
-                ) {
-                    Text(
-                        text = "Instabile",
-                        color = Color.Yellow
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = Color.Yellow,
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Yellow,
+                        contentColor = Color.Black
                     )
+                ) {
+                    Text(text = "Instabile")
                 }
 
                 OutlinedButton(
@@ -101,17 +100,17 @@ fun UpdateAddScreen(
                     },
                     modifier = Modifier
                         .width(200.dp)
-                        .border(
-                            width = 2.dp,
-                            color = Color.Red,
-                            shape = RoundedCornerShape(8.dp)
-                        )
                         .hapticFeedback(),
-                ) {
-                    Text(
-                        text = "Negativo",
-                        color = Color.Red
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = Color.Red,
+                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Red,
+                        contentColor = Color.Black
                     )
+                ) {
+                    Text("Negativo")
                 }
 
                 OutlinedButton(
@@ -120,13 +119,11 @@ fun UpdateAddScreen(
                     },
                     modifier = Modifier
                         .width(200.dp)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .hapticFeedback()
-                    ,
+                        .hapticFeedback(),
+                    border = BorderStroke(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 ) {
                     Text(
                         text = "Non trovato",
@@ -136,13 +133,17 @@ fun UpdateAddScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
+                OutlinedButton(
                     onClick = {
                         navController.popBackStack()
                     },
                     modifier = Modifier.width(200.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                ){
                     Text("Annulla")
                 }
 

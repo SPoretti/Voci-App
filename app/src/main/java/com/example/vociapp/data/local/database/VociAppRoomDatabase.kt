@@ -13,7 +13,7 @@ import com.example.vociapp.data.local.dao.VolunteerDao
 
 @Database(
     entities = [Homeless::class, Volunteer::class, Request::class, Update::class, SyncAction::class],
-    version = 9,
+    version = 8,
     exportSchema = false // Set to true for schema versioning; useful for migrations
 )
 @TypeConverters(Converters::class)

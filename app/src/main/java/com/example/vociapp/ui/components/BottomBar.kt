@@ -32,7 +32,7 @@ fun BottomBar(navController: NavHostController) {
     val currentRoute = currentRoute(navController)
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.background,
         modifier = Modifier
             .offset(y = 0.dp)
     ) {

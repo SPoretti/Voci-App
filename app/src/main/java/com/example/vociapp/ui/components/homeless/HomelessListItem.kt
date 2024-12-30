@@ -2,6 +2,7 @@ package com.example.vociapp.ui.components.homeless
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.data.util.Resource
@@ -91,6 +90,7 @@ fun HomelessListItem(
                 modifier = Modifier.weight(1f),
             ) {
                 Row(
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ){
                     Text(
@@ -100,6 +100,7 @@ fun HomelessListItem(
                         ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, false)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     StatusLED(
@@ -114,29 +115,22 @@ fun HomelessListItem(
                             UpdateStatus.YELLOW -> true
                             UpdateStatus.RED -> true
                             UpdateStatus.GRAY -> false
-                        }
+                        },
                     )
                 }
 
-                Text(
-                    text = homelessState.homeless.age + ", " + homelessState.homeless.nationality,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        lineHeight = 20.sp
-                    ),
-                    overflow = TextOverflow.Ellipsis,
-                    color = LocalContentColor.current.copy(alpha = 0.6f)
-                )
-
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ){
                 HomelessChip(
                     text = homelessState.homeless.location,
                     imageVector = Icons.Filled.LocationOn,
-                    onClick = {}
+                    onClick = {},
+                    modifier = Modifier
                 )
+            }
+
+            Box(
+                contentAlignment = Alignment.Center
+            ){
+
                 if (showPreferredIcon) {
                     IconButton(
                         onClick = {
@@ -147,16 +141,14 @@ fun HomelessListItem(
                             isPreferred = !isPreferred
                         },
                         modifier = Modifier
-                            .align(Alignment.CenterVertically)
                             .hapticFeedback(),
                     ) {
                         Icon(
                             imageVector =
-                            if (isPreferred) {
+                            if (isPreferred)
                                 Icons.Filled.Star
-                            } else {
-                                Icons.Filled.StarOutline
-                            },
+                            else
+                                Icons.Filled.StarOutline,
                             contentDescription = "Preferred icon",
                             tint =
                             if (isPreferred)

@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mapbox.api.geocoding.v5.models.CarmenFeature
 import com.mapbox.geojson.Point
-import com.mapbox.search.SearchResultMetadata
 import com.mapbox.search.common.RoutablePoint
 import com.mapbox.search.record.HistoryRecord
 import com.mapbox.search.result.SearchAddress

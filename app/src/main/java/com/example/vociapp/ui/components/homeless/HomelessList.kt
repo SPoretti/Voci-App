@@ -63,7 +63,7 @@ fun HomelessList(
     val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value?.id)}
     val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
 
-    var currentRoute = currentRoute(navController = navController)
+    val currentRoute = currentRoute(navController = navController)
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn is AuthState.Authenticated){
@@ -144,6 +144,8 @@ fun HomelessList(
                                                     tint = Color.White,
                                                     modifier = Modifier.size(24.dp)
                                                 )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text("Aggiorna", color = Color.White)
                                             }
                                         },
                                         modifier = Modifier
