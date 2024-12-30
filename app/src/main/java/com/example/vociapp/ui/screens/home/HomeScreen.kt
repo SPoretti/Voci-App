@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -37,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.data.position
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
@@ -67,7 +64,7 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val refreshState = rememberPullToRefreshState()
-    var isRefreshing = remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -169,7 +166,9 @@ fun HomeScreen(
                                 isRefreshing.value = true
                                 // Launch a coroutine to fetch data
                                 coroutineScope.launch {
-                                    delay(500)
+                                    delay(300)
+                                    serviceLocator.fetchAllData()
+                                    delay(150)
                                     homelessViewModel.getHomelesses()
                                     isRefreshing.value = false
                                 }

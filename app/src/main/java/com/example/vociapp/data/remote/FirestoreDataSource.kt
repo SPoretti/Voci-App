@@ -277,8 +277,6 @@ class FirestoreDataSource @Inject constructor(
                 val documentSnapshot = firestore
                     .collection("volunteers")
                     .document(volunteerDocId)
-//                    .collection("userPreferences")
-//                    .document("preferences")
                     .get()
                     .await()
                 if (documentSnapshot.exists()) {
