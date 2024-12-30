@@ -21,7 +21,7 @@ object ColorPalette {
 
     // Dark Theme
     val PrimaryDark = Color(0xFF035DFB)
-    val OnPrimaryDark = Color(0xFF000000)
+    val OnPrimaryDark = Color(0xFFFFFFFF)
     val PrimaryContainerDark = Color(0xFF148AFF)
     val SecondaryDark = Color(0xFFFF5700)
     val OnSecondaryDark = Color(0xFFFFFFFF)

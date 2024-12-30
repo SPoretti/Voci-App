@@ -130,6 +130,8 @@ fun RequestList(
                                                 modifier = Modifier
                                                     .size(32.dp)
                                             )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Segna come fatta", color = Color.White)
                                         }
                                     }
                                     if(filterOption == RequestStatus.DONE){

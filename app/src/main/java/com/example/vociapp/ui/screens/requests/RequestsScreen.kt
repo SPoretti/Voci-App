@@ -166,8 +166,8 @@ fun RequestsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 4.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add request", tint = MaterialTheme.colorScheme.onBackground)
-                Text("Aggiungi Richiesta", color = MaterialTheme.colorScheme.onBackground)
+                Icon(Icons.Filled.Add, contentDescription = "Add request", tint = MaterialTheme.colorScheme.onPrimary)
+                Text("Aggiungi Richiesta", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
 

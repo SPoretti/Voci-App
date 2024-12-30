@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -53,8 +52,7 @@ fun RequestListItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(navController, request) }
-            .height(100.dp),
+            .clickable { onClick(navController, request) },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp,
@@ -80,7 +78,7 @@ fun RequestListItem(
                     Icon(
                         painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
                         contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .size(24.dp)
                             .align(Alignment.Center)

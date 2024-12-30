@@ -4,8 +4,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.example.vociapp.ui.components.maps.MapOnDevice
-import com.example.vociapp.ui.components.maps.MapWithMarker
-import com.mapbox.geojson.Point
 
 @Composable
 fun ApiTesting(

@@ -2,10 +2,6 @@ package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -93,20 +88,30 @@ fun AddRequestDialog(
         text = {
             when (step) {
                 1 -> {
+                    selectedHomeless = null
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        Text(
+                            text = "Seleziona il ricevente",
+                            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
                         SearchBar(
                             modifier = Modifier.fillMaxWidth(),
                             onSearch = { homelessViewModel.updateSearchQuery(it) },
-                            placeholderText = "Ricevente...",
+                            placeholderText = "Cerca...",
                             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                             onClick = { },
                             onDismiss = { },
                             navController = navController,
-                            onLeadingIconClick = {  }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -123,6 +128,7 @@ fun AddRequestDialog(
                             onListItemClick = { homeless ->
                                 homelessID = homeless.id
                                 selectedHomeless = homeless
+                                step++
                             },
                             selectedHomeless = selectedHomeless,
                             navController = navController,
@@ -185,17 +191,7 @@ fun AddRequestDialog(
         },
         confirmButton = {
             when(step) {
-                1 -> {
-                    Button(
-                        onClick = {
-                            step = 2
-                        },
-                        modifier = Modifier
-                            .hapticFeedback(),
-                    ) {
-                        Text("Avanti")
-                    }
-                }
+                1 -> {  }
                 2 -> {
                     Button(
                         onClick = {

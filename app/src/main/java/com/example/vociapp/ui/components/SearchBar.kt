@@ -95,7 +95,7 @@ fun SearchBar(
                     contentDescription = "Search",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(24.dp)
                 )
             }
 
@@ -179,7 +179,12 @@ fun SearchBar(
                 }
             }
         },
-        placeholder = { Text(placeholderText) },
+        placeholder = {
+            Text(
+                text = placeholderText,
+                //textAlign = TextAlign.Center,
+            )
+        },
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
