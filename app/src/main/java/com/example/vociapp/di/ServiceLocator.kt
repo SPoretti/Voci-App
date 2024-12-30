@@ -88,6 +88,13 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     fun obtainVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
 
     fun obtainAuthViewModel(): AuthViewModel = authViewModel
+
+    fun fetchAllData(){
+        homelessViewModel.fetchHomelesses()
+        volunteerViewModel.fetchVolunteers()
+        requestViewModel.fetchRequests()
+        updatesViewModel.fetchUpdates()
+    }
 }
 
 

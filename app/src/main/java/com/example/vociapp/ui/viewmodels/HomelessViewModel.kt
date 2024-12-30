@@ -44,7 +44,7 @@ class HomelessViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
-    private fun fetchHomelesses() {
+    fun fetchHomelesses() {
         viewModelScope.launch {
             homelessRepository.fetchHomelessesFromFirestoreToRoom()
         }
