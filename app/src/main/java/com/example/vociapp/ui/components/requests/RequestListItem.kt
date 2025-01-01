@@ -64,26 +64,24 @@ fun RequestListItem(
                 .fillMaxSize(),
         ) {
 
-            if (request.status == RequestStatus.TODO) {
-                Box(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(48.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
-                        contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.Center)
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
                     )
-                }
+                    .align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
+                    contentDescription = "Request icon",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.Center)
+                )
             }
 
             Column(

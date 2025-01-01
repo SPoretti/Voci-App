@@ -48,6 +48,7 @@ fun HomelessListItem(
     showPreferredIcon: Boolean,
     onClick:(Homeless) -> Unit,
     isSelected: Boolean = false,
+    modifier: Modifier = Modifier
 ){
 
     val serviceLocator = LocalServiceLocator.current
@@ -71,14 +72,13 @@ fun HomelessListItem(
     }
 
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .height(80.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         onClick = {onClick(homelessState.homeless)},
         color = backgroundColor,
     ){
-
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, end = 8.dp)
@@ -145,16 +145,16 @@ fun HomelessListItem(
                     ) {
                         Icon(
                             imageVector =
-                            if (isPreferred)
-                                Icons.Filled.Star
-                            else
-                                Icons.Filled.StarOutline,
+                                if (isPreferred)
+                                    Icons.Filled.Star
+                                else
+                                    Icons.Filled.StarOutline,
                             contentDescription = "Preferred icon",
                             tint =
-                            if (isPreferred)
-                                MaterialTheme.colorScheme.secondary
-                            else
-                                MaterialTheme.colorScheme.onSurface,
+                                if (isPreferred)
+                                    MaterialTheme.colorScheme.secondary
+                                else
+                                    MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
                         )
                     }

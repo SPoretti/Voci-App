@@ -46,7 +46,7 @@ fun RequestsHistoryScreen(
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
     var showDialog by remember { mutableStateOf(false) }
-    var selectedRequest: Request by remember {
+    val selectedRequest: Request by remember {
         mutableStateOf(
             Request(
                 id = "null",
