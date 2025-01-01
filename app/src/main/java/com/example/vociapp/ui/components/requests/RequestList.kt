@@ -89,7 +89,7 @@ fun RequestList(
                                     },
                                     positionalThreshold = { totalDistance ->
                                         // Set a threshold to trigger dismissal (e.g., 50% of the distance)
-                                        totalDistance * 0.2f
+                                        totalDistance * 0.4f
                                     }
                                 )
                             }
@@ -150,6 +150,8 @@ fun RequestList(
                                                 modifier = Modifier
                                                     .size(32.dp)
                                             )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Elimina", color = Color.White)
                                         }
                                     }
                                 },

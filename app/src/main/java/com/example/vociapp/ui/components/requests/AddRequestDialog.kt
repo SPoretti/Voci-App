@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -40,7 +41,9 @@ import com.example.vociapp.ui.components.IconCategory
 import com.example.vociapp.ui.components.IconSelector
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.homeless.HomelessListItem
 import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.state.HomelessItemUiState
 import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -142,6 +145,15 @@ fun AddRequestDialog(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        HomelessListItem(
+                            homelessState = HomelessItemUiState(homeless = selectedHomeless!!),
+                            showPreferredIcon = false,
+                            onClick = {step--},
+                            isSelected = true,
+                            modifier = Modifier.clip(MaterialTheme.shapes.small)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         OutlinedTextField(
                             value = requestTitle,
@@ -169,13 +181,6 @@ fun AddRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         IconSelector(
                             onIconSelected = { iconCategory ->
                                 selectedIconCategory = iconCategory
@@ -184,7 +189,6 @@ fun AddRequestDialog(
                                 .fillMaxWidth()
                                 .align(Alignment.CenterHorizontally)
                         )
-
                     }
                 }
             }

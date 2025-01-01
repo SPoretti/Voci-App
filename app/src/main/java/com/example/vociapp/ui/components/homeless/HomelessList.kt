@@ -112,7 +112,7 @@ fun HomelessList(
                                                 newValue == SwipeToDismissBoxValue.StartToEnd
                                             },
                                             positionalThreshold = { totalDistance ->
-                                                totalDistance * 0.2f
+                                                totalDistance * 0.4f
                                             }
                                         )
                                     }
