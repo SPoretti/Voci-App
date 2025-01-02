@@ -42,7 +42,7 @@ fun PasswordRecover(
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
 
     var email by remember { mutableStateOf("") }
     var checkedEmail by remember { mutableStateOf(false) }
