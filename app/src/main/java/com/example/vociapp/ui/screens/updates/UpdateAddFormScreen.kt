@@ -279,7 +279,7 @@ fun onSend(
         title = title,
         description = description,
         homelessID = homeless!!.id,
-        creatorId = volunteerViewModel.currentUser.value!!.id,
+        creatorId = volunteerViewModel.currentUser.value.data?.id.toString(),
         status = updateStatus
     )
     updatesViewModel.addUpdate(update)
