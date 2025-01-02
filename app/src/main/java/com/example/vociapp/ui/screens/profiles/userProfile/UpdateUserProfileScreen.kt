@@ -35,17 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.viewmodels.AuthResult
 
+
 @Composable
 fun UpdateUserProfileScreen(navController: NavHostController) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val currentProfile = authViewModel.getCurrentUser()
 
     if(currentProfile != null){
@@ -66,12 +67,11 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
         var isInitialized by remember { mutableStateOf(false) }
         var showSnackbar by remember { mutableStateOf(false) }
 
-        val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+        val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
         var loggedVolunteer by remember { mutableStateOf<Volunteer?>(null) }
 
-        val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
-            .collectAsState(initial = Resource.Loading())
+        val volunteerResource by volunteerViewModel.currentUser.collectAsState()
 
         LaunchedEffect(isUpdating) {
             if (isUpdating) {
@@ -90,7 +90,7 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
                         showError = false
                         val updatedVolunteer = Volunteer("", name, surname, nickname)
                         Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
-                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(it,updatedVolunteer) }
+                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(updatedVolunteer) }
                         Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
                         navController.popBackStack()
                     }

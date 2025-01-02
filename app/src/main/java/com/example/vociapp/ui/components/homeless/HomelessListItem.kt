@@ -53,7 +53,7 @@ fun HomelessListItem(
 
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val userId = volunteerViewModel.currentUser.value?.id
+    val userId = volunteerViewModel.currentUser.value.data?.id
     val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
     val backgroundColor =
         if (isSelected) {

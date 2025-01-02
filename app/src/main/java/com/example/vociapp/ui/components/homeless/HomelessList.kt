@@ -60,7 +60,7 @@ fun HomelessList(
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val isLoggedIn by authViewModel.authState.collectAsState()
 
-    val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value?.id)}
+    val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value.data?.id)}
     val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
 
     val currentRoute = currentRoute(navController = navController)

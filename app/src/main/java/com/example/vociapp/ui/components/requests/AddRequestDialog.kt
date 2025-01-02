@@ -204,7 +204,7 @@ fun AddRequestDialog(
                                 title = requestTitle,
                                 description = requestDescription,
                                 homelessID = homelessID,
-                                creatorId = volunteerViewModel.currentUser.value!!.id,
+                                creatorId = volunteerViewModel.currentUser.value.data?.id,
                                 iconCategory = selectedIconCategory
                             )
                             onAdd(newRequest)

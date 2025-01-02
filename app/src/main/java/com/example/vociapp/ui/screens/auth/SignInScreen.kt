@@ -49,8 +49,7 @@ fun SignInScreen(
 
     var isSigningIn by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
@@ -59,7 +58,6 @@ fun SignInScreen(
                 SnackbarManager.showSnackbar(result.message)
                 isSigningIn = false
             } else {
-                volunteerViewModel.getVolunteerByEmail(email)
                 navController.navigate(Screens.Home.route) {
                     popUpTo(Screens.SignIn.route) { inclusive = true }
                 }
