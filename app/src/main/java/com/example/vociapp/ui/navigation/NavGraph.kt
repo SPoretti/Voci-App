@@ -42,7 +42,7 @@ fun NavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Screens.SignIn.route,
+        startDestination = Screens.Home.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         // Sign in and up screens
