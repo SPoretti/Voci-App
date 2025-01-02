@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.components.SnackbarManager

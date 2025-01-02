@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,16 +35,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AddRequestDialog
-import com.example.vociapp.ui.components.RequestDetails
-import com.example.vociapp.ui.components.RequestList
 import com.example.vociapp.ui.components.SortButtons
+import com.example.vociapp.ui.components.requests.AddRequestDialog
+import com.example.vociapp.ui.components.requests.RequestList
+import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.navigation.Screens
 import kotlinx.coroutines.launch
 
@@ -53,9 +53,11 @@ fun RequestsScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val requestViewModel = serviceLocator.getRequestViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+
+    val currentUser = volunteerViewModel.currentUser
 
     val requests by requestViewModel.requests.collectAsState()
     val sortOptions = listOf(
@@ -84,6 +86,14 @@ fun RequestsScreen(
                 requestViewModel.clearSnackbarMessage() // Reset dello stato dopo aver mostrato
             }
         }
+    }
+
+    LaunchedEffect(currentUser){
+        requestViewModel.fetchRequests()
+    }
+
+    LaunchedEffect(Unit) {
+        requestViewModel.getRequests()
     }
 
     Box(
@@ -136,10 +146,6 @@ fun RequestsScreen(
                 requests = requests,
                 filterOption = RequestStatus.TODO,
                 sortOption = selectedSortOption,
-                onItemClick = { request ->
-                    showDialog = true
-                    selectedRequest = request
-                },
                 navController = navController,
                 requestViewModel = requestViewModel,
                 homeLessViewModel = homelessViewModel
@@ -151,23 +157,17 @@ fun RequestsScreen(
             elevation = FloatingActionButtonDefaults.elevation(50.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(16.dp)
+                .hapticFeedback(),
             containerColor = MaterialTheme.colorScheme.primary
 
         ) {
-            Icon(Icons.Filled.Add, contentDescription = "Add request")
-        }
-
-        if (showDialog) {
-            Dialog(
-                onDismissRequest = { showDialog = false }
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = 4.dp)
             ) {
-                RequestDetails(
-                    request = selectedRequest,
-                    onDismiss = { showDialog = false },
-                    navController = navController,
-                    homelessViewModel = homelessViewModel
-                )
+                Icon(Icons.Filled.Add, contentDescription = "Add request", tint = MaterialTheme.colorScheme.onPrimary)
+                Text("Aggiungi Richiesta", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
 
@@ -178,7 +178,7 @@ fun RequestsScreen(
                     requestViewModel.addRequest(it)
                     showAddRequestDialog = false
                 },
-                authViewModel = authViewModel,
+                volunteerViewModel = volunteerViewModel,
                 navController = navController,
             )
         }

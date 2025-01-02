@@ -1,7 +1,11 @@
 [versions]
 agp = "8.7.3"
+coilCompose = "2.4.0"
+converterGson = "2.9.0"
 firebaseBom = "33.7.0"
+firebaseBomVersion = "32.2.3"
 firebaseFirestoreKtx = "25.1.1"
+gson = "2.10.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -20,16 +24,28 @@ materialIconsExtendedVersion = "1.7.5"
 navigationCompose = "2.8.4"
 firebaseCrashlyticsBuildtools = "3.0.2"
 firebaseFirestore = "25.1.1"
+roomCommon = "2.6.1"
+roomCompiler = "2.6.1"
+roomKtx = "2.6.1"
+roomRuntime = "2.6.1"
+retrofit = "2.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-material-icons-extended-v175 = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtendedVersion" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-bom-v3223 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -50,9 +66,11 @@ kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-cor
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
