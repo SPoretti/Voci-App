@@ -176,17 +176,8 @@ class FirestoreDataSource @Inject constructor(
 
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return try {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-            val volunteerWithId = volunteer.copy(id = uid ?: "")
-
-            val documentReference = uid?.let {
-                firestore.collection("volunteers")
-                    .document(it)
-                    .set(volunteerWithId)
-                    .await()
-            }
-
-            Resource.Success(documentReference.toString())
+            val documentReference = firestore.collection("volunteers").add(volunteer).await()
+            Resource.Success(documentReference.id)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
@@ -202,39 +193,44 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getVolunteerById(id: String): Volunteer? {
-        val volunteerDoc = firestore.collection("volunteers")
-            .whereEqualTo("id", id)
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
+    suspend fun getVolunteerById(volunteerId: String): Resource<Volunteer> {
+        return try {
+            val querySnapshot = firestore.collection("volunteers")
+                .whereEqualTo("id", volunteerId)
+                .get()
+                .await()
 
-        return volunteerDoc?.toObject(Volunteer::class.java)
+            if (querySnapshot.documents.isNotEmpty()) {
+                val volunteer = querySnapshot.documents[0].toObject(Volunteer::class.java)!!
+                Resource.Success(volunteer)
+            } else {
+                Resource.Error("Request not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
     }
 
-    suspend fun getVolunteerByNickname(nickname: String): Volunteer? {
-        Log.d("Firestore", "Eseguo la query per il nickname: $nickname") // Aggiungi log per il nickname
-        val volunteerNickname = firestore.collection("volunteers")
-            .whereEqualTo("nickname", nickname)
-            .get()
-            .await()
-        return volunteerNickname.documents
-            .firstOrNull()?.toObject(Volunteer::class.java)
+    suspend fun getVolunteerByNickname(nickname: String): Resource<Volunteer> {
+        return try {
+            val querySnapshot = firestore.collection("volunteers")
+                .whereEqualTo("nickname", nickname)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val volunteer = querySnapshot.documents[0].toObject(Volunteer::class.java)!!
+                Resource.Success(volunteer)
+            } else {
+                Log.d("FirestoreDataSource", nickname)
+                Resource.Error("Volunteer not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
     }
 
-    suspend fun getVolunteerByEmail(email: String): Volunteer? {
-        val volunteerNickname = firestore.collection("volunteers")
-            .whereEqualTo("email", email)
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
-
-        return volunteerNickname?.toObject(Volunteer::class.java)
-    }
-
-    suspend fun getVolunteerIdByEmail(email: String): String? {
+    suspend fun getVolunteerByEmail(email: String): Resource<Volunteer> {
         return try {
             val querySnapshot = firestore.collection("volunteers")
                 .whereEqualTo("email", email)
@@ -242,25 +238,26 @@ class FirestoreDataSource @Inject constructor(
                 .await()
 
             if (querySnapshot.documents.isNotEmpty()) {
-                querySnapshot.documents[0].getString("id")
+                val volunteer = querySnapshot.documents[0].toObject(Volunteer::class.java)!!
+                Resource.Success(volunteer)
             } else {
-                null
+                Resource.Error("Volunteer not found")
             }
         } catch (e: Exception) {
-            Log.e("Firestore", "Error getting volunteer ID", e)
-            null
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
-
+    
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return try {
             val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("nickname", oldVolunteer.nickname) //Preleva il volontario già esistente tramite nickname
+                .whereEqualTo("nickname", volunteer.nickname) //Preleva il volontario già esistente tramite nickname
                 .get()
                 .await()
 
             if (querySnapshot.documents.isNotEmpty()) {
                 val documentId = querySnapshot.documents[0].id // Get the document ID
+
                 firestore.collection("volunteers")
                     .document(documentId) // Use the document ID for update
                     .set(volunteer, SetOptions.merge())

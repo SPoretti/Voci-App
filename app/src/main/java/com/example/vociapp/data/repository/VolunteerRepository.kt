@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Converters
+import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -22,45 +23,92 @@ class VolunteerRepository @Inject constructor(
 ) {
 
     // Add a new volunteer and sync if needed
-    suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
-        //Add locally
-        roomDataSource.insertVolunteer(volunteer)
-        return if (networkManager.isNetworkConnected()) {
-            // Online: sync with Firestore
-            firestoreDataSource.addVolunteer(volunteer)
-        } else {
-            // Offline: add to sync queue for later
-            queueSyncAction("Volunteer", "add", volunteer)
-            Resource.Success("No network connection. Data saved locally and queued for later sync.")
+    suspend fun addVolunteer(volunteer: Volunteer): Resource<Volunteer> {
+        return try {
+            // 1. Add to Room
+            roomDataSource.insertVolunteer(volunteer)
+            // 2. If online, sync with Firestore
+            if (networkManager.isNetworkConnected()) {
+                val resource = firestoreDataSource.addVolunteer(volunteer)
+                if (resource is Resource.Success) {
+                    Resource.Success(volunteer)
+                } else {
+                    queueSyncAction("Volunteer", "add", volunteer)
+                    Resource.Error("Errore imprevisto. Dati salvati localmente e messi in coda per la sincronizzazione")
+                }
+            } else {
+                // 3. If offline, queue for sync
+                queueSyncAction("Volunteer", "add", volunteer)
+                Resource.Error("Nessuna connessione di rete. Dati salvati localmente e messi in coda per la sincronizzazione.")
+            }
+        } catch (e: Exception) {
+            Resource.Error("Errore, dati NON salvati localmente: ${e.message}")
         }
     }
 
     // Get volunteer by ID, prefer local database if offline
-    fun getVolunteerById(id: String): Flow<Resource<Volunteer>> = flow {
-        emit(Resource.Loading())
-        if (networkManager.isNetworkConnected()) {
-            try {
-                val volunteer = firestoreDataSource.getVolunteerById(id)
-                if (volunteer != null) {
-                    emit(Resource.Success(volunteer))
-                    // Cache in local database for offline use
-                    roomDataSource.insertVolunteer(volunteer)
-                } else {
-                    emit(Resource.Error("Volunteer not found"))
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error fetching data: ${e.localizedMessage}"))
+    suspend fun getVolunteerById(volunteerId: String): Resource<Volunteer> {
+
+        try {
+            // 1. Try to get the request from the local database first
+            val localVolunteer = roomDataSource.getVolunteerById(volunteerId)
+
+            // 2. If found locally, return it
+            if (localVolunteer != null) {
+                return Resource.Success(localVolunteer)
             }
-        } else {
-            // If offline, fetch from local database
-            val volunteer = roomDataSource.getVolunteerById(id)
-            if (volunteer != null) {
-                emit(Resource.Success(volunteer))
+
+            // 3. If not found locally and network is available, fetch from Firestore
+            if (networkManager.isNetworkConnected()) {
+                val firestoreResource = firestoreDataSource.getVolunteerById(volunteerId)
+                if (firestoreResource is Resource.Success) {
+                    // 4. Cache the fetched volunteer locally
+                    roomDataSource.insertVolunteer(firestoreResource.data!!)
+                    return firestoreResource
+                } else {
+                    // 5. Handle Firestore error
+                    return firestoreResource // Or you can re-throw or wrap the exception
+                }
             } else {
-                emit(Resource.Error("Volontario non trovato"))
+                // 6. Handle offline scenario
+                return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
             }
         } catch (e: Exception) {
-            emit(Resource.Error("Errore durante il recupero dei dati: ${e.localizedMessage}"))
+            // 7. Handle unexpected errors
+            return Resource.Error("Errore durante il recupero del volontario: ${e.message}")
+        }
+
+    }
+
+    // Get volunteer by email, checking first from Firestore, then local if offline
+    suspend fun getVolunteerByEmail(email: String): Resource<Volunteer> {
+        try {
+            // 1. Try to get the request from the local database first
+            val localVolunteer = roomDataSource.getVolunteerByEmail(email)
+
+            // 2. If found locally, return it
+            if (localVolunteer != null) {
+                return Resource.Success(localVolunteer)
+            }
+
+            // 3. If not found locally and network is available, fetch from Firestore
+        if (networkManager.isNetworkConnected()) {
+            val firestoreResource = firestoreDataSource.getVolunteerByEmail(email)
+            if (firestoreResource is Resource.Success) {
+                // Cache in local database for offline use
+                roomDataSource.insertVolunteer(firestoreResource.data!!)
+                return firestoreResource
+                } else {
+                    // 5. Handle Firestore error
+                    return firestoreResource // Or you can re-throw or wrap the exception
+                }
+            }  else {
+            // 6. Handle offline scenario
+            return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
+            }
+        } catch (e: Exception) {
+            // 7. Handle unexpected errors
+            return Resource.Error("Errore durante il recupero della richiesta: ${e.message}")
         }
     }
 
@@ -76,74 +124,25 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
-    // Get volunteer by email, checking first from Firestore, then local if offline
-    fun getVolunteerByEmail(email: String): Flow<Resource<Volunteer>> = flow {
-        emit(Resource.Loading())
-        if (networkManager.isNetworkConnected()) {
-            try {
-                val volunteer = firestoreDataSource.getVolunteerByEmail(email)
-                if (volunteer != null) {
-                    emit(Resource.Success(volunteer))
-                    // Cache in local database for offline use
-                    roomDataSource.insertVolunteer(volunteer)
-                } else {
-                    emit(Resource.Error("Volunteer not found"))
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error fetching data: ${e.localizedMessage}"))
-            }
-        } else {
-            // If offline, fetch from local database
-            val volunteer = roomDataSource.getVolunteerByEmail(email)
-            if (volunteer != null) {
-                emit(Resource.Success(volunteer))
-            } else {
-                emit(Resource.Error("No data available offline"))
-            }
-        }
-    }
-
-    suspend fun getVolunteerIdByEmail(email: String): String? {
-        return if (networkManager.isNetworkConnected()) {
-            // Fetch from remote if connected
-            val volunteerId = firestoreDataSource.getVolunteerIdByEmail(email)
-            if (volunteerId != null){
-                val volunteer = firestoreDataSource.getVolunteerById(volunteerId)
-                if (volunteer != null) {
-                    roomDataSource.insertVolunteer(volunteer)
-                }
-            }
-            volunteerId
-        } else {
-            // Fetch from local otherwise
-            roomDataSource.getVolunteerIdByEmail(email)
-        }
-    }
-
-    fun getVolunteerByNickname(nickname: String): Flow<Resource<Volunteer>> = flow {
-        emit(Resource.Loading()) // Indicate loading state
-
+    suspend fun getVolunteerByNickname(nickname: String): Resource<Volunteer> {
         try {
-            val volunteer: Volunteer? =
-                if (networkManager.isNetworkConnected()) {
-                    // Fetch from remote if network is available
-                    firestoreDataSource.getVolunteerByNickname(nickname)
-                        ?.also { fetchedVolunteer ->
-                            // Save to local database for offline access
-                            roomDataSource.insertVolunteer(fetchedVolunteer)
-                        }
+            if (networkManager.isNetworkConnected()) {
+                val firestoreResource = firestoreDataSource.getVolunteerByNickname(nickname)
+                if (firestoreResource is Resource.Success) {
+                    // 4. Cache the fetched request locally
+                    //roomDataSource.insertVolunteer(firestoreResource.data!!)
+                    return firestoreResource
                 } else {
-                    // Fetch from local database if offline
-                    roomDataSource.getVolunteerByNickname(nickname)
+                    // 5. Handle Firestore error
+                    return firestoreResource // Or you can re-throw or wrap the exception
                 }
-
-            if (volunteer != null) {
-                emit(Resource.Success(volunteer)) // Emit success with the retrieved volunteer
             } else {
-                emit(Resource.Error("Volunteer not found")) // Emit error if volunteer not found
+                // 6. Handle offline scenario
+                return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
             }
         } catch (e: Exception) {
-            emit(Resource.Error("Error fetching volunteer by nickname: ${e.localizedMessage}"))
+            // 7. Handle unexpected errors
+            return Resource.Error("Errore durante il recupero del volontario: ${e.message}")
         }
     }
 
