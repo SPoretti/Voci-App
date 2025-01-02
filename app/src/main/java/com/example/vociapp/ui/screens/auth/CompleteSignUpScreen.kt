@@ -32,20 +32,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
+import java.util.UUID
 
 @Composable
 fun CompleteSignUpScreen(
     navController: NavHostController
 ){
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val user = authViewModel.getCurrentUser()
 
     var name by remember { mutableStateOf("") }
@@ -54,29 +55,21 @@ fun CompleteSignUpScreen(
     var phoneNumber by remember { mutableStateOf("") }
 
     var isSigningUp by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var showSnackbar by remember { mutableStateOf(false) }
 
     LaunchedEffect(isSigningUp) {
         if (isSigningUp) {
             val result = authViewModel.updateUserProfile(nickname)
             Log.d("CompleteSignUpScreen", "Result: $result")
             if (result is AuthResult.Failure) {
-                errorMessage = result.message
-                showSnackbar = true
+                SnackbarManager.showSnackbar(result.message)
             } else {
-
-                val updatedVolunteer = Volunteer("", name, surname, nickname, phoneNumber, user?.email ?: "")
-                volunteerViewModel.addVolunteer(updatedVolunteer)
+                val volunteer = Volunteer(UUID.randomUUID().toString(), name, surname, nickname, phoneNumber, user?.email ?: "")
+                volunteerViewModel.addVolunteer(volunteer)
                 navController.navigate(Screens.Home.route) {
                     popUpTo(Screens.CompleteSignUp.route) { inclusive = true }
                 }
             }
             isSigningUp = false
-        }
-        if (showSnackbar) {
-            SnackbarManager.showSnackbar(errorMessage)
-            showSnackbar = false
         }
     }
 

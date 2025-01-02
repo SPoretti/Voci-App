@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +28,7 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,19 +48,21 @@ import com.example.vociapp.ui.navigation.Screens
 
 @Composable
 fun UserProfileScreen(
+    volunteerNickname: String,
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val currentProfile = authViewModel.getCurrentUser()
 
+    LaunchedEffect(key1 = volunteerNickname) {
+        volunteerViewModel.getVolunteerByNickname(volunteerNickname)
+    }
+
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
+
     if(currentProfile != null){
-        val loggedUserNickname = currentProfile.displayName
-        Log.d(TAG, "Utente loggato (profilo utente): $loggedUserNickname")
-        val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
-        val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
-            .collectAsState(initial = Resource.Loading())
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -136,36 +138,14 @@ fun UserProfileScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            when (val resource = volunteerResource) {
+                            when (volunteerResource) {
 
                                 is Resource.Loading -> {
                                     CircularProgressIndicator()
                                 }
 
-                                is Resource.Error -> {
-                                    Text(
-                                        text = "Errore: ${resource.message}",
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-
                                 is Resource.Success -> {
-                                    val volunteer = resource.data
-                                    // Profile picture placeholder
-//                                    Box(
-//                                        modifier = Modifier
-//                                            .size(120.dp)
-//                                            .clip(CircleShape)
-//                                            .background(MaterialTheme.colorScheme.surface),
-//                                        contentAlignment = Alignment.Center
-//                                    ) {
-//                                        Icon(
-//                                            imageVector = Icons.Default.Person,
-//                                            contentDescription = "Profile Picture",
-//                                            modifier = Modifier.size(64.dp),
-//                                            tint = MaterialTheme.colorScheme.primary
-//                                        )
-//                                    }
+                                    val volunteer = volunteerResource.data
 
                                     val initials = "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
 
@@ -209,7 +189,7 @@ fun UserProfileScreen(
                                     ProfileInfoItem(
                                         icon = Icons.Default.Phone,
                                         label = "Phone Number",
-                                        value = volunteer?.phoneNumber ?: "Unknown Volunteer"
+                                        value = volunteer?.phone_number ?: "Unknown Volunteer"
                                     )
 
                                     // Edit Profile Section
@@ -223,6 +203,12 @@ fun UserProfileScreen(
                                     ) {
                                         Text("Modifica profilo")
                                     }
+                                }
+                                is Resource.Error -> {
+                                    Text(
+                                        text = "Errore: ${volunteerResource.message}",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             }
                         }

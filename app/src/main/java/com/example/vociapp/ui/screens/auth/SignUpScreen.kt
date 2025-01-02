@@ -50,19 +50,16 @@ fun SignUpScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    var errorMessage by remember { mutableStateOf("") }
     var isSigningUp by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    var showSnackbar by remember { mutableStateOf(false) }
+    val authViewModel = serviceLocator.obtainAuthViewModel()
 
     LaunchedEffect(isSigningUp) {
         if (isSigningUp) {
             val result = authViewModel.createUserWithEmailAndPassword(email, password)
             if (result is AuthResult.Failure) {
                 Log.e("SignUpScreen", "SignUp failed: $result")
-                errorMessage = result.message
-                showSnackbar = true
+                SnackbarManager.showSnackbar(result.message)
             } else {
                 authViewModel.sendVerificationEmail()
                 navController.navigate(Screens.EmailVerification.route) {
@@ -70,10 +67,6 @@ fun SignUpScreen(
                 }
             }
             isSigningUp = false
-        }
-        if (showSnackbar) {
-            SnackbarManager.showSnackbar(errorMessage)
-            showSnackbar = false
         }
     }
 
