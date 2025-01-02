@@ -115,16 +115,21 @@ fun NavGraph(
             RequestDetailsScreen(requestId.toString(), navController)
         }
 
-        // Profile screens
+        // Profile screen
         composable(
-            route = Screens.UserProfile.route,
+            route = "UserProfileScreen/{volunteerNickname}",
+            arguments = listOf(navArgument("volunteerNickname") { type = NavType.StringType }),
             enterTransition = {
                 slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
             },
             exitTransition = {
                 slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
             }
-        ) { UserProfileScreen(navController) }
+        ) {
+            backStackEntry ->
+            val volunteerNickname = backStackEntry.arguments?.getString("volunteerNickname")
+            UserProfileScreen(volunteerNickname.toString(), navController)
+        }
 
         composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
         composable(route = Screens.EmailVerification.route) { EmailVerification(navController) }
