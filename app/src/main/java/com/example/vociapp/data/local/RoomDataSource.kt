@@ -116,7 +116,7 @@ class RoomDataSource(
         return volunteerDao.getVolunteerByNickname(nickname)
     }
 
-    suspend fun getVolunteerByEmail(email: String): Volunteer? {
+    suspend fun getVolunteerByEmail(email: String): Volunteer {
         return volunteerDao.getVolunteerByEmail(email)
     }
 

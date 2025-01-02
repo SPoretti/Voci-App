@@ -25,7 +25,7 @@ interface VolunteerDao {
     suspend fun getVolunteerById(id: String): Volunteer?
 
     @Query("SELECT * FROM volunteers WHERE email = :email LIMIT 1")
-    suspend fun getVolunteerByEmail(email: String): Volunteer?
+    suspend fun getVolunteerByEmail(email: String): Volunteer
 
     @Query("SELECT id FROM volunteers WHERE email = :email LIMIT 1")
     suspend fun getVolunteerIdByEmail(email: String): String?
