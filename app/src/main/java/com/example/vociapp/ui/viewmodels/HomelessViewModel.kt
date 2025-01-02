@@ -3,8 +3,8 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.repository.HomelessRepository
-import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomelessViewModel @Inject constructor(
-    private val homelessRepository: HomelessRepository
+    private val homelessRepository: HomelessRepository,
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
@@ -36,11 +36,19 @@ class HomelessViewModel @Inject constructor(
     val homelessNames: StateFlow<Map<String, String>> = _homelessNames.asStateFlow()
 
     init {
+        fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
+        updateSearchQuery("")
     }
 
     private var searchJob: Job? = null
+
+    fun fetchHomelesses() {
+        viewModelScope.launch {
+            homelessRepository.fetchHomelessesFromFirestoreToRoom()
+        }
+    }
 
     fun updateSearchQuery(query: String) {
         searchJob?.cancel()
@@ -57,13 +65,13 @@ class HomelessViewModel @Inject constructor(
 
     private fun filterHomelessPeople(query: String, homelessList: List<Homeless>): Resource<List<Homeless>> {
         return if (homelessList.isEmpty()) {
-            Resource.Error("Nessun senzatetto trovato") // Handle empty list as an error
+            Resource.Error("Nessun risultato")
         } else {
             val filteredList = homelessList.filter { homeless ->
                 homeless.name.contains(query, ignoreCase = true) or
                 homeless.location.contains(query, ignoreCase = true)
             }
-            Resource.Success(filteredList) // Wrap the filtered list in Resource.Success
+            Resource.Success(filteredList)
         }
     }
 
@@ -76,28 +84,40 @@ class HomelessViewModel @Inject constructor(
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {
-        return homelessRepository.getHomeless(homelessID)
+        return homelessRepository.getHomelessById(homelessID)
     }
 
     fun addHomeless(homeless: Homeless) {
         viewModelScope.launch {
-            // Handle the result of addHomeless if needed
             val result = homelessRepository.addHomeless(homeless)
-            // ... (e.g., show a success message or handle errors)
 
             if (result is Resource.Success) {
-
                 _snackbarMessage.value = "Senzatetto aggiunto con successo!"
-
             } else if (result is Resource.Error) {
-
                 _snackbarMessage.value = "Errore durante l'aggiunta del senzatetto: ${result.message}"
-
             }
 
-            // You might want to refresh the homelesses list after adding
             getHomelesses()
         }
+    }
+
+    fun updateHomeless(homeless: Homeless){
+        viewModelScope.launch {
+            val result = homelessRepository.updateHomeless(homeless)
+            when(result) {
+                is Resource.Success -> {
+                    _snackbarMessage.value = "Senzatetto aggiornato con successo!"
+                }
+
+                is Resource.Error -> {
+                    _snackbarMessage.value = "Errore durante l'aggiornamento del senzatetto: ${result.message}"
+                }
+
+                is Resource.Loading -> TODO()
+            }
+        }
+
+        getHomelesses()
     }
 
     private fun fetchHomelessNames() {
