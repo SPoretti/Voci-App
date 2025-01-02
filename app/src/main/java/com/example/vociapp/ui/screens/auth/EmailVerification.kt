@@ -40,7 +40,7 @@ fun EmailVerification(
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val user = authViewModel.getCurrentUser()
     
     var emailVerified by remember { mutableStateOf(user?.isEmailVerified ?: false) }

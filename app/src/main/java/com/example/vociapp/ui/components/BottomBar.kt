@@ -27,8 +27,7 @@ import com.example.vociapp.ui.navigation.currentRoute
 fun BottomBar(navController: NavHostController) {
     val items = listOf(
         Screens.Home,
-        Screens.Requests,
-        Screens.UserProfile
+        Screens.Requests
     )
     val currentRoute = currentRoute(navController)
 
@@ -56,15 +55,15 @@ fun BottomBar(navController: NavHostController) {
                             contentDescription = screen.title,
                         )
                     }
-                     },
+                },
                 label = {
                     Text(screen.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight =
-                                if (currentRoute == screen.route)
-                                    FontWeight.ExtraBold
-                                else
-                                    FontWeight.Normal,
+                            if (currentRoute == screen.route)
+                                FontWeight.ExtraBold
+                            else
+                                FontWeight.Normal,
                             fontSize = 16.sp
                         )
                     )},
