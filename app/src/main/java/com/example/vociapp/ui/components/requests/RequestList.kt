@@ -36,8 +36,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
@@ -89,7 +89,7 @@ fun RequestList(
                                     },
                                     positionalThreshold = { totalDistance ->
                                         // Set a threshold to trigger dismissal (e.g., 50% of the distance)
-                                        totalDistance * 0.2f
+                                        totalDistance * 0.4f
                                     }
                                 )
                             }
@@ -130,6 +130,8 @@ fun RequestList(
                                                 modifier = Modifier
                                                     .size(32.dp)
                                             )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Segna come fatta", color = Color.White)
                                         }
                                     }
                                     if(filterOption == RequestStatus.DONE){
@@ -148,6 +150,8 @@ fun RequestList(
                                                 modifier = Modifier
                                                     .size(32.dp)
                                             )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Elimina", color = Color.White)
                                         }
                                     }
                                 },

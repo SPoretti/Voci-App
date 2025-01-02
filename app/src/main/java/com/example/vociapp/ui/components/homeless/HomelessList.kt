@@ -36,8 +36,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.types.AuthState
-import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.currentRoute
@@ -55,15 +55,15 @@ fun HomelessList(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
     val isLoggedIn by authViewModel.authState.collectAsState()
 
     val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value?.id)}
     val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
 
-    var currentRoute = currentRoute(navController = navController)
+    val currentRoute = currentRoute(navController = navController)
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn is AuthState.Authenticated){
@@ -112,7 +112,7 @@ fun HomelessList(
                                                 newValue == SwipeToDismissBoxValue.StartToEnd
                                             },
                                             positionalThreshold = { totalDistance ->
-                                                totalDistance * 0.2f
+                                                totalDistance * 0.4f
                                             }
                                         )
                                     }
@@ -144,6 +144,8 @@ fun HomelessList(
                                                     tint = Color.White,
                                                     modifier = Modifier.size(24.dp)
                                                 )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text("Aggiorna", color = Color.White)
                                             }
                                         },
                                         modifier = Modifier

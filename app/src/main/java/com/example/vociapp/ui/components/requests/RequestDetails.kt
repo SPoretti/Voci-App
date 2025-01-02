@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.ui.viewmodels.HomelessViewModel

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("com.android.application")
+    id("kotlin-kapt")
 }
 
 android {
@@ -42,7 +43,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation (libs.gson)
+    implementation ("androidx.work:work-runtime-ktx:2.9.1")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -53,6 +55,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,8 +76,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.material3)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    // Annotation processor for Room
+    kapt(libs.androidx.room.compiler)
     implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    //implementation(libs.converter.gson)
     implementation("com.mapbox.maps:android:11.9.0")
     implementation("com.mapbox.extension:maps-compose:11.9.0")
     implementation("com.mapbox.search:autofill:2.7.0")

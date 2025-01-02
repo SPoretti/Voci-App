@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.SortButtons
@@ -35,8 +35,8 @@ fun RequestsHistoryScreen(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
-    val requestViewModel = serviceLocator.getRequestViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requests.collectAsState()
 
 
@@ -46,7 +46,7 @@ fun RequestsHistoryScreen(
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
     var showDialog by remember { mutableStateOf(false) }
-    var selectedRequest: Request by remember {
+    val selectedRequest: Request by remember {
         mutableStateOf(
             Request(
                 id = "null",

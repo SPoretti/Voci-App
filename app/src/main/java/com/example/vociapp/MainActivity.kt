@@ -1,5 +1,6 @@
 package com.example.vociapp
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +11,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.data.util.NetworkConnectivityListener
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.di.ServiceLocator
 import com.example.vociapp.ui.components.BottomBar
@@ -31,9 +32,11 @@ import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.theme.VociAppTheme
 import com.google.firebase.firestore.FirebaseFirestore
-import android.Manifest
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var networkConnectivityListener: NetworkConnectivityListener
+
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -63,6 +66,8 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
+        networkConnectivityListener.startMonitoring()
         Handler(Looper.getMainLooper()).postDelayed({
             // Check and request notification permission
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
@@ -89,7 +94,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val serviceLocator = remember {
                 val firestore = FirebaseFirestore.getInstance()
-                ServiceLocator.initialize(firestore)
+                ServiceLocator.initialize(applicationContext, firestore)
                 ServiceLocator.getInstance()
             }
 
@@ -106,7 +111,7 @@ class MainActivity : ComponentActivity() {
                         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
                     ) { innerPadding ->
 
-                        val authState by serviceLocator.getAuthViewModel().authState.collectAsState()
+                        val authState by serviceLocator.obtainAuthViewModel().authState.collectAsState()
 
                         LaunchedEffect(authState) {
                             when (authState) {
@@ -134,5 +139,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Stop monitoring connectivity when the activity is destroyed
+        networkConnectivityListener.stopMonitoring()
     }
 }

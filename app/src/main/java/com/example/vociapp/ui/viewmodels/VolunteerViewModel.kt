@@ -1,9 +1,10 @@
 package com.example.vociapp.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.repository.VolunteerRepository
-import com.example.vociapp.data.types.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ class VolunteerViewModel @Inject constructor(
     val snackbarMessage: StateFlow<String> = _snackbarMessage
 
     private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
+    val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
 
     private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
@@ -40,13 +42,16 @@ class VolunteerViewModel @Inject constructor(
         firebaseAuth.addAuthStateListener { auth ->
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
+                Log.d("AuthStateListener", "User is logged in: ${firebaseUser.email}")
                 viewModelScope.launch {
                     val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
+                    Log.d("AuthStateListener", "Volunteer ID: $volunteerId")
                     if (volunteerId != null){
                         _currentUser.value =
                             Volunteer(email = firebaseUser.email!!, id = volunteerId)
                         fetchUserPreferences(volunteerId)
                     }
+                    fetchVolunteers()
                 }
             } else {
                 _currentUser.value = null // Update MutableStateFlow
@@ -55,13 +60,13 @@ class VolunteerViewModel @Inject constructor(
     }
 
     init {
+        fetchVolunteers()
         getVolunteerById(id = "")
     }
 
     fun getVolunteerById(id: String) {
         volunteerRepository.getVolunteerById(id)
             .onEach { result ->
-                _volunteers.value = result
                 if (result is Resource.Success && result.data != null) {
                     _currentVolunteer.value = result.data
                 }
@@ -106,8 +111,6 @@ class VolunteerViewModel @Inject constructor(
         return _currentVolunteer.value
     }
 
-
-
     fun addVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
             val result = volunteerRepository.addVolunteer(volunteer)
@@ -120,11 +123,10 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-
     fun updateVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
             val result = volunteerRepository.updateVolunteer(volunteer)
-            when (result) {
+            when (result){
                 is Resource.Success -> {
                     // Request updated successfully, you might want to refresh the requests list
                     getVolunteerById(volunteer.id)
@@ -136,6 +138,12 @@ class VolunteerViewModel @Inject constructor(
 
                 is Resource.Loading -> TODO()
             }
+        }
+    }
+
+    fun fetchVolunteers() {
+        viewModelScope.launch {
+            volunteerRepository.fetchVolunteersFromFirestoreToRoom()
         }
     }
 

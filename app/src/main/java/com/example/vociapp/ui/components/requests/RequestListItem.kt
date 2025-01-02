@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -31,8 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.ui.components.iconCategoryMap
@@ -53,8 +52,7 @@ fun RequestListItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(navController, request) }
-            .height(100.dp),
+            .clickable { onClick(navController, request) },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 4.dp,
@@ -66,26 +64,24 @@ fun RequestListItem(
                 .fillMaxSize(),
         ) {
 
-            if (request.status == RequestStatus.TODO) {
-                Box(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(48.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                        .align(Alignment.CenterVertically)
-                ) {
-                    Icon(
-                        painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
-                        contentDescription = "Request icon",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.Center)
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(48.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = CircleShape
                     )
-                }
+                    .align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    painter = painterResource(id = iconCategoryMap[request.iconCategory]!!),
+                    contentDescription = "Request icon",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.Center)
+                )
             }
 
             Column(

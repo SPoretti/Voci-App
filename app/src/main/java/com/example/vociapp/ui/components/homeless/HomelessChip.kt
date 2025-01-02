@@ -2,7 +2,6 @@ package com.example.vociapp.ui.components.homeless
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,11 +18,13 @@ import androidx.compose.ui.unit.dp
 fun HomelessChip(
     text: String,
     onClick: () -> Unit,
-    imageVector: ImageVector? = null
+    imageVector: ImageVector? = null,
+    modifier: Modifier = Modifier
 ) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
@@ -43,7 +44,7 @@ fun HomelessChip(
                 style = MaterialTheme.typography.bodySmall,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
-                modifier = Modifier.widthIn(max = 100.dp)
+                //modifier = Modifier.widthIn(max = 100.dp)
             )
         }
     }

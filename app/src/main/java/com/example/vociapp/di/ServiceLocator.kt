@@ -1,10 +1,14 @@
 package com.example.vociapp.di
 
+import android.content.Context
+import com.example.vociapp.data.local.RoomDataSource
+import com.example.vociapp.data.local.database.VociAppRoomDatabase
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.repository.UpdatesRepository
 import com.example.vociapp.data.repository.VolunteerRepository
+import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
@@ -12,13 +16,13 @@ import com.example.vociapp.ui.viewmodels.UpdatesViewModel
 import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ServiceLocator(firestore: FirebaseFirestore) {
+class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     companion object {
         private lateinit var instance: ServiceLocator
         private lateinit var authViewModel: AuthViewModel
 
-        fun initialize(firestore: FirebaseFirestore) {
-            instance = ServiceLocator(firestore)
+        fun initialize(context: Context, firestore: FirebaseFirestore) {
+            instance = ServiceLocator(context, firestore)
             authViewModel = AuthViewModel()
         }
 
@@ -30,31 +34,67 @@ class ServiceLocator(firestore: FirebaseFirestore) {
         }
     }
 
-    fun getRequestRepository(): RequestRepository = instance.requestRepository
-    fun getRequestViewModel(): RequestViewModel = instance.requestViewModel
+    private val roomDatabase: VociAppRoomDatabase by lazy {
+        VociAppRoomDatabase.getDatabase(context)
+    }
 
-    fun getUpdatesRepository(): UpdatesRepository = instance.updatesRepository
-    fun getUpdatesViewModel(): UpdatesViewModel = instance.updatesViewModel
+    private val syncQueueDao = roomDatabase.syncQueueDao()
 
-    fun getHomelessRepository(): HomelessRepository = instance.homelessRepository
-    fun getHomelessViewModel(): HomelessViewModel = instance.homelessViewModel
+    private val roomDataSource: RoomDataSource = RoomDataSource(
+        homelessDao = roomDatabase.homelessDao(),
+        volunteerDao = roomDatabase.volunteerDao(),
+        requestDao = roomDatabase.requestDao(),
+        updateDao = roomDatabase.updateDao(),
+        syncQueueDao = syncQueueDao
+    )
 
-    fun getVolunteerRepository(): VolunteerRepository = instance.volunteerRepository
-    fun getVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
+    private val networkManager: NetworkManager = NetworkManager(
+        context = context
+    )
 
-    fun getAuthViewModel(): AuthViewModel = authViewModel
+    // Repositories and ViewModels
+    private val homelessRepository: HomelessRepository = HomelessRepository(
+        firestoreDataSource = FirestoreDataSource(firestore),
+        roomDataSource = roomDataSource,
+        networkManager = networkManager,
+        syncQueueDao = syncQueueDao
+    )
 
-    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore))
-    private val requestViewModel: RequestViewModel = RequestViewModel(requestRepository)
-
-    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore))
-    private val updatesViewModel: UpdatesViewModel = UpdatesViewModel(updatesRepository)
-
-    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore))
-    private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
-
-    private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore))
     private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
 
+    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
+
+    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val requestViewModel: RequestViewModel by lazy {
+        RequestViewModel(requestRepository)
+    }
+    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val updatesViewModel: UpdatesViewModel by lazy{
+        UpdatesViewModel(updatesRepository)
+    }
+
+    // Getters for repositories and view models
+    fun obtainRequestRepository(): RequestRepository = instance.requestRepository
+    fun obtainRequestViewModel(): RequestViewModel = instance.requestViewModel
+
+    fun obtainUpdatesRepository(): UpdatesRepository = instance.updatesRepository
+    fun obtainUpdatesViewModel(): UpdatesViewModel = instance.updatesViewModel
+
+    fun obtainHomelessRepository(): HomelessRepository = instance.homelessRepository
+    fun obtainHomelessViewModel(): HomelessViewModel = instance.homelessViewModel
+
+    fun obtainVolunteerRepository(): VolunteerRepository = instance.volunteerRepository
+    fun obtainVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
+
+    fun obtainAuthViewModel(): AuthViewModel = authViewModel
+
+    fun fetchAllData(){
+        homelessViewModel.fetchHomelesses()
+        volunteerViewModel.fetchVolunteers()
+        requestViewModel.fetchRequests()
+        updatesViewModel.fetchUpdates()
+    }
 }
+
 

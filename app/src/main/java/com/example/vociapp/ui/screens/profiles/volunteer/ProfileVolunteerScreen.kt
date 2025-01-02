@@ -30,7 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileInfoItem
@@ -38,7 +38,7 @@ import com.example.vociapp.ui.components.ProfileInfoItem
 @Composable
 fun ProfileVolunteerScreen(creatorId: String?) {
     val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     LaunchedEffect(creatorId) {
         creatorId?.let {

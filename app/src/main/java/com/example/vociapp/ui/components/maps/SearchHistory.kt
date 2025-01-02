@@ -6,8 +6,8 @@ import com.mapbox.search.ServiceProvider
 import com.mapbox.search.common.CompletionCallback
 import com.mapbox.search.record.HistoryRecord
 import com.mapbox.search.ui.view.SearchResultAdapterItem
-import com.mapbox.search.ui.view.UiError
 import com.mapbox.search.ui.view.SearchResultsView
+import com.mapbox.search.ui.view.UiError
 
 @Composable
 fun ShowSearchHistory() {
