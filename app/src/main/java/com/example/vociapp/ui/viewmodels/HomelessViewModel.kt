@@ -3,8 +3,8 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.repository.HomelessRepository
-import com.example.vociapp.data.types.Homeless
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,12 +36,19 @@ class HomelessViewModel @Inject constructor(
     val homelessNames: StateFlow<Map<String, String>> = _homelessNames.asStateFlow()
 
     init {
+        fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
         updateSearchQuery("")
     }
 
     private var searchJob: Job? = null
+
+    fun fetchHomelesses() {
+        viewModelScope.launch {
+            homelessRepository.fetchHomelessesFromFirestoreToRoom()
+        }
+    }
 
     fun updateSearchQuery(query: String) {
         searchJob?.cancel()
@@ -58,7 +65,7 @@ class HomelessViewModel @Inject constructor(
 
     private fun filterHomelessPeople(query: String, homelessList: List<Homeless>): Resource<List<Homeless>> {
         return if (homelessList.isEmpty()) {
-            Resource.Error("Nessun senzatetto trovato")
+            Resource.Error("Nessun risultato")
         } else {
             val filteredList = homelessList.filter { homeless ->
                 homeless.name.contains(query, ignoreCase = true) or
@@ -77,7 +84,7 @@ class HomelessViewModel @Inject constructor(
     }
 
     suspend fun getHomeless(homelessID: String): Homeless? {
-        return homelessRepository.getHomeless(homelessID)
+        return homelessRepository.getHomelessById(homelessID)
     }
 
     fun addHomeless(homeless: Homeless) {

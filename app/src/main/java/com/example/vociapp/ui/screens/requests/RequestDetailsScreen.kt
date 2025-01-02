@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.RequestStatus
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.data.util.Resource
@@ -62,7 +62,7 @@ fun RequestDetailsScreen(
 ) {
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     val serviceLocator = LocalServiceLocator.current
-    val requestViewModel = serviceLocator.getRequestViewModel()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
 
     LaunchedEffect(key1 = requestId) {
         Log.d("RequestDetailsScreen", "Request ID: $requestId")
@@ -71,7 +71,7 @@ fun RequestDetailsScreen(
 
     val requestResource by requestViewModel.requestById.collectAsState()
 
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
     var requestForDialog: Request? by remember { mutableStateOf(null) }

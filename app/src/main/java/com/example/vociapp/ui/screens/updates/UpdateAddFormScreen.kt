@@ -32,17 +32,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Update
-import com.example.vociapp.data.types.UpdateStatus
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Update
+import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.components.updates.FormText
 import com.example.vociapp.ui.components.updates.StatusLED
 import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.UpdatesViewModel
+import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @Composable
 fun UpdateAddFormScreen(
@@ -54,9 +54,9 @@ fun UpdateAddFormScreen(
     var description by remember { mutableStateOf("") }
 
     val serviceLocator = LocalServiceLocator.current
-    val updatesViewModel = serviceLocator.getUpdatesViewModel()
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val updatesViewModel = serviceLocator.obtainUpdatesViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
     var homeless by remember { mutableStateOf<Homeless?>(null) }
 
@@ -213,7 +213,7 @@ fun UpdateAddFormScreen(
                 onClick = {
                     onSend(
                         updatesViewModel,
-                        authViewModel,
+                        volunteerViewModel,
                         title,
                         description,
                         homeless,
@@ -252,7 +252,7 @@ fun UpdateAddFormScreen(
 
 fun onSend(
     updatesViewModel: UpdatesViewModel,
-    authViewModel: AuthViewModel,
+    volunteerViewModel: VolunteerViewModel,
     title: String,
     description: String,
     homeless: Homeless?,
@@ -278,13 +278,13 @@ fun onSend(
     val update = Update(
         title = title,
         description = description,
-        homelessID = homeless?.id ?: "",
-        creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
+        homelessID = homeless!!.id,
+        creatorId = volunteerViewModel.currentUser.value!!.id,
         status = updateStatus
     )
     updatesViewModel.addUpdate(update)
 
-    homeless?.status = updateStatus
+    homeless.status = updateStatus
     if(homeless != null){
         homelessViewModel.updateHomeless(homeless)
     }

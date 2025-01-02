@@ -2,8 +2,8 @@ package com.example.vociapp.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.repository.UpdatesRepository
-import com.example.vociapp.data.types.Update
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,10 +24,11 @@ class UpdatesViewModel @Inject constructor(
     val updates: StateFlow<Resource<List<Update>>> = _updates.asStateFlow()
 
     init {
+        fetchUpdates()
         getUpdates()
     }
 
-    fun getUpdates() {
+    private fun getUpdates() {
         updatesRepository.getUpdates()
             .onEach { result ->
                 _updates.value = result
@@ -52,5 +53,9 @@ class UpdatesViewModel @Inject constructor(
         }
     }
 
-
+    fun fetchUpdates(){
+        viewModelScope.launch {
+            updatesRepository.fetchUpdatesFromFirestoreToRoom()
+        }
+    }
 }

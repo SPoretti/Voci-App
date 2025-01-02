@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.navigation.Screens
@@ -61,8 +61,8 @@ fun SignUpScreen(
     var errorMessage by remember { mutableStateOf("") }
     var isSigningUp by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     Box(
         modifier = Modifier
@@ -204,7 +204,7 @@ fun SignUpScreen(
                 errorMessage = result.message
             } else {
                 val id: String = UUID.randomUUID().toString()
-                val volunteer = Volunteer(id, name, surname, nickname, password, phoneNumber, email)
+                val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
                 volunteerViewModel.getVolunteerById(id)
 

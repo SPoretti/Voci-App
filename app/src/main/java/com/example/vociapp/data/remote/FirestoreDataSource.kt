@@ -1,10 +1,10 @@
 package com.example.vociapp.data.remote
 
 import android.util.Log
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Request
-import com.example.vociapp.data.types.Update
-import com.example.vociapp.data.types.Volunteer
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.Update
+import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -32,7 +32,7 @@ class FirestoreDataSource @Inject constructor(
                 .toObjects(Request::class.java)
             Resource.Success(requests)
         } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
+            Resource.Error(e.message ?: "Error fetching requests from remote data")
         }
     }
 
@@ -167,12 +167,26 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    fun deleteHomeless(id: Any) {
+        TODO()//if needed
+    }
+    //----------------------------------TODO()-------------------------------
     // ------------------------------- Volunteer Functions ----------------------------------
 
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
         return try {
             val documentReference = firestore.collection("volunteers").add(volunteer).await()
             Resource.Success(documentReference.id)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun getVolunteers(): Resource<List<Volunteer>>{
+        return try {
+            val volunteers = firestore.collection("volunteers").get().await()
+                .toObjects(Volunteer::class.java)
+            Resource.Success(volunteers)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
@@ -263,13 +277,11 @@ class FirestoreDataSource @Inject constructor(
                 val documentSnapshot = firestore
                     .collection("volunteers")
                     .document(volunteerDocId)
-                    .collection("userPreferences")
-                    .document("preferences")
                     .get()
                     .await()
                 if (documentSnapshot.exists()) {
-                    val preferredItemIds = documentSnapshot.get("preferredItemIds") as? List<String> ?: emptyList()
-                    return Resource.Success(preferredItemIds)
+                    val preferredHomelessIds = documentSnapshot.get("preferredHomelessIds") as? List<String> ?: emptyList()
+                    return Resource.Success(preferredHomelessIds)
                 } else {
                     return Resource.Success(emptyList())
                 }
@@ -281,7 +293,7 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredItemIds: List<String>): Resource<Unit> {
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
         try {
             val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
             if (volunteerQuery.documents.isNotEmpty()) {
@@ -289,9 +301,7 @@ class FirestoreDataSource @Inject constructor(
                 firestore
                     .collection("volunteers")
                     .document(volunteerDocId)
-                    .collection("userPreferences")
-                    .document("preferences")
-                    .set(mapOf("preferredItemIds" to preferredItemIds))
+                    .update(mapOf("preferredHomelessIds" to preferredHomelessIds))
                     .await()
                 return Resource.Success(Unit)
             } else {
@@ -301,6 +311,8 @@ class FirestoreDataSource @Inject constructor(
             return Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
+
+
 
     // ------------------------------- Updates Functions ----------------------------------
 
@@ -321,6 +333,14 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
+    }
+
+    fun updateUpdate(data: Update?) {
+        TODO() //if needed
+    }
+
+    fun deleteUpdate(id: String) {
+        TODO() //if needed
     }
 
 }

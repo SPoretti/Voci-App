@@ -49,8 +49,8 @@ fun UserProfileScreen(
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val authViewModel = serviceLocator.getAuthViewModel()
-    val volunteerViewModel = serviceLocator.getVolunteerViewModel()
+    val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val currentUser = authViewModel.getCurrentUserProfile()
     Log.d("ProfileVolunteerScreen", "photoUrl: ${currentUser?.photoUrl}")
 

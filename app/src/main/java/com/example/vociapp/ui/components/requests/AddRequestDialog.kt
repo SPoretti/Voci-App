@@ -2,10 +2,6 @@ package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,26 +34,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.types.Homeless
-import com.example.vociapp.data.types.Request
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.IconCategory
 import com.example.vociapp.ui.components.IconSelector
 import com.example.vociapp.ui.components.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.homeless.HomelessListItem
 import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.viewmodels.AuthViewModel
+import com.example.vociapp.ui.state.HomelessItemUiState
+import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AddRequestDialog(
     onDismiss: () -> Unit,
     onAdd: (Request) -> Unit,
-    authViewModel: AuthViewModel,
+    volunteerViewModel: VolunteerViewModel,
     navController: NavHostController,
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.getHomelessViewModel()
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
     var requestTitle by remember { mutableStateOf("") }
     var requestDescription by remember { mutableStateOf("") }
@@ -93,20 +91,30 @@ fun AddRequestDialog(
         text = {
             when (step) {
                 1 -> {
+                    selectedHomeless = null
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        Text(
+                            text = "Seleziona il ricevente",
+                            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
                         SearchBar(
                             modifier = Modifier.fillMaxWidth(),
                             onSearch = { homelessViewModel.updateSearchQuery(it) },
-                            placeholderText = "Cerca un senzatetto...",
+                            placeholderText = "Cerca...",
                             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                             onClick = { },
                             onDismiss = { },
                             navController = navController,
-                            onLeadingIconClick = {  }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -123,6 +131,7 @@ fun AddRequestDialog(
                             onListItemClick = { homeless ->
                                 homelessID = homeless.id
                                 selectedHomeless = homeless
+                                step++
                             },
                             selectedHomeless = selectedHomeless,
                             navController = navController,
@@ -136,6 +145,15 @@ fun AddRequestDialog(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        HomelessListItem(
+                            homelessState = HomelessItemUiState(homeless = selectedHomeless!!),
+                            showPreferredIcon = false,
+                            onClick = {step--},
+                            isSelected = true,
+                            modifier = Modifier.clip(MaterialTheme.shapes.small)
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         OutlinedTextField(
                             value = requestTitle,
@@ -163,13 +181,6 @@ fun AddRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         IconSelector(
                             onIconSelected = { iconCategory ->
                                 selectedIconCategory = iconCategory
@@ -178,24 +189,13 @@ fun AddRequestDialog(
                                 .fillMaxWidth()
                                 .align(Alignment.CenterHorizontally)
                         )
-
                     }
                 }
             }
         },
         confirmButton = {
             when(step) {
-                1 -> {
-                    Button(
-                        onClick = {
-                            step = 2
-                        },
-                        modifier = Modifier
-                            .hapticFeedback(),
-                    ) {
-                        Text("Avanti")
-                    }
-                }
+                1 -> {  }
                 2 -> {
                     Button(
                         onClick = {
@@ -204,7 +204,7 @@ fun AddRequestDialog(
                                 title = requestTitle,
                                 description = requestDescription,
                                 homelessID = homelessID,
-                                creatorId = authViewModel.getCurrentUserProfile()?.displayName ?: "User",
+                                creatorId = volunteerViewModel.currentUser.value!!.id,
                                 iconCategory = selectedIconCategory
                             )
                             onAdd(newRequest)
@@ -249,7 +249,6 @@ fun AddRequestDialog(
                     }
                 }
             }
-
         },
         containerColor = MaterialTheme.colorScheme.background,
         textContentColor = MaterialTheme.colorScheme.onBackground,
