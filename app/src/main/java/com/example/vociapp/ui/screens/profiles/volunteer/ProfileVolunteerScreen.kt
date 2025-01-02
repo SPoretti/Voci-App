@@ -46,7 +46,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
         }
     }
 
-    val specificVolunteerState by volunteerViewModel.specificVolunteer.collectAsState()
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     Card(
         modifier = Modifier
@@ -66,13 +66,13 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                when (specificVolunteerState) {
+                when (volunteerResource) {
                     is Resource.Loading -> {
                         Text(text = "Caricamento...", style = MaterialTheme.typography.headlineMedium)
                     }
 
                     is Resource.Success -> {
-                        val volunteer = (specificVolunteerState as Resource.Success<Volunteer>).data
+                        val volunteer = volunteerResource.data
 
                         // Profile picture placeholder
                         Box(
@@ -123,7 +123,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                         ProfileInfoItem(
                             icon = Icons.Default.Phone,
                             label = "Numero di telefono",
-                            value = volunteer?.phoneNumber ?: "Numero di telefono non disponibile"
+                            value = volunteer?.phone_number ?: "Numero di telefono non disponibile"
                         )
                     }
 
@@ -135,7 +135,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "${(specificVolunteerState as Resource.Error).message}",
+                                text = "${(volunteerResource as Resource.Error).message}",
                                 style = MaterialTheme.typography.headlineMedium
                             )
                         }
