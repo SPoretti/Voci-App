@@ -77,11 +77,11 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
     }
 
-    suspend fun updateUserProfile(displayName: String?): AuthResult {
-        Log.d("AuthViewModel", "updateUserProfile called with displayName: $displayName")
+    suspend fun updateUserProfile(displayName: String?, photoUrl: String?): AuthResult {
         return try {
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(displayName)
+                .setPhotoUri(photoUrl?.let { android.net.Uri.parse(it) })
                 .build()
             auth.currentUser?.updateProfile(profileUpdates)?.await()
             AuthResult.Success

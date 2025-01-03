@@ -19,7 +19,8 @@ fun ProfileTextField(
     label: String,
     icon: ImageVector,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = false
 ) {
     OutlinedTextField(
         value = value,
@@ -34,6 +35,7 @@ fun ProfileTextField(
         },
         placeholder = {Text(placeholder)},
         modifier = Modifier.fillMaxWidth(),
+        singleLine = singleLine,
         shape = RoundedCornerShape(8.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,

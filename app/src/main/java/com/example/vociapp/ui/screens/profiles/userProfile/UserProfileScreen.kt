@@ -60,7 +60,7 @@ fun UserProfileScreen(
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
-    if(currentProfile != null){
+    if (currentProfile != null) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +79,11 @@ fun UserProfileScreen(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth().background(Color.Transparent)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Transparent)
+                    ) {
 
                         // Edit button
                         IconButton(
@@ -145,21 +149,34 @@ fun UserProfileScreen(
                                 is Resource.Success -> {
                                     val volunteer = volunteerResource.data
 
-                                    val initials = "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+                                    val initials =
+                                        "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
 
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier
-                                            .size(130.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                    ) {
-                                        Text(
-                                            text = initials,
-                                            style = MaterialTheme.typography.headlineMedium,
-                                            fontWeight = FontWeight.Medium,
-                                            fontSize = 60.sp
+                                    if (currentProfile.photoUrl != null) {
+                                        Log.d("ProfilePicture", "URL: ${currentProfile.photoUrl}")
+                                        AsyncImage(
+                                            model = currentProfile.photoUrl,
+                                            contentDescription = "Profile Picture",
+                                            modifier = Modifier
+                                                .size(120.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
                                         )
+                                    } else {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .size(130.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primary)
+                                        ) {
+                                            Text(
+                                                text = initials,
+                                                style = MaterialTheme.typography.headlineMedium,
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 60.sp
+                                            )
+                                        }
                                     }
 
                                     Text(
@@ -170,11 +187,11 @@ fun UserProfileScreen(
 
                                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                                        ProfileInfoItem(
-                                            icon = Icons.Default.Person,
-                                            label = "Volontario",
-                                            value = "${volunteer.name} ${volunteer.surname}",
-                                        )
+                                    ProfileInfoItem(
+                                        icon = Icons.Default.Person,
+                                        label = "Volontario",
+                                        value = "${volunteer.name} ${volunteer.surname}",
+                                    )
 
                                     // email
                                     ProfileInfoItem(
@@ -190,12 +207,11 @@ fun UserProfileScreen(
                                         value = volunteer.phone_number
                                     )
 
-
-
                                     // Edit Profile Section
                                     Button(
                                         onClick = {
-                                            navController.navigate(Screens.UpdateUserProfile.route) },
+                                            navController.navigate(Screens.UpdateUserProfile.route)
+                                        },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(top = 16.dp),
@@ -204,6 +220,7 @@ fun UserProfileScreen(
                                         Text("Modifica profilo")
                                     }
                                 }
+
                                 is Resource.Error -> {
                                     Text(
                                         text = "Errore: ${volunteerResource.message}",
