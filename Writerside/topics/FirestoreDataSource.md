@@ -1,3 +1,3 @@
-# FirestoreDataSource
+# Firestore [DataSource]
 
 Start typing here...

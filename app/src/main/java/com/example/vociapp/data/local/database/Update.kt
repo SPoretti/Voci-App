@@ -3,7 +3,7 @@ package com.example.vociapp.data.local.database
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import java.util.UUID
 
 // Update entity, used for room database, it has two foreign keys: homelessID and creatorId

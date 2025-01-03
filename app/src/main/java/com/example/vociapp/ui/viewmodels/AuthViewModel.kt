@@ -2,7 +2,7 @@ package com.example.vociapp.ui.viewmodels
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.data.util.AuthState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest

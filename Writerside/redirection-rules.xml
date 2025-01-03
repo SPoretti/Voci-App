@@ -10,4 +10,129 @@
         <description>Created after removal of "Test" from Instance Name</description>
         <accepts>Test.html</accepts>
     </rule>
+    <rule id="48e97328">
+        <description>Created after removal of "Resource" from Voci App Documentation</description>
+        <accepts>Resource.html</accepts>
+    </rule>
+    <rule id="13753c6e">
+        <description>Created after removal of "Utils" from Voci App Documentation</description>
+        <accepts>Utils.html</accepts>
+    </rule>
+    <rule id="7b2d527f">
+        <description>Created after removal of "RequestRepository" from Voci App Documentation</description>
+        <accepts>RequestRepository.html</accepts>
+    </rule>
+    <rule id="1c59d516">
+        <description>Created after removal of "Repositories" from Voci App Documentation</description>
+        <accepts>Repositories.html</accepts>
+    </rule>
+    <rule id="a9836d9">
+        <description>Created after removal of "FirestoreDataSource" from Voci App Documentation</description>
+        <accepts>FirestoreDataSource.html</accepts>
+    </rule>
+    <rule id="37b82df">
+        <description>Created after removal of "Remote" from Voci App Documentation</description>
+        <accepts>Remote.html</accepts>
+    </rule>
+    <rule id="37d709cf">
+        <description>Created after removal of "Model" from Voci App Documentation</description>
+        <accepts>Model.html</accepts>
+    </rule>
+    <rule id="2c9c99ba">
+        <description>Created after removal of "Request" from Voci App Documentation</description>
+        <accepts>Request.html</accepts>
+    </rule>
+    <rule id="b5673ca">
+        <description>Created after removal of "Data" from Voci App Documentation</description>
+        <accepts>Data.html</accepts>
+    </rule>
+    <rule id="45ff1263">
+        <description>Created after removal of "Bottom Navigation Bar (BottomBar.kt)" from Voci App Documentation
+        </description>
+        <accepts>BottomBar.html</accepts>
+    </rule>
+    <rule id="2c519919">
+        <description>Created after removal of "Screens (Screens.kt)" from Voci App Documentation</description>
+        <accepts>Screens.html</accepts>
+    </rule>
+    <rule id="6d972939">
+        <description>Created after removal of "Navigation Graph (NavGraph.kt)" from Voci App Documentation</description>
+        <accepts>NavGraph.html</accepts>
+    </rule>
+    <rule id="594ce67e">
+        <description>Created after removal of "Sign-In Screen (SignInScreen.kt)" from Voci App Documentation
+        </description>
+        <accepts>SignInScreen.html</accepts>
+    </rule>
+    <rule id="3a9bc454">
+        <description>Created after removal of "Sign-Up Screen (SignUpScreen.kt)" from Voci App Documentation
+        </description>
+        <accepts>SignUpScreen.html</accepts>
+    </rule>
+    <rule id="26b8a738">
+        <description>Created after removal of "User Profile Screen (UserProfileScreen.kt)" from Voci App Documentation
+        </description>
+        <accepts>UserProfileScreen.html</accepts>
+    </rule>
+    <rule id="73d8c71e">
+        <description>Created after removal of "Update User Profile Screen (UpdateUserProfileScreen.kt)" from Voci App
+            Documentation
+        </description>
+        <accepts>UpdateUserProfileScreen.html</accepts>
+    </rule>
+    <rule id="68df542c">
+        <description>Created after removal of "Typography (Type.kt)" from Voci App Documentation</description>
+        <accepts>Type.html</accepts>
+    </rule>
+    <rule id="7d90e9f">
+        <description>Created after removal of "Theme (Theme.kt)" from Voci App Documentation</description>
+        <accepts>Theme.html</accepts>
+    </rule>
+    <rule id="d3845ec">
+        <description>Created after removal of "Color Palette" from Voci App Documentation</description>
+        <accepts>Colors.html</accepts>
+    </rule>
+    <rule id="44c6de2">
+        <description>Created after removal of "HomelessViewModel" from Voci App Documentation</description>
+        <accepts>HomelessViewModel.html</accepts>
+    </rule>
+    <rule id="efcd3eb">
+        <description>Created after removal of "VolunteerViewModel" from Voci App Documentation</description>
+        <accepts>VolunteerViewModel.html</accepts>
+    </rule>
+    <rule id="4834ff03">
+        <description>Created after removal of "Authentication ViewModel (AuthViewModel.kt)" from Voci App
+            Documentation
+        </description>
+        <accepts>AuthViewModel.html</accepts>
+    </rule>
+    <rule id="413e46f7">
+        <description>Created after removal of "RequestsViewModel" from Voci App Documentation</description>
+        <accepts>RequestsViewModel.html</accepts>
+    </rule>
+    <rule id="73678cba">
+        <description>Created after removal of "Main Activity (MainActivity.kt)" from Voci App Documentation
+        </description>
+        <accepts>MainActivity.html</accepts>
+    </rule>
+    <rule id="521cbe5a">
+        <description>Created after removal of "Types" from Voci App Documentation</description>
+        <accepts>Types.html</accepts>
+    </rule>
+    <rule id="69b66766">
+        <description>Created after removal of "Main Activity [Activity]" from Voci App Documentation</description>
+        <accepts>Main-Activity-Activity.html</accepts>
+    </rule>
+    <rule id="69acdd65">
+        <description>Created after removal of "Maps [Components Package]" from Voci App Documentation</description>
+        <accepts>Maps-Package.html</accepts>
+    </rule>
+    <rule id="645fbd81">
+        <description>Created after removal of "Homeless [Components Package]" from Voci App Documentation</description>
+        <accepts>Homeless-Package.html</accepts>
+    </rule>
+    <rule id="351ba425">
+        <description>Created after removal of "Core [Package]" from Voci App Documentation</description>
+        <accepts>Core-Package.html</accepts>
+    </rule>
 </rules>

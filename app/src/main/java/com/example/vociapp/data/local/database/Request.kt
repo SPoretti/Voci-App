@@ -3,8 +3,8 @@ package com.example.vociapp.data.local.database
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.example.vociapp.data.types.Area
-import com.example.vociapp.ui.components.IconCategory
+import com.example.vociapp.data.util.Area
+import com.example.vociapp.data.util.IconCategory
 import java.util.UUID
 
 //Request entity, used for room database, it has two foreign keys: homelessID and creatorId

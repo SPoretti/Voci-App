@@ -38,8 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.DrawerContent
-import com.example.vociapp.ui.components.SearchBar
+import com.example.vociapp.ui.components.core.DrawerContent
+import com.example.vociapp.ui.components.core.SearchBar
 import com.example.vociapp.ui.components.homeless.AddHomelessDialog
 import com.example.vociapp.ui.components.homeless.HomelessList
 import com.example.vociapp.ui.components.utils.hapticFeedback
@@ -93,7 +93,6 @@ fun HomeScreen(
         homelessViewModel.getHomelesses()
         homelessViewModel.updateSearchQuery("")
     }
-
 
     ModalNavigationDrawer(
         drawerState = drawerState,
