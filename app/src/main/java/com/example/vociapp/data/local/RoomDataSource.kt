@@ -63,6 +63,17 @@ class RoomDataSource(
         return requestDao.getRequestById(requestId)
     }
 
+    fun getRequestsByHomelessId(homelessId: String): Flow<Resource<List<Request>>> = flow {
+        try {
+            emit(Resource.Loading()) // Indicate loading state
+            requestDao.getRequestsByHomelessId(homelessId).collect { requestList ->
+                emit(Resource.Success(requestList)) // Emit success with the fetched list
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
+        }
+    }
+
     // ------------------------------- Homeless Functions ----------------------------------
 
 
@@ -92,6 +103,14 @@ class RoomDataSource(
 
     suspend fun updateHomeless(homeless: Homeless){
         homelessDao.update(homeless)
+    }
+
+    suspend fun updateHomelessLocation(homelessID: String, location: String): Homeless {
+        // Qui devi recuperare l'Homeless dal database, aggiornare la posizione, e poi salvarlo.
+        val homeless = homelessDao.getHomelessById(homelessID) ?: throw Exception("Homeless not found")
+        val updatedHomeless = homeless.copy(location = location)
+        updateHomeless(updatedHomeless)
+        return updatedHomeless
     }
 
     suspend fun insertOrUpdateHomeless(homeless: Homeless) {
@@ -174,6 +193,17 @@ class RoomDataSource(
         try {
             emit(Resource.Loading()) // Indicate loading state
             updateDao.getAllUpdates().collect { updates ->
+                emit(Resource.Success(updates)) // Emit success with the fetched list
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
+        }
+    }
+
+    fun getUpdatesByHomelessId(homelessId: String): Flow<Resource<List<Update>>> = flow {
+        try {
+            emit(Resource.Loading()) // Indicate loading state
+            updateDao.getUpdatesByHomelessId(homelessId).collect { updates ->
                 emit(Resource.Success(updates)) // Emit success with the fetched list
             }
         } catch (e: Exception) {

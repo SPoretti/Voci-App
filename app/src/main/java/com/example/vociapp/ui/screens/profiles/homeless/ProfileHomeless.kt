@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -26,40 +27,62 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
+import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.components.requests.RequestList
+import com.example.vociapp.ui.components.updates.UpdateLastItem
+import com.example.vociapp.ui.components.updates.UpdateListDialog
+import com.example.vociapp.ui.components.homeless.AddAddressDialog
 
 @Composable
-fun ProfileHomelessScreen(homelessID: String?) {
+fun ProfileHomelessScreen(
+    navController: NavHostController,
+    homelessID: String?
+) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
     val homelessState by homelessViewModel.homelesses.collectAsState()
     val locationState by homelessViewModel.locationCoordinates.collectAsState()
 
-//    val requestViewModel = serviceLocator.obtainRequestViewModel()
-//    val requests by requestViewModel.requests.collectAsState()
-//    val requestsState by requestViewModel.requestsByHomelessId.collectAsState()
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
+    val requests by requestViewModel.requestsByHomelessId.collectAsState()
+    val selectedSortOption = SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) }
+
+    val updateViewModel = serviceLocator.obtainUpdatesViewModel()
+    val updates by updateViewModel.updatesByHomelessId.collectAsState()
+
+    var showUpdateListDialog by remember { mutableStateOf(false) }
+    var showAddAddressDialog by remember { mutableStateOf(false) }
+
 //    var showAddCommentDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(homelessID) {
         homelessID?.let {
             homelessViewModel.fetchHomelessDetailsById(it)
-//            requestViewModel.getRequestsByHomelessId(it)
+            requestViewModel.getRequestsByHomelessId(it)
+            updateViewModel.getUpdatesByHomelessId(it)
         }
     }
     Box(
@@ -85,12 +108,46 @@ fun ProfileHomelessScreen(homelessID: String?) {
                         val homeless = homelessList.firstOrNull()
                         if (homeless != null) {
                             InfoList(homeless)
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                             LocationFrame(locationState=locationState)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            //RequestsList(requestsState = requestsState)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            LastComment(homeless)
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Text(text = "Richieste Attive")
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp)
+                            ){
+                                Column {
+                                    RequestList(
+                                        requests = requests,
+                                        filterOption = RequestStatus.TODO,
+                                        sortOption = selectedSortOption,
+                                        navController = navController,
+                                        requestViewModel = requestViewModel,
+                                        homeLessViewModel = homelessViewModel
+                                    )
+                                }
+                            }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Text(text = "Aggiornamenti")
+                            Box(
+                                modifier = Modifier
+                                    .clickable { showUpdateListDialog = true },
+                            ) {
+                                if (showUpdateListDialog) {
+                                    UpdateListDialog(
+                                        onDismiss = { showUpdateListDialog = false },
+                                        updates = updates,
+                                        navController = navController,
+                                        updateViewModel = updateViewModel,
+                                        homelessViewModel = homelessViewModel
+                                    )
+                                }
+                                UpdateLastItem(
+                                    updates = updates,
+                                    navController = navController,
+                                    homelessViewModel = homelessViewModel
+                                )
+                            }
                             Spacer(modifier = Modifier.height(16.dp))
                         } else {
                             Text(text = "Senzatetto non trovato")
@@ -108,7 +165,7 @@ fun ProfileHomelessScreen(homelessID: String?) {
             }
         }
         FloatingActionButton(
-            onClick = { /*showAddCommentDialog = true*/ },
+            onClick = { showAddAddressDialog = true },
             elevation = FloatingActionButtonDefaults.elevation(50.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -120,21 +177,18 @@ fun ProfileHomelessScreen(homelessID: String?) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 4.dp)
             ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "Add comment",
-                    tint = MaterialTheme.colorScheme.onBackground
+                Icon(Icons.Filled.LocationOn, contentDescription = "Save Location", tint = MaterialTheme.colorScheme.onBackground)
+            }
+        }
+        if (showAddAddressDialog) {
+            if (homelessID != null) {
+                AddAddressDialog(
+                    onDismiss = { showAddAddressDialog = false },
+                    homelessId = homelessID,
+                    homelessViewModel = homelessViewModel
                 )
             }
         }
-//        if (showAddCommentDialog) {
-//            AddCommentDialog(
-//                onDismiss = { showAddCommentDialog = false },
-//                onAdd = { comment, date, volunteerId ->
-//
-//                }
-//            )
-//        }
     }
 }
 
@@ -149,7 +203,9 @@ fun InfoList(homeless: Homeless) {
             text = homeless.name,
             style = MaterialTheme.typography.headlineMedium
         )
-        Row{
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ){
             Text(
                 text = "Età: ${homeless.age}",
                 style = MaterialTheme.typography.bodyMedium
@@ -225,16 +281,6 @@ fun RequestsList(requestsState: Resource<List<Request>>) {
     }
 }
 
-@Composable
-fun LastComment(homeless: Homeless) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-
-    }
-}
-
 // MAPPA Ultima posizione del senzatetto
 @Composable
 fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
@@ -249,7 +295,7 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp),
+                        .height(200.dp),
                 ) {
                     CircularProgressIndicator()
                 }
@@ -280,8 +326,7 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
 @Composable
 fun MapboxMap(latitude: Double, longitude: Double) {
     val context = LocalContext.current
-    val token =
-        "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g"
+    val token = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g"
     val zoom = 14
     val size = "600x300"
     val pin = "pin-s+ff0000($longitude,$latitude)"
@@ -295,7 +340,7 @@ fun MapboxMap(latitude: Double, longitude: Double) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp)
+            .height(200.dp)
             .clickable {
                 val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude")
                 val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
