@@ -131,6 +131,15 @@ class HomelessRepository @Inject constructor(
         }
     }
 
+    suspend fun updateHomelessLocation(homelessID: String, location: String): Resource<Homeless> {
+        return try {
+            val updatedHomeless = roomDataSource.updateHomelessLocation(homelessID, location)
+            Resource.Success(updatedHomeless) // Avvolgi il risultato in Resource.Success
+        } catch (e: Exception) {
+            Resource.Error("Errore, dati NON salvati localmente: ${e.message}") // Restituisci Resource.Error in caso di errore
+        }
+    }
+
     suspend fun fetchHomelessesFromFirestoreToRoom(){
         if (networkManager.isNetworkConnected()){
             val firestoreHomelessListResource = firestoreDataSource.getHomelesses()

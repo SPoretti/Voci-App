@@ -162,7 +162,7 @@ fun NavGraph(
             }
         ) { backStackEntry ->
             val homelessId = backStackEntry.arguments?.getString("homelessId")
-            ProfileHomelessScreen(homelessId)
+            ProfileHomelessScreen(navController, homelessId)
         }
 
         // Updates Screens

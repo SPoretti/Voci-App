@@ -40,6 +40,9 @@ class HomelessViewModel @Inject constructor(
     private val _locationCoordinates = MutableStateFlow<Resource<Pair<Double, Double>>>(Resource.Loading())
     val locationCoordinates: StateFlow<Resource<Pair<Double, Double>>> = _locationCoordinates
 
+    private val _locationAddress = MutableStateFlow<Resource<String>>(Resource.Loading())
+    val locationAddress: StateFlow<Resource<String>> = _locationAddress
+
     init {
         fetchHomelesses()
         getHomelesses()
@@ -125,6 +128,18 @@ class HomelessViewModel @Inject constructor(
         getHomelesses()
     }
 
+    fun updateHomelessLocation(homelessID: String, location: String) {
+        viewModelScope.launch {
+            val result = homelessRepository.updateHomelessLocation(homelessID, location)
+            if (result is Resource.Success) {
+                _snackbarMessage.value = "Posizione aggiornata con successo!"
+                geocodeLocation(location)
+            } else if (result is Resource.Error) {
+                _snackbarMessage.value = "Errore durante l'aggiornamento della posizione: ${result.message}"
+            }
+        }
+    }
+
     private fun fetchHomelessNames() {
         viewModelScope.launch {
             homelessRepository.getHomelesses()
@@ -159,20 +174,24 @@ class HomelessViewModel @Inject constructor(
     }
 
     private suspend fun geocodeLocation(address: String) {
-        Log.d("Geocoding", "Geocoding address: $address")
         try {
             val response = geocodingClient.nominatimService.geocodeAddress(address)
-            Log.d("Geocoding", "Response: $response")
             response.firstOrNull()?.let {
                 _locationCoordinates.value = Resource.Success(Pair(it.lat.toDouble(), it.lon.toDouble()))
-                Log.d("Geocoding", "Success: ${it.lat}, ${it.lon}")
             } ?: run {
                 _locationCoordinates.value = Resource.Error("Indirizzo non trovato")
-                Log.e("Geocoding", "Address not found")
             }
         } catch (e: Exception) {
             _locationCoordinates.value = Resource.Error(e.message ?: "Errore di geocoding")
-            Log.e("Geocoding", "Geocoding error: ${e.message}")
+        }
+    }
+
+    suspend fun reverseGeocodeLocation(latitude: Double, longitude: Double) {
+        try {
+            val response = geocodingClient.nominatimService.reverseGeocode(latitude.toString(), longitude.toString())
+            _locationAddress.value = Resource.Success(response.display_name)
+        } catch (e: Exception) {
+            _locationAddress.value = Resource.Error(e.message ?: "Errore di geocoding")
         }
     }
 

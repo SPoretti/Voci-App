@@ -23,6 +23,9 @@ class UpdatesViewModel @Inject constructor(
     private val _updates = MutableStateFlow<Resource<List<Update>>>(Resource.Loading())
     val updates: StateFlow<Resource<List<Update>>> = _updates.asStateFlow()
 
+    private val _updatesByHomelessId = MutableStateFlow<Resource<List<Update>>>(Resource.Loading())
+    val updatesByHomelessId: StateFlow<Resource<List<Update>>> = _updatesByHomelessId.asStateFlow()
+
     init {
         fetchUpdates()
         getUpdates()
@@ -32,6 +35,14 @@ class UpdatesViewModel @Inject constructor(
         updatesRepository.getUpdates()
             .onEach { result ->
                 _updates.value = result
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun getUpdatesByHomelessId(homelessId: String) {
+        updatesRepository.getUpdatesByHomelessId(homelessId)
+            .onEach { result ->
+                _updatesByHomelessId.value = result
             }
             .launchIn(viewModelScope)
     }

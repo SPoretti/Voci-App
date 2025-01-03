@@ -28,6 +28,9 @@ class RequestViewModel @Inject constructor(
     private val _requestById = MutableStateFlow<Resource<Request>>(Resource.Loading())
     val requestById: StateFlow<Resource<Request>> = _requestById.asStateFlow()
 
+    private val _requestsByHomelessId = MutableStateFlow<Resource<List<Request>>>(Resource.Loading())
+    val requestsByHomelessId: StateFlow<Resource<List<Request>>> = _requestsByHomelessId.asStateFlow()
+
     private val firebaseAuth = FirebaseAuth.getInstance()
 
 //    init {
@@ -65,6 +68,14 @@ class RequestViewModel @Inject constructor(
             val result = requestRepository.getRequestById(requestId) // Get data
             _requestById.value = result // Update state with result
         }
+    }
+
+    fun getRequestsByHomelessId(homelessId: String) {
+        requestRepository.getRequestsByHomelessId(homelessId)
+            .onEach { result ->
+                _requestsByHomelessId.value = result
+            }
+            .launchIn(viewModelScope)
     }
 
     fun addRequest(request: Request) {
