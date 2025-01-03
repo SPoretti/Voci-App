@@ -6,6 +6,7 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
@@ -98,6 +99,24 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun getRequestsByHomelessId(homelessId: String): Resource<List<Request>> {
+        return try {
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("homelessID", homelessId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val requests = querySnapshot.documents.mapNotNull { it.toObject(Request::class.java) }
+                Resource.Success(requests)
+            } else {
+                Resource.Error("Requests not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
     // ------------------------------- Homeless Functions ----------------------------------
 
     suspend fun addHomeless(homeless: Homeless): Resource<String> {
@@ -166,7 +185,35 @@ class FirestoreDataSource @Inject constructor(
             Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
+    suspend fun addComment(homelessID: String, comment: String, date: String, volunteerName: String): Resource<Unit> {
+        return try {
+            val querySnapshot = firestore.collection("homelesses")
+                .whereEqualTo("id", homelessID)
+                .get()
+                .await()
 
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id
+                val homelessRef = firestore.collection("homelesses").document(documentId)
+
+                // Create a map to represent the comment data
+                val commentData = mapOf(
+                    "comment" to comment,
+                    "date" to date,
+                    "volunteerName" to volunteerName
+                )
+
+                // Use arrayUnion to add the map to the "comments" array
+                homelessRef.update("comments", FieldValue.arrayUnion(commentData)).await()
+
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Homeless not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
     fun deleteHomeless(id: Any) {
         TODO()//if needed
     }

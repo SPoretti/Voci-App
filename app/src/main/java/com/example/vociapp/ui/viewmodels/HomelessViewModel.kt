@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.remote.GeocodingClient
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
 import kotlinx.coroutines.Job
@@ -18,13 +19,14 @@ import javax.inject.Inject
 
 class HomelessViewModel @Inject constructor(
     private val homelessRepository: HomelessRepository,
+    private val geocodingClient: GeocodingClient
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
     val snackbarMessage: StateFlow<String> = _snackbarMessage
 
     private val _homelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
-    val homelesses: StateFlow<Resource<List<Homeless>>> = _homelesses.asStateFlow()
+    val homelesses: StateFlow<Resource<List<Homeless>>> = _homelesses
 
     private val _searchQuery = MutableStateFlow("") // Use MutableStateFlow
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -34,6 +36,9 @@ class HomelessViewModel @Inject constructor(
 
     private val _homelessNames = MutableStateFlow<Map<String, String>>(emptyMap())
     val homelessNames: StateFlow<Map<String, String>> = _homelessNames.asStateFlow()
+
+    private val _locationCoordinates = MutableStateFlow<Resource<Pair<Double, Double>>>(Resource.Loading())
+    val locationCoordinates: StateFlow<Resource<Pair<Double, Double>>> = _locationCoordinates
 
     init {
         fetchHomelesses()
@@ -132,6 +137,42 @@ class HomelessViewModel @Inject constructor(
                         Log.e("HomelessViewModel", "Error fetching homeless names: ${resource.message}")
                     }
                 }
+        }
+    }
+
+    fun fetchHomelessDetailsById(homelessId: String) {
+        viewModelScope.launch {
+            _homelesses.value = Resource.Loading()
+            try {
+                val homeless = homelessRepository.getHomelessById(homelessId)
+                if (homeless != null) {
+                    _homelesses.value = Resource.Success(listOf(homeless))
+                    // Trigger geocoding when homeless data is successfully fetched
+                    geocodeLocation(homeless.location)
+                } else {
+                    _homelesses.value = Resource.Error("Senzatetto non trovato")
+                }
+            } catch (e: Exception) {
+                _homelesses.value = Resource.Error(e.message ?: "Errore sconosciuto")
+            }
+        }
+    }
+
+    private suspend fun geocodeLocation(address: String) {
+        Log.d("Geocoding", "Geocoding address: $address")
+        try {
+            val response = geocodingClient.nominatimService.geocodeAddress(address)
+            Log.d("Geocoding", "Response: $response")
+            response.firstOrNull()?.let {
+                _locationCoordinates.value = Resource.Success(Pair(it.lat.toDouble(), it.lon.toDouble()))
+                Log.d("Geocoding", "Success: ${it.lat}, ${it.lon}")
+            } ?: run {
+                _locationCoordinates.value = Resource.Error("Indirizzo non trovato")
+                Log.e("Geocoding", "Address not found")
+            }
+        } catch (e: Exception) {
+            _locationCoordinates.value = Resource.Error(e.message ?: "Errore di geocoding")
+            Log.e("Geocoding", "Geocoding error: ${e.message}")
         }
     }
 
