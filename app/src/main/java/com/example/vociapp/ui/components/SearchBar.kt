@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 
 @Composable
@@ -135,8 +136,7 @@ fun SearchBar(
                         ) {
                             IconButton(
                                 onClick = {
-                                    navController.navigate("userProfileScreen/${currentUser.displayName}")
-                                    Log.d("LoggedUser", "User ID: ${currentUser.displayName}")
+                                    navController.navigate(Screens.UserProfile.route)
                                 },
                                 modifier = Modifier
                                     .size(48.dp)
@@ -161,8 +161,7 @@ fun SearchBar(
                         ) {
                             IconButton(
                                 onClick = {
-                                    navController.navigate("userProfileScreen/${currentUser?.displayName}")
-                                    Log.d("LoggedUser", "User ID: ${currentUser?.displayName}")
+                                    navController.navigate(Screens.UserProfile.route)
                                 },
                                 modifier = Modifier
                                     .clip(CircleShape)

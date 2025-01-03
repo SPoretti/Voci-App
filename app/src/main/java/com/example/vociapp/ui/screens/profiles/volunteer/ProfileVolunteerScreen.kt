@@ -36,14 +36,12 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileInfoItem
 
 @Composable
-fun ProfileVolunteerScreen(creatorId: String?) {
+fun ProfileVolunteerScreen(creatorId: String) {
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
-    LaunchedEffect(creatorId) {
-        creatorId?.let {
-            volunteerViewModel.getVolunteerByNickname(it)
-        }
+    LaunchedEffect(key1 = creatorId) {
+        volunteerViewModel.getVolunteerById(creatorId)
     }
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()

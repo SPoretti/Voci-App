@@ -251,7 +251,7 @@ class FirestoreDataSource @Inject constructor(
     suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
         return try {
             val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("nickname", volunteer.nickname) //Preleva il volontario già esistente tramite nickname
+                .whereEqualTo("id", volunteer.id)
                 .get()
                 .await()
 
@@ -269,7 +269,6 @@ class FirestoreDataSource @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
         }
-
     }
 
     // ------------------------------- Preferences Functions ----------------------------------
