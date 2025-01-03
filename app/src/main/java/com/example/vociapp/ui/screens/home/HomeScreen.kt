@@ -183,7 +183,7 @@ fun HomeScreen(
                                 homelesses = listToDisplay,
                                 showPreferredIcon = true,
                                 onListItemClick = {homeless ->
-                                    navController.navigate("profileHomeless/${homeless.name}")
+                                    navController.navigate("profileHomeless/${homeless.id}")
                                 },
                                 navController = navController,
                                 onSwipe = { homeless ->
