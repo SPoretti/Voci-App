@@ -6,6 +6,8 @@ import androidx.room.PrimaryKey
 import com.example.vociapp.data.types.Area
 import java.util.UUID
 
+// Update entity, used for room database, it has two foreign keys: homelessID and creatorId
+
 @Entity(
     tableName = "updates",
     foreignKeys = [

@@ -293,9 +293,13 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
-        try {
-            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Volunteer> {
+        return try {
+            val volunteerQuery = firestore
+                .collection("volunteers")
+                .whereEqualTo("id", userId)
+                .get()
+                .await()
             if (volunteerQuery.documents.isNotEmpty()) {
                 val volunteerDocId = volunteerQuery.documents[0].id
                 firestore
@@ -303,12 +307,25 @@ class FirestoreDataSource @Inject constructor(
                     .document(volunteerDocId)
                     .update(mapOf("preferredHomelessIds" to preferredHomelessIds))
                     .await()
-                return Resource.Success(Unit)
+
+                // Fetch the updated volunteer object
+                val updatedVolunteer = firestore
+                    .collection("volunteers")
+                    .document(volunteerDocId)
+                    .get()
+                    .await()
+                    .toObject(Volunteer::class.java)
+
+                if (updatedVolunteer != null) {
+                    Resource.Success(updatedVolunteer) // Return the updated volunteer
+                } else {
+                    Resource.Error("Failed to fetch updated volunteer")
+                }
             } else {
-                return Resource.Error("Volunteer not found1")
+                Resource.Error("Volunteer not found")
             }
         } catch (e: Exception) {
-            return Resource.Error(e.message ?: "An unknown error occurred")
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 

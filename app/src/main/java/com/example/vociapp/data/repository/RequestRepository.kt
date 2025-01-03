@@ -1,7 +1,6 @@
 package com.example.vociapp.data.repository
 
 import com.example.vociapp.data.local.RoomDataSource
-import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -16,28 +15,30 @@ class RequestRepository @Inject constructor(
     private val firestoreDataSource: FirestoreDataSource,
     private val roomDataSource: RoomDataSource,
     private val networkManager: NetworkManager,
-    private val syncQueueDao: SyncQueueDao
 ) {
 
     suspend fun addRequest(request: Request): Resource<Request> {
         return try {
             // 1. Add to Room
             roomDataSource.insertRequest(request)
+
             // 2. If online, sync with Firestore
             if (networkManager.isNetworkConnected()) {
                 val resource = firestoreDataSource.addRequest(request)
                 if (resource is Resource.Success) {
-                    return Resource.Success(request)
+                    Resource.Success(request)
                 } else {
+                    // 3. If firestore addition failed, queue for sync
                     queueSyncAction("Request", "add", request)
-                    return Resource.Error("Errore imprevisto. Dati salvati localmente e messi in coda per la sincronizzazione")
+                    Resource.Error("Errore. \nDati salvati localmente in attesa di sincronizzazione.")
                 }
-            } else {// 3. If offline, queue for sync
+            } else {
+                // 4. If offline, queue for sync
                 queueSyncAction("Request", "add", request)
-                Resource.Error("Nessuna connessione di rete. Dati salvati localmente e messi in coda per la sincronizzazione.")
+                Resource.Error("Rete non disponibile.\nDati salvati localmente in attesa di sincronizzazione.")
             }
         } catch (e: Exception) {
-            Resource.Error("Errore, dati NON salvati localmente: ${e.message}")
+            Resource.Error("Errore, operazione fallita: ${e.message}")
         }
     }
 
@@ -108,28 +109,28 @@ class RequestRepository @Inject constructor(
     suspend fun getRequestById(requestId: String): Resource<Request> {
         try {
             // 1. Try to get the request from the local database first
-            val localRequest = roomDataSource.getRequestById(requestId)
+            return Resource.Success(roomDataSource.getRequestById(requestId))
 
-            // 2. If found locally, return it
-            if (localRequest != null) {
-                return Resource.Success(localRequest)
-            }
-
-            // 3. If not found locally and network is available, fetch from Firestore
-            if (networkManager.isNetworkConnected()) {
-                val firestoreResource = firestoreDataSource.getRequestById(requestId)
-                if (firestoreResource is Resource.Success) {
-                    // 4. Cache the fetched request locally
-                    roomDataSource.insertRequest(firestoreResource.data!!)
-                    return firestoreResource
-                } else {
-                    // 5. Handle Firestore error
-                    return firestoreResource // Or you can re-throw or wrap the exception
-                }
-            } else {
-                // 6. Handle offline scenario
-                return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
-            }
+//            // 2. If found locally, return it
+//            if (localRequest != null) {
+//                return Resource.Success(localRequest)
+//            }
+//
+//            // 3. If not found locally and network is available, fetch from Firestore
+//            if (networkManager.isNetworkConnected()) {
+//                val firestoreResource = firestoreDataSource.getRequestById(requestId)
+//                if (firestoreResource is Resource.Success) {
+//                    // 4. Cache the fetched request locally
+//                    roomDataSource.insertRequest(firestoreResource.data!!)
+//                    return firestoreResource
+//                } else {
+//                    // 5. Handle Firestore error
+//                    return firestoreResource // Or you can re-throw or wrap the exception
+//                }
+//            } else {
+//                // 6. Handle offline scenario
+//                return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
+//            }
         } catch (e: Exception) {
             // 7. Handle unexpected errors
             return Resource.Error("Errore durante il recupero della richiesta: ${e.message}")
@@ -140,7 +141,7 @@ class RequestRepository @Inject constructor(
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
+            roomDataSource.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
 
                 for (action in pendingActions) {
                     // Deserialize the data
@@ -154,7 +155,7 @@ class RequestRepository @Inject constructor(
                             "delete" -> firestoreDataSource.deleteRequest(data)
                         }
                         // Once synced, remove the action from the queue
-                        syncQueueDao.deleteSyncAction(action)
+                        roomDataSource.deleteSyncAction(action)
                     }
                 }
             }
@@ -174,7 +175,7 @@ class RequestRepository @Inject constructor(
         )
 
         // Add to the sync queue
-        syncQueueDao.addSyncAction(syncAction)
+        roomDataSource.addSyncAction(syncAction)
     }
 
     suspend fun fetchRequestsFromFirestoreToRoom(){
@@ -188,7 +189,7 @@ class RequestRepository @Inject constructor(
                     roomDataSource.insertOrUpdateRequest(remoteRequest)
                 }
 
-                if (roomDataSource.syncQueueDao.isEmpty()) {
+                if (roomDataSource.isSyncQueueEmpty()) {
                     val localRequestList = roomDataSource.getRequestsSnapshot()
                     //Delete entries that exist locally but not in Firestore
                     val requestIdsToDelete =

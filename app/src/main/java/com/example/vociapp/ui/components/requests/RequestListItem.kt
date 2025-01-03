@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
-import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.ui.components.iconCategoryMap

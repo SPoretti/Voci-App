@@ -10,8 +10,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,48 +28,35 @@ class VolunteerViewModel @Inject constructor(
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
-
     private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
     val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
 
-    private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
-    val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
-
     init {
+        fetchVolunteers()
+
         firebaseAuth.addAuthStateListener { auth ->
-            val firebaseUser = auth.currentUser
-            if (firebaseUser != null) {
-                Log.d("AuthStateListener", "User is logged in: ${firebaseUser.email}")
+            auth.currentUser?.email?.let { email ->
+                Log.d("AuthStateListener", "User is logged in: $email")
                 viewModelScope.launch {
-                    val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
-                    Log.d("AuthStateListener", "Volunteer ID: $volunteerId")
-                    if (volunteerId != null){
-                        _currentUser.value =
-                            Volunteer(email = firebaseUser.email!!, id = volunteerId)
-                        fetchUserPreferences(volunteerId)
+                    try {
+                        val volunteerId = volunteerRepository.getVolunteerIdByEmail(email)
+                        volunteerId?.let {
+                            _currentUser.value = volunteerRepository.getVolunteerById(it)
+                        } ?: run {
+                            // Handle case where volunteerId is null
+                        }
+                    } catch (e: Exception) {
+                        // Handle error
                     }
-                    fetchVolunteers()
                 }
-            } else {
-                _currentUser.value = null // Update MutableStateFlow
+            } ?: run {
+                _currentUser.value = null
             }
         }
     }
 
-    init {
-        fetchVolunteers()
-        getVolunteerById(id = "")
-    }
-
-    fun getVolunteerById(id: String) {
-        volunteerRepository.getVolunteerById(id)
-            .onEach { result ->
-                if (result is Resource.Success && result.data != null) {
-                    _currentVolunteer.value = result.data
-                }
-            }
-            .launchIn(viewModelScope)
+    suspend fun getVolunteerById(id: String) {
+        _currentUser.value = volunteerRepository.getVolunteerById(id)
     }
 
     //Ritorna un volontario tramite nickname
@@ -99,16 +84,16 @@ class VolunteerViewModel @Inject constructor(
 
     // ritorna il valore "name" del volontario corrente
     fun getVolunteerName(): String? {
-        return _currentVolunteer.value?.name
+        return _currentUser.value?.name
     }
 
     // ritorna il valore "surname" del volontario corrente
     fun getVolunteerSurname(): String? {
-        return _currentVolunteer.value?.surname
+        return _currentUser.value?.surname
     }
 
     fun getCurrentVolunteer(): Volunteer? {
-        return _currentVolunteer.value
+        return _currentUser.value
     }
 
     fun addVolunteer(volunteer: Volunteer) {
@@ -116,7 +101,7 @@ class VolunteerViewModel @Inject constructor(
             val result = volunteerRepository.addVolunteer(volunteer)
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Registrazione effettuata"
-                _currentVolunteer.value = volunteer
+                _currentUser.value = volunteer
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"
             }
@@ -147,34 +132,19 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun fetchUserPreferences(userId: String) {
-        volunteerRepository.getUserPreferences(userId)
-            .onEach { result ->
-                _userPreferencesResource.value = result
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun toggleHomelessPreference(userId: String, homelessId: String) {
+    fun toggleHomelessPreference(homelessId: String) {
         viewModelScope.launch {
-            if (userPreferencesResource.value is Resource.Success) {
-                val userPreferences = userPreferencesResource.value.data!!
-                val updatedPreferredIds = if (homelessId in userPreferences) {
-                    userPreferences - homelessId
-                } else {
-                    userPreferences + homelessId
-                }
-                viewModelScope.launch { // Launch a separate coroutine for updating preferences
-                    val updateResult = volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
-                    if (updateResult is Resource.Success) {
-                        _userPreferencesResource.value.data = updatedPreferredIds // Emit new value to MutableStateFlow
-                    } else if (updateResult is Resource.Error) {
-                        // Handle error, e.g., show a Snackbar message
-                        // You might want to revert the UI state here if the update fails
+            val currentVolunteer = currentUser.value
+            if (currentVolunteer != null) {
+                val updatedPreferredIds =
+                    if (homelessId in currentVolunteer.preferredHomelessIds) {
+                        currentVolunteer.preferredHomelessIds - homelessId
+                    } else {
+                        currentVolunteer.preferredHomelessIds + homelessId
                     }
-                }
-            } else if (userPreferencesResource.value is Resource.Error) {
-                // Handle error, e.g., show a Snackbar message
+                volunteerRepository.updateVolunteer(currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds))
+                // Update _currentUser state to reflect the change
+                _currentUser.value = currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds)
             }
         }
     }

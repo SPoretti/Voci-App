@@ -6,6 +6,8 @@ import com.example.vociapp.data.types.Area
 import com.example.vociapp.data.types.Gender
 import java.util.UUID
 
+// Homeless entity, used for room database
+
 @Entity(tableName = "homelesses")
 data class Homeless(
     @PrimaryKey var id: String = UUID.randomUUID().toString(),

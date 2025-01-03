@@ -83,7 +83,7 @@ class HomelessViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless? {
+    suspend fun getHomelessById(homelessID: String): Homeless? {
         return homelessRepository.getHomelessById(homelessID)
     }
 

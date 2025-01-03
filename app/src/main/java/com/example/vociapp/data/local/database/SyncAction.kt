@@ -3,6 +3,8 @@ package com.example.vociapp.data.local.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// SyncAction entity, used for room database to store and queue sync actions (performed offline, synced online)
+
 @Entity(tableName = "sync_queue")
 data class SyncAction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

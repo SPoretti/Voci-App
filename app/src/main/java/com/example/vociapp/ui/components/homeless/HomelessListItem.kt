@@ -22,7 +22,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +34,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.UpdateStatus
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.updates.StatusLED
 import com.example.vociapp.ui.components.utils.hapticFeedback
@@ -53,8 +51,7 @@ fun HomelessListItem(
 
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val userId = volunteerViewModel.currentUser.value?.id
-    val userPreferencesResource by volunteerViewModel.userPreferencesResource.collectAsState()
+    val user by remember {mutableStateOf(volunteerViewModel.currentUser)}
     val backgroundColor =
         if (isSelected) {
             MaterialTheme.colorScheme.surface
@@ -64,11 +61,8 @@ fun HomelessListItem(
 
     var isPreferred by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = userPreferencesResource.data, key2 = homelessState) {
-        isPreferred = when (userPreferencesResource) {
-            is Resource.Success -> userPreferencesResource.data?.contains(homelessState.homeless.id) == true
-            else -> false
-        }
+    LaunchedEffect(key1 = user.value?.preferredHomelessIds, key2 = homelessState) {
+        isPreferred = user.value?.preferredHomelessIds?.contains(homelessState.homeless.id) == true
     }
 
     Surface(
@@ -135,13 +129,11 @@ fun HomelessListItem(
                     IconButton(
                         onClick = {
                             volunteerViewModel.toggleHomelessPreference(
-                                userId!!,
                                 homelessState.homeless.id
                             )
                             isPreferred = !isPreferred
                         },
-                        modifier = Modifier
-                            .hapticFeedback(),
+                        modifier = Modifier.hapticFeedback(),
                     ) {
                         Icon(
                             imageVector =

@@ -30,11 +30,6 @@ class RequestViewModel @Inject constructor(
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-//    init {
-//        fetchRequests()
-//        getRequests()
-//    }
-
     init{
         firebaseAuth.addAuthStateListener { auth ->
             val firebaseUser = auth.currentUser

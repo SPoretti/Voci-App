@@ -1,7 +1,6 @@
 package com.example.vociapp.data.repository
 
 import com.example.vociapp.data.local.RoomDataSource
-import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -13,31 +12,33 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class HomelessRepository @Inject constructor(
-    private val roomDataSource: RoomDataSource,
     private val firestoreDataSource: FirestoreDataSource,
+    private val roomDataSource: RoomDataSource,
     private val networkManager: NetworkManager,
-    private val syncQueueDao: SyncQueueDao // Inject SyncQueueDao to manage offline sync
 ) {
 
     suspend fun addHomeless(homeless: Homeless): Resource<Homeless> {
         return try {
             // 1. Add to Room
             roomDataSource.insertHomeless(homeless)
+
             // 2. If online, sync with Firestore
             if (networkManager.isNetworkConnected()) {
                 val resource = firestoreDataSource.addHomeless(homeless)
                 if (resource is Resource.Success) {
-                    return Resource.Success(homeless)
+                    Resource.Success(homeless)
                 } else {
+                    // 3. If firestore addition failed, queue for sync
                     queueSyncAction("Homeless", "add", homeless)
-                    return Resource.Error("Errore imprevisto. Dati salvati localmente e messi in coda per la sincronizzazione")
+                    Resource.Error("Errore. \nDati salvati localmente in attesa di sincronizzazione.")
                 }
-            } else {// 3. If offline, queue for sync
+            } else {
+                // 4. If offline, queue for sync
                 queueSyncAction("Homeless", "add", homeless)
-                Resource.Error("Nessuna connessione di rete. Dati salvati localmente e messi in coda per la sincronizzazione")
+                Resource.Error("Rete non disponibile.\nDati salvati localmente in attesa di sincronizzazione.")
             }
         } catch (e: Exception) {
-            Resource.Error("Errore, dati NON salvati localmente: ${e.message}")
+            Resource.Error("Errore, operazione fallita: ${e.message}")
         }
     }
 
@@ -54,7 +55,7 @@ class HomelessRepository @Inject constructor(
         )
 
         // Add to the sync queue
-        syncQueueDao.addSyncAction(syncAction)
+        roomDataSource.addSyncAction(syncAction)
     }
 
     // Method to sync pending actions when the device is online
@@ -62,7 +63,7 @@ class HomelessRepository @Inject constructor(
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
+            roomDataSource.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
 
                 for (action in pendingActions) {
                     // Deserialize the data
@@ -76,7 +77,7 @@ class HomelessRepository @Inject constructor(
                             "delete" -> firestoreDataSource.deleteHomeless(data.id)
                         }
                         // Once synced, remove the action from the queue
-                        syncQueueDao.deleteSyncAction(action)
+                        roomDataSource.deleteSyncAction(action)
                     }
                 }
             }
@@ -86,13 +87,15 @@ class HomelessRepository @Inject constructor(
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
         emit(Resource.Loading())
 
-        if (networkManager.isNetworkConnected()) {
+        roomDataSource.getHomelesses().collect { emit(it) } // Emit updated Room data
+
+//        if (networkManager.isNetworkConnected()) {
 //            try {
 //                val firestoreHomelesses = firestoreDataSource.getHomelesses()
 //                when (firestoreHomelesses) {
 //                    is Resource.Success -> {
 //                        fetchHomelessesFromFirestoreToRoom(firestoreHomelesses.data!!)
-                        roomDataSource.getHomelesses().collect { emit(it) } // Emit updated Room data
+//                        roomDataSource.getHomelesses().collect { emit(it) } // Emit updated Room data
 //                    }
 //                    is Resource.Error -> {
 //                        emit(Resource.Error(firestoreHomelesses.message!!))
@@ -102,9 +105,9 @@ class HomelessRepository @Inject constructor(
 //            } catch (e: Exception) {
 //                emit(Resource.Error("Errore durante la sincronizzazione: ${e.message}"))
 //            }
-        } else {// 2. If offline, fetch from Room
-            roomDataSource.getHomelesses().collect { emit(it) }
-        }
+//        } else {// 2. If offline, fetch from Room
+//            roomDataSource.getHomelesses().collect { emit(it) }
+//        }
     }
 
     suspend fun getHomelessById(homelessID: String): Homeless? {
@@ -141,14 +144,14 @@ class HomelessRepository @Inject constructor(
                     roomDataSource.insertOrUpdateHomeless(remoteHomeless)
                 }
 
-                if (roomDataSource.syncQueueDao.isEmpty()) {
+                if (roomDataSource.isSyncQueueEmpty()) {
                     val localHomelessList = roomDataSource.getHomelessesSnapshot()
                     //Delete entries that exist locally but not in Firestore
                     val homelessIdsToDelete =
                         localHomelessList.map { it.id }.minus(firestoreHomelessList.map { it.id }
                             .toSet())
                     for (homelessId in homelessIdsToDelete) {
-                        roomDataSource.deleteHomeless(homelessId)
+                        roomDataSource.deleteHomelessById(homelessId)
                     }
                 }
             }

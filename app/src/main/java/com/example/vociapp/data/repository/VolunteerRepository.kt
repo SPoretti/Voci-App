@@ -2,7 +2,6 @@ package com.example.vociapp.data.repository
 
 import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
-import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.Converters
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Volunteer
@@ -18,59 +17,87 @@ class VolunteerRepository @Inject constructor(
     private val firestoreDataSource: FirestoreDataSource,
     private val roomDataSource: RoomDataSource,  // Add local data source
     private val networkManager: NetworkManager,    // Add network manager for online/offline check
-    private val syncQueueDao: SyncQueueDao        // Add sync queue to handle offline changes
 ) {
 
-    // Add a new volunteer and sync if needed
-    suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
-        //Add locally
-        roomDataSource.insertVolunteer(volunteer)
-        return if (networkManager.isNetworkConnected()) {
-            // Online: sync with Firestore
-            firestoreDataSource.addVolunteer(volunteer)
-        } else {
-            // Offline: add to sync queue for later
-            queueSyncAction("Volunteer", "add", volunteer)
-            Resource.Success("No network connection. Data saved locally and queued for later sync.")
+    suspend fun addVolunteer(volunteer: Volunteer): Resource<Volunteer> {
+        return try {
+            // 1. Add to Room
+            roomDataSource.insertVolunteer(volunteer)
+
+            // 2. If online, sync with Firestore
+            if (networkManager.isNetworkConnected()) {
+                val resource = firestoreDataSource.addVolunteer(volunteer)
+                if (resource is Resource.Success) {
+                    Resource.Success(volunteer)
+                } else {
+                    // 3. If firestore addition failed, queue for sync
+                    queueSyncAction("Volunteer", "add", volunteer)
+                    Resource.Error("Errore. \nDati salvati localmente in attesa di sincronizzazione.")
+                }
+            } else {
+                // 4. If offline, queue for sync
+                queueSyncAction("Volunteer", "add", volunteer)
+                Resource.Error("Rete non disponibile.\nDati salvati localmente in attesa di sincronizzazione.")
+            }
+        } catch (e: Exception) {
+            Resource.Error("Errore, operazione fallita: ${e.message}")
         }
+    }
+
+    suspend fun getVolunteerById(id: String): Volunteer? {
+        return roomDataSource.getVolunteerById(id)
     }
 
     // Get volunteer by ID, prefer local database if offline
-    fun getVolunteerById(id: String): Flow<Resource<Volunteer>> = flow {
-        emit(Resource.Loading())
-        if (networkManager.isNetworkConnected()) {
-            try {
-                val volunteer = firestoreDataSource.getVolunteerById(id)
-                if (volunteer != null) {
-                    emit(Resource.Success(volunteer))
-                    // Cache in local database for offline use
-                    roomDataSource.insertVolunteer(volunteer)
-                } else {
-                    emit(Resource.Error("Volunteer not found"))
-                }
-            } catch (e: Exception) {
-                emit(Resource.Error("Error fetching data: ${e.localizedMessage}"))
-            }
-        } else {
-            // If offline, fetch from local database
-            val volunteer = roomDataSource.getVolunteerById(id)
-            if (volunteer != null) {
-                emit(Resource.Success(volunteer))
-            } else {
-                emit(Resource.Error("No data available offline"))
-            }
-        }
-    }
+//    fun getVolunteerById(id: String): Flow<Resource<Volunteer>> = flow {
+//        emit(Resource.Loading())
+//        if (networkManager.isNetworkConnected()) {
+//            try {
+//                val volunteer = firestoreDataSource.getVolunteerById(id)
+//                if (volunteer != null) {
+//                    emit(Resource.Success(volunteer))
+//                    // Cache in local database for offline use
+//                    roomDataSource.insertVolunteer(volunteer)
+//                } else {
+//                    emit(Resource.Error("Volunteer not found"))
+//                }
+//            } catch (e: Exception) {
+//                emit(Resource.Error("Error fetching data: ${e.localizedMessage}"))
+//            }
+//        } else {
+//            // If offline, fetch from local database
+//            val volunteer = roomDataSource.getVolunteerById(id)
+//            if (volunteer != null) {
+//                emit(Resource.Success(volunteer))
+//            } else {
+//                emit(Resource.Error("No data available offline"))
+//            }
+//        }
+//    }
 
     // Update volunteer details (both locally and remotely)
-    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Unit> {
-        roomDataSource.updateVolunteer(volunteer)
-        return if (networkManager.isNetworkConnected()) {
-            firestoreDataSource.updateVolunteer(volunteer)
-        } else {
-            // Offline: update locally and add to sync queue
-            queueSyncAction("Volunteer", "update", volunteer)
-            Resource.Error("No network connection. Data saved locally and queued for later sync.")
+    suspend fun updateVolunteer(volunteer: Volunteer): Resource<Volunteer> {
+        return try {
+            // 1. Update Room
+            roomDataSource.updateVolunteer(volunteer)
+
+            // 2. If online, sync with Firestore
+            if (networkManager.isNetworkConnected()) {
+                val resource = firestoreDataSource.updateVolunteer(volunteer)
+                if (resource is Resource.Success) {
+                    Resource.Success(volunteer)
+                } else {
+                    // 3. If firestore update failed, queue for sync
+                    queueSyncAction("Volunteer", "update", volunteer)
+                    Resource.Error("Errore. \nDati salvati localmente in attesa di sincronizzazione.")
+                }
+            } else {
+                // 4. If offline, queue for sync
+                queueSyncAction("Volunteer", "update", volunteer)
+                Resource.Error("Rete non disponibile.\nDati salvati localmente in attesa di sincronizzazione.")
+            }
+        } catch (e: Exception) {
+            Resource.Error("Errore, operazione fallita: ${e.message}")
         }
     }
 
@@ -145,24 +172,38 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
+//    fun getUserPreferences(userId: String): Flow<Resource<List<String>>> = flow {
+//        emit(Resource.Loading()) // Indicate loading state
+//
+//        try {
+//            if (networkManager.isNetworkConnected()) {
+//                // Fetch preferences from Firestore if network is connected
+//                val remoteResult = firestoreDataSource.getUserPreferences(userId)
+//                if (remoteResult is Resource.Success) {
+//                    // Save preferences to local database for offline access
+//                    roomDataSource.updateUserPreferences(userId, remoteResult.data!!)
+//                }
+//                emit(remoteResult)
+//            } else {
+//                // Fetch preferences from local database if offline
+//                val jsonPreferences = roomDataSource.getUserPreferences(userId).data
+//                val preferences = Converters().fromJson(jsonPreferences!!)
+//                emit(Resource.Success(preferences))
+//            }
+//        } catch (e: Exception) {
+//            emit(Resource.Error(e.message ?: "An error occurred while retrieving user preferences"))
+//        }
+//    }
+
     fun getUserPreferences(userId: String): Flow<Resource<List<String>>> = flow {
         emit(Resource.Loading()) // Indicate loading state
-
         try {
-            if (networkManager.isNetworkConnected()) {
-                // Fetch preferences from Firestore if network is connected
-                val remoteResult = firestoreDataSource.getUserPreferences(userId)
-                if (remoteResult is Resource.Success) {
-                    // Save preferences to local database for offline access
-                    roomDataSource.updateUserPreferences(userId, remoteResult.data!!)
-                }
-                emit(remoteResult)
-            } else {
-                // Fetch preferences from local database if offline
-                val jsonPreferences = roomDataSource.getUserPreferences(userId).data
-                val preferences = Converters().fromJson(jsonPreferences!!)
-                emit(Resource.Success(preferences))
-            }
+            //1. Get from Room, deserialize, emit
+            val jsonPreferences = roomDataSource.getUserPreferences(userId).data
+            //2. Deserialize the data
+            val preferences = Converters().fromJson(jsonPreferences!!)
+            //3. Emit the data
+            emit(Resource.Success(preferences))
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "An error occurred while retrieving user preferences"))
         }
@@ -170,47 +211,26 @@ class VolunteerRepository @Inject constructor(
 
     suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Unit> {
         return try {
+            roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
+
             if (networkManager.isNetworkConnected()) {
                 // Update Firestore if connected
-                val remoteResult = firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)
-                if (remoteResult is Resource.Success) {
-                    roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
+                val resource = firestoreDataSource.updateUserPreferences(userId, preferredHomelessIds)
+                if (resource is Resource.Success) {
+                    Resource.Success(Unit)
                 }
-                remoteResult // Return the result from Firestore
+                else{
+                    queueSyncAction("Volunteer", "update_preferences", resource)
+                    Resource.Error("Errore.\nDati salvati localmente in attesa di sincronizzazione.")
+                }
+
             } else {
-                val currentVolunteer = roomDataSource.getVolunteerById(userId)
-                val newVolunteer = currentVolunteer?.copy(preferredHomelessIds = preferredHomelessIds)
-                roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
-                queueSyncAction("Volunteer", "update_preferences", newVolunteer!!)
+                val volunteer = roomDataSource.getVolunteerById(userId)
+                queueSyncAction("Volunteer", "update_preferences", volunteer!!)
                 Resource.Error("No network connection. Data saved locally and queued for later sync.")
             }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An error occurred while updating user preferences")
-        }
-    }
-
-    suspend fun fetchVolunteersFromFirestoreToRoom(){
-        if (networkManager.isNetworkConnected()){
-            val firestoreVolunteersListResource = firestoreDataSource.getVolunteers()
-
-            if (firestoreVolunteersListResource is Resource.Success) {
-                val firestoreVolunteersList = firestoreVolunteersListResource.data!!
-
-                firestoreVolunteersList.forEach { remoteVolunteer ->
-                    roomDataSource.insertOrUpdateVolunteer(remoteVolunteer)
-                }
-
-                if (roomDataSource.syncQueueDao.isEmpty()) {
-                    val localVolunteerList = roomDataSource.getVolunteersSnapshot()
-                    //Delete entries that exist locally but not in Firestore
-                    val volunteerIdsToDelete =
-                        localVolunteerList.map { it.id }.minus(firestoreVolunteersList.map { it.id }
-                            .toSet())
-                    for (volunteerId in volunteerIdsToDelete) {
-                        roomDataSource.deleteVolunteerById(volunteerId)
-                    }
-                }
-            }
         }
     }
 
@@ -219,7 +239,7 @@ class VolunteerRepository @Inject constructor(
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect { pendingActions ->
+            roomDataSource.getPendingSyncActions(System.currentTimeMillis()).collect { pendingActions ->
 
                 for (action in pendingActions) {
 
@@ -244,7 +264,7 @@ class VolunteerRepository @Inject constructor(
                             }
                         }
                         // Once synced, remove the action from the queue
-                        syncQueueDao.deleteSyncAction(action)
+                        roomDataSource.deleteSyncAction(action)
                     }
                 }
             }
@@ -260,6 +280,31 @@ class VolunteerRepository @Inject constructor(
             data = dataJson,
             timestamp = System.currentTimeMillis()
         )
-        syncQueueDao.addSyncAction(syncAction)
+        roomDataSource.addSyncAction(syncAction)
+    }
+
+    suspend fun fetchVolunteersFromFirestoreToRoom(){
+        if (networkManager.isNetworkConnected()){
+            val firestoreVolunteersListResource = firestoreDataSource.getVolunteers()
+
+            if (firestoreVolunteersListResource is Resource.Success) {
+                val firestoreVolunteersList = firestoreVolunteersListResource.data!!
+
+                firestoreVolunteersList.forEach { remoteVolunteer ->
+                    roomDataSource.insertOrUpdateVolunteer(remoteVolunteer)
+                }
+
+                if (roomDataSource.isSyncQueueEmpty()) {
+                    val localVolunteerList = roomDataSource.getVolunteersSnapshot()
+                    //Delete entries that exist locally but not in Firestore
+                    val volunteerIdsToDelete =
+                        localVolunteerList.map { it.id }.minus(firestoreVolunteersList.map { it.id }
+                            .toSet())
+                    for (volunteerId in volunteerIdsToDelete) {
+                        roomDataSource.deleteVolunteerById(volunteerId)
+                    }
+                }
+            }
+        }
     }
 }

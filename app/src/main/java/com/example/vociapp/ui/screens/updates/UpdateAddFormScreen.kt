@@ -61,7 +61,7 @@ fun UpdateAddFormScreen(
     var homeless by remember { mutableStateOf<Homeless?>(null) }
 
     LaunchedEffect(key1 = homelessId) {
-        homeless = homelessViewModel.getHomeless(homelessId)
+        homeless = homelessViewModel.getHomelessById(homelessId)
     }
 
     LaunchedEffect(key1 = buttonOption){
