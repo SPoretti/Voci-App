@@ -3,15 +3,20 @@ package com.example.vociapp.ui.screens.profiles.userProfile
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -33,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Volunteer
@@ -58,6 +64,7 @@ fun UpdateUserProfileScreen(
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     if(currentProfile != null){
+        var photoUrl by remember { mutableStateOf("") }
         var nickname by remember { mutableStateOf("") }
         var name by remember { mutableStateOf("") }
         var surname by remember { mutableStateOf("") }
@@ -99,7 +106,7 @@ fun UpdateUserProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 56.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                            .padding(top = 56.dp, start = 16.dp, end = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -134,6 +141,17 @@ fun UpdateUserProfileScreen(
                                             surname = volunteer?.surname ?: ""
                                             isInitialized = true
                                         }
+
+                                        ProfileTextField(
+                                            value = photoUrl,
+                                            onValueChange = { photoUrl = it },
+                                            label = "Immagine Profilo",
+                                            icon = Icons.Default.Face,
+                                            placeholder = "URL Immagine Profilo",
+                                            modifier = Modifier
+                                                .horizontalScroll(rememberScrollState()),
+                                            singleLine = true
+                                        )
 
                                         ProfileTextField(
                                             value = nickname,
@@ -172,12 +190,12 @@ fun UpdateUserProfileScreen(
                                         Button(
                                             onClick = { isUpdating = true },
                                             enabled = isPasswordValid,
-                                            modifier = Modifier.fillMaxWidth(),
+                                            modifier = Modifier.fillMaxWidth().height(48.dp),
                                             shape = RoundedCornerShape(8.dp)
                                         ) {
                                             Text(
                                                 "Conferma modifiche",
-                                                modifier = Modifier.padding(vertical = 8.dp)
+                                                textAlign = TextAlign.Center
                                             )
                                         }
 
@@ -188,7 +206,7 @@ fun UpdateUserProfileScreen(
                                                     SnackbarManager.showSnackbar(result.message)
                                                     return@LaunchedEffect
                                                 } else {
-                                                    result = authViewModel.updateUserProfile(nickname)
+                                                    result = authViewModel.updateUserProfile(nickname, photoUrl)
                                                     if (result is AuthResult.Failure) {
                                                         showError = true
                                                         errorMessage = result.message
