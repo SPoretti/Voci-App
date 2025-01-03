@@ -6,7 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.vociapp.data.local.database.Update
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import kotlinx.coroutines.flow.Flow
 
 @Dao

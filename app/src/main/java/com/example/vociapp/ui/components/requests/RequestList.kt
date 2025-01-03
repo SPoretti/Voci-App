@@ -39,7 +39,7 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
-import com.example.vociapp.data.util.SortOption
+import com.example.vociapp.ui.state.SortOption
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 

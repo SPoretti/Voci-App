@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.vociapp.data.types.Gender
+import com.example.vociapp.data.util.Gender
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

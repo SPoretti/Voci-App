@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.vociapp.data.local.database.Homeless
-import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.data.util.AuthState
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.currentRoute

@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import com.example.vociapp.data.local.database.Converters
 import com.example.vociapp.data.local.database.Volunteer
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import kotlinx.coroutines.flow.Flow
 
 @Dao

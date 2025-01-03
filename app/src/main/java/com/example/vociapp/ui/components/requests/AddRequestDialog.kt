@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -35,10 +34,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.util.IconCategory
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.IconCategory
-import com.example.vociapp.ui.components.IconSelector
-import com.example.vociapp.ui.components.SearchBar
+import com.example.vociapp.ui.components.core.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
 import com.example.vociapp.ui.components.homeless.HomelessListItem
 import com.example.vociapp.ui.components.utils.hapticFeedback
@@ -79,14 +77,16 @@ fun AddRequestDialog(
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Aggiungi Richiesta",
-                    modifier = Modifier.wrapContentSize(Alignment.Center)
-                )
+                    style = MaterialTheme.typography.labelMedium,
+                    )
             }
         },
         modifier = Modifier
             .fillMaxSize()
         ,
         shape = RoundedCornerShape(0.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        textContentColor = MaterialTheme.colorScheme.onBackground,
         text = {
             when (step) {
                 1 -> {
@@ -248,8 +248,6 @@ fun AddRequestDialog(
                     }
                 }
             }
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        textContentColor = MaterialTheme.colorScheme.onBackground,
+        }
     )
 }

@@ -8,7 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.example.vociapp.data.local.database.Request
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import kotlinx.coroutines.flow.Flow
 
 @Dao
