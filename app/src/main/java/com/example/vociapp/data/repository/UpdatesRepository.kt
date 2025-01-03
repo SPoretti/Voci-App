@@ -1,7 +1,6 @@
 package com.example.vociapp.data.repository
 
 import com.example.vociapp.data.local.RoomDataSource
-import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -16,60 +15,48 @@ class UpdatesRepository @Inject constructor(
     private val firestoreDataSource: FirestoreDataSource,
     private val roomDataSource: RoomDataSource,
     private val networkManager: NetworkManager,
-    private val syncQueueDao: SyncQueueDao // Inject SyncQueueDao to manage offline sync
 ) {
 
-    suspend fun addUpdate(update: Update): Resource<String> {
+    suspend fun addUpdate(update: Update): Resource<Update> {
         return try {
             // 1. Add to Room
             roomDataSource.insertUpdate(update)
 
             // 2. If online, sync with Firestore
             if (networkManager.isNetworkConnected()) {
-                firestoreDataSource.addUpdate(update)
+                val resource = firestoreDataSource.addUpdate(update)
+                if (resource is Resource.Success) {
+                    Resource.Success(update)
+                } else {
+                    // 3. If firestore addition failed, queue for sync
+                    queueSyncAction("Update", "add", update)
+                    Resource.Error("Errore. \nDati salvati localmente in attesa di sincronizzazione.")
+                }
             } else {
-                // 3. If offline, queue for sync
+                // 4. If offline, queue for sync
                 queueSyncAction("Update", "add", update)
-                Resource.Error("No network connection. Data saved locally and queued for sync.")
+                Resource.Error("Rete non disponibile.\nDati salvati localmente in attesa di sincronizzazione.")
             }
         } catch (e: Exception) {
-            Resource.Error("Error adding update: ${e.message}")
+            Resource.Error("Errore, operazione fallita: ${e.message}")
         }
     }
 
+    //gets updates from room
     fun getUpdates(): Flow<Resource<List<Update>>> = flow {
-        // 1. Emit cached data from Room immediately
         emit(Resource.Loading())
         roomDataSource.getUpdates().collect { emit(it) }
-
-        // 2. If online, fetch from Firestore and update Room
-//        if (networkManager.isNetworkConnected()) {
-//            try {
-//                val firestoreUpdates = firestoreDataSource.getUpdates().data!!
-//                fetchUpdatesFromFirestoreToRoom(firestoreUpdates) // Update Room
-//
-//                // 3. Emit updated data if it differs from cache
-//                val localUpdates = roomDataSource.updateDao.getAllUpdates().first()
-//                if (localUpdates != firestoreUpdates) {
-//                    emit(Resource.Success(localUpdates))
-//                }
-//            } catch (e: Exception) {
-//                emit(Resource.Error("Error syncing with Firestore: ${e.message}"))
-//            }
-//        }
     }
 
     suspend fun syncPendingActions() {
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
             // Get all the pending sync actions from the queue
-            syncQueueDao.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
+            roomDataSource.getPendingSyncActions(System.currentTimeMillis()).collect{ pendingActions ->
 
                 for (action in pendingActions) {
-                    // Deserialize the data
-                    //Log.d("SyncPendingActions", "Syncing action: $action")
-
                     if (action.entityType == "Update"){
+                        // Deserialize the data
                         val data = Gson().fromJson(action.data, Update::class.java)
                         when (action.operation) {
                             "add" -> firestoreDataSource.addUpdate(data)
@@ -77,7 +64,7 @@ class UpdatesRepository @Inject constructor(
                             "delete" -> firestoreDataSource.deleteUpdate(data.id)
                         }
                         // Once synced, remove the action from the queue
-                        syncQueueDao.deleteSyncAction(action)
+                        roomDataSource.deleteSyncAction(action)
                     }
                 }
             }
@@ -97,7 +84,7 @@ class UpdatesRepository @Inject constructor(
         )
 
         // Add to the sync queue
-        syncQueueDao.addSyncAction(syncAction)
+        roomDataSource.addSyncAction(syncAction)
     }
 
     suspend fun fetchUpdatesFromFirestoreToRoom(){
@@ -111,7 +98,7 @@ class UpdatesRepository @Inject constructor(
                     roomDataSource.insertOrUpdateUpdate(remoteUpdate)
                 }
 
-                if (roomDataSource.syncQueueDao.isEmpty()) {
+                if (roomDataSource.isSyncQueueEmpty()) {
                     val localUpdatesList = roomDataSource.getUpdatesSnapshot()
                     //Delete entries that exist locally but not in Firestore
                     val updateIdsToDelete =

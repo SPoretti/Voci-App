@@ -38,14 +38,12 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         VociAppRoomDatabase.getDatabase(context)
     }
 
-    private val syncQueueDao = roomDatabase.syncQueueDao()
-
     private val roomDataSource: RoomDataSource = RoomDataSource(
         homelessDao = roomDatabase.homelessDao(),
         volunteerDao = roomDatabase.volunteerDao(),
         requestDao = roomDatabase.requestDao(),
         updateDao = roomDatabase.updateDao(),
-        syncQueueDao = syncQueueDao
+        syncQueueDao = roomDatabase.syncQueueDao()
     )
 
     private val networkManager: NetworkManager = NetworkManager(
@@ -53,23 +51,18 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     )
 
     // Repositories and ViewModels
-    private val homelessRepository: HomelessRepository = HomelessRepository(
-        firestoreDataSource = FirestoreDataSource(firestore),
-        roomDataSource = roomDataSource,
-        networkManager = networkManager,
-        syncQueueDao = syncQueueDao
-    )
+    private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
 
     private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
 
-    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
 
-    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val requestRepository: RequestRepository = RequestRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
     private val requestViewModel: RequestViewModel by lazy {
         RequestViewModel(requestRepository)
     }
-    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore), roomDataSource, networkManager, syncQueueDao)
+    private val updatesRepository: UpdatesRepository = UpdatesRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
     private val updatesViewModel: UpdatesViewModel by lazy{
         UpdatesViewModel(updatesRepository)
     }

@@ -5,6 +5,8 @@ import androidx.room.PrimaryKey
 import com.example.vociapp.data.types.Area
 import java.util.UUID
 
+//Volunteer entity, used for room database
+
 @Entity(tableName = "volunteers")
 
 data class Volunteer(

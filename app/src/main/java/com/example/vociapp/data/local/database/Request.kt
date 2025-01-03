@@ -7,6 +7,8 @@ import com.example.vociapp.data.types.Area
 import com.example.vociapp.ui.components.IconCategory
 import java.util.UUID
 
+//Request entity, used for room database, it has two foreign keys: homelessID and creatorId
+
 @Entity(
     tableName = "requests",
     foreignKeys = [

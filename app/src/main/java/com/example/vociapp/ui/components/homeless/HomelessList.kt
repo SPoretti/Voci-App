@@ -60,17 +60,15 @@ fun HomelessList(
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val isLoggedIn by authViewModel.authState.collectAsState()
 
-    val userId by remember {mutableStateOf(volunteerViewModel.currentUser.value?.id)}
-    val userPreferences by volunteerViewModel.userPreferencesResource.collectAsState()
+    val user by remember {mutableStateOf(volunteerViewModel.currentUser)}
 
     val currentRoute = currentRoute(navController = navController)
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn is AuthState.Authenticated){
             homelessViewModel.getHomelesses()
-            if (userId != null) {
-                volunteerViewModel.fetchUserPreferences(userId!!)
-            }
+            if (user.value != null)
+                volunteerViewModel.getVolunteerById(user.value!!.id)
         }
     }
 
@@ -84,104 +82,92 @@ fun HomelessList(
                 )
             }
             is Resource.Success -> {
-                when (userPreferences) {
-                    is Resource.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                    is Resource.Success -> {
-                        val sortedHomelessList = homelesses.data.orEmpty()
-                            .sortedByDescending { userPreferences.data?.contains(it.id) == true }
 
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(1),
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            if(currentRoute == "home") {
+                val sortedHomelessList = homelesses.data.orEmpty()
+                    .sortedByDescending { user.value?.preferredHomelessIds?.contains(it.id) }
 
-                                items(sortedHomelessList) { homeless ->
-                                    val view = LocalView.current
-                                    val density = LocalDensity.current
-                                    val swipeState = remember(density) {
-                                        SwipeToDismissBoxState(
-                                            initialValue = SwipeToDismissBoxValue.Settled,
-                                            density = density,
-                                            confirmValueChange = { newValue ->
-                                                newValue == SwipeToDismissBoxValue.StartToEnd
-                                            },
-                                            positionalThreshold = { totalDistance ->
-                                                totalDistance * 0.4f
-                                            }
-                                        )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(1),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if(currentRoute == "home") {
+
+                        items(sortedHomelessList) { homeless ->
+                            val view = LocalView.current
+                            val density = LocalDensity.current
+                            val swipeState = remember(density) {
+                                SwipeToDismissBoxState(
+                                    initialValue = SwipeToDismissBoxValue.Settled,
+                                    density = density,
+                                    confirmValueChange = { newValue ->
+                                        newValue == SwipeToDismissBoxValue.StartToEnd
+                                    },
+                                    positionalThreshold = { totalDistance ->
+                                        totalDistance * 0.4f
                                     }
+                                )
+                            }
 
-                                    LaunchedEffect(swipeState.currentValue) {
-                                        if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
-                                            view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                                        }
-                                        if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                                            onSwipe(homeless)
-                                        }
-                                    }
-
-                                    SwipeToDismissBox(
-                                        state = swipeState,
-                                        backgroundContent = {
-                                            // Background content when swiping (e.g., delete icon)
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .clip(shape = RoundedCornerShape(16.dp))
-                                                    .background(MaterialTheme.colorScheme.secondary),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Spacer(modifier = Modifier.width(16.dp))
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.Comment,
-                                                    contentDescription = "Comment Update",
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text("Aggiorna", color = Color.White)
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth(),
-                                        enableDismissFromStartToEnd = true,
-                                        enableDismissFromEndToStart = false,
-                                        gesturesEnabled = true
-                                    ) {
-                                        // Main content (HomelessListItem)
-                                        HomelessListItem(
-                                            homelessState = HomelessItemUiState(homeless = homeless),
-                                            showPreferredIcon = showPreferredIcon,
-                                            onClick = onListItemClick,
-                                            isSelected = (homeless.id == selectedHomeless?.id)
-                                        )
-                                    }
+                            LaunchedEffect(swipeState.currentValue) {
+                                if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
+                                    view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                 }
-                            } else {
-                                items(sortedHomelessList) { homeless ->
-                                    HomelessListItem(
-                                        homelessState = HomelessItemUiState(homeless = homeless),
-                                        showPreferredIcon = showPreferredIcon,
-                                        onClick = onListItemClick,
-                                        isSelected = (homeless.id == selectedHomeless?.id)
-                                    )
+                                if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+                                    onSwipe(homeless)
                                 }
                             }
+
+                            SwipeToDismissBox(
+                                state = swipeState,
+                                backgroundContent = {
+                                    // Background content when swiping (e.g., delete icon)
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(shape = RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.secondary),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Comment,
+                                            contentDescription = "Comment Update",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Aggiorna", color = Color.White)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                enableDismissFromStartToEnd = true,
+                                enableDismissFromEndToStart = false,
+                                gesturesEnabled = true
+                            ) {
+                                // Main content (HomelessListItem)
+                                HomelessListItem(
+                                    homelessState = HomelessItemUiState(homeless = homeless),
+                                    showPreferredIcon = showPreferredIcon,
+                                    onClick = onListItemClick,
+                                    isSelected = (homeless.id == selectedHomeless?.id)
+                                )
+                            }
+                        }
+                    } else {
+                        items(sortedHomelessList) { homeless ->
+                            HomelessListItem(
+                                homelessState = HomelessItemUiState(homeless = homeless),
+                                showPreferredIcon = showPreferredIcon,
+                                onClick = onListItemClick,
+                                isSelected = (homeless.id == selectedHomeless?.id)
+                            )
                         }
                     }
-                    is Resource.Error -> {
-                        Text(
-                            text = "Error: ${userPreferences.message}",
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
                 }
+
+
+
             }
             is Resource.Error -> {
                 Text(

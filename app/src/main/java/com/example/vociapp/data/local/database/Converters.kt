@@ -4,6 +4,8 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+// Used to convert a list of strings (userPreferences) to a JSON string and vice versa
+
 class Converters {
     @TypeConverter
     fun fromJson(value: String): List<String> {
