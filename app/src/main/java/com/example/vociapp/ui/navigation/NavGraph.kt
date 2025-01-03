@@ -117,8 +117,7 @@ fun NavGraph(
 
         // Profile screen
         composable(
-            route = "UserProfileScreen/{volunteerNickname}",
-            arguments = listOf(navArgument("volunteerNickname") { type = NavType.StringType }),
+            route = Screens.UserProfile.route,
             enterTransition = {
                 slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
             },
@@ -126,12 +125,27 @@ fun NavGraph(
                 slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
             }
         ) {
-            backStackEntry ->
-            val volunteerNickname = backStackEntry.arguments?.getString("volunteerNickname")
-            UserProfileScreen(volunteerNickname.toString(), navController)
+            UserProfileScreen(navController)
         }
 
-        composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
+        composable(
+            route = Screens.UpdateUserProfile.route,
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { it }
+                )
+            }
+        ) {
+            UpdateUserProfileScreen(navController)
+        }
+
         composable(route = Screens.EmailVerification.route) { EmailVerification(navController) }
         composable(route = Screens.CompleteSignUp.route) { CompleteSignUpScreen(navController) }
         composable(route = Screens.ForgotPassword.route) {PasswordRecover(navController)}
@@ -153,7 +167,9 @@ fun NavGraph(
             }
         ) { backStackEntry ->
             val creatorId = backStackEntry.arguments?.getString("creatorId")
-            ProfileVolunteerScreen(creatorId)
+            if (creatorId != null) {
+                ProfileVolunteerScreen(creatorId)
+            }
         }
 
         composable(

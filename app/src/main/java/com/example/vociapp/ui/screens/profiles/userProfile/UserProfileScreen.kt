@@ -48,7 +48,6 @@ import com.example.vociapp.ui.navigation.Screens
 
 @Composable
 fun UserProfileScreen(
-    volunteerNickname: String,
     navController: NavHostController
 ) {
     val serviceLocator = LocalServiceLocator.current
@@ -56,9 +55,8 @@ fun UserProfileScreen(
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val currentProfile = authViewModel.getCurrentUser()
 
-    LaunchedEffect(key1 = volunteerNickname) {
-        volunteerViewModel.getVolunteerByNickname(volunteerNickname)
-    }
+    val loggedUser = volunteerViewModel.getCurrentUser()
+    volunteerViewModel.getVolunteerById(loggedUser!!.id)
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
@@ -165,7 +163,7 @@ fun UserProfileScreen(
                                     }
 
                                     Text(
-                                        text = volunteer?.nickname ?: "Unknown Volunteer",
+                                        text = volunteer!!.nickname,
                                         style = MaterialTheme.typography.headlineMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -175,27 +173,29 @@ fun UserProfileScreen(
                                         ProfileInfoItem(
                                             icon = Icons.Default.Person,
                                             label = "Volontario",
-                                            value = "${volunteer?.name ?: "Unknown Volunteer"} ${volunteer?.surname ?: "Unknown Volunteer"}",
+                                            value = "${volunteer.name} ${volunteer.surname}",
                                         )
 
                                     // email
                                     ProfileInfoItem(
                                         icon = Icons.Default.Email,
                                         label = "Email",
-                                        value = volunteer?.email ?: "Unknown Volunteer"
+                                        value = volunteer.email
                                     )
 
                                     // phone number
                                     ProfileInfoItem(
                                         icon = Icons.Default.Phone,
                                         label = "Phone Number",
-                                        value = volunteer?.phone_number ?: "Unknown Volunteer"
+                                        value = volunteer.phone_number
                                     )
+
+
 
                                     // Edit Profile Section
                                     Button(
-                                        onClick =
-                                        { navController.navigate(Screens.UpdateUserProfile.route) },
+                                        onClick = {
+                                            navController.navigate(Screens.UpdateUserProfile.route) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(top = 16.dp),

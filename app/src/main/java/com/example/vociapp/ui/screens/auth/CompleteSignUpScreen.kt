@@ -59,7 +59,6 @@ fun CompleteSignUpScreen(
     LaunchedEffect(isSigningUp) {
         if (isSigningUp) {
             val result = authViewModel.updateUserProfile(nickname)
-            Log.d("CompleteSignUpScreen", "Result: $result")
             if (result is AuthResult.Failure) {
                 SnackbarManager.showSnackbar(result.message)
             } else {

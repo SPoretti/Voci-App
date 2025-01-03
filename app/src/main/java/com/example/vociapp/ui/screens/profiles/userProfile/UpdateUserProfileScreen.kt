@@ -44,17 +44,20 @@ import com.example.vociapp.ui.viewmodels.AuthResult
 
 
 @Composable
-fun UpdateUserProfileScreen(navController: NavHostController) {
+fun UpdateUserProfileScreen(
+    navController: NavHostController,
+) {
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val currentProfile = authViewModel.getCurrentUser()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+
+    val loggedUser = volunteerViewModel.getCurrentUser()
+    volunteerViewModel.getVolunteerById(loggedUser!!.id)
+
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     if(currentProfile != null){
-        val loggedUserNickname = currentProfile.displayName
-        val volunteerLoggedEmail = currentProfile.email
-
-        Log.d(TAG, "Utente loggato (modifica): $loggedUserNickname + $volunteerLoggedEmail")
-
         var nickname by remember { mutableStateOf("") }
         var name by remember { mutableStateOf("") }
         var surname by remember { mutableStateOf("") }
@@ -65,43 +68,6 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
         var isUpdating by remember { mutableStateOf(false) }
         var isNavigatingBack by remember { mutableStateOf(false) }
         var isInitialized by remember { mutableStateOf(false) }
-        var showSnackbar by remember { mutableStateOf(false) }
-
-        val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-
-        var loggedVolunteer by remember { mutableStateOf<Volunteer?>(null) }
-
-        val volunteerResource by volunteerViewModel.currentUser.collectAsState()
-
-        LaunchedEffect(isUpdating) {
-            if (isUpdating) {
-                var result = volunteerLoggedEmail?.let { authViewModel.signInWithEmailAndPassword(it, password) }
-                if (result is AuthResult.Failure) {
-                    showSnackbar = true
-                    errorMessage = result.message
-                    isUpdating = false
-                    return@LaunchedEffect
-                } else {
-                    result = authViewModel.updateUserProfile(nickname)
-                    if (result is AuthResult.Failure) {
-                        showError = true
-                        errorMessage = result.message
-                    } else {
-                        showError = false
-                        val updatedVolunteer = Volunteer("", name, surname, nickname)
-                        Log.d(TAG, "Volontario aggiornato: $updatedVolunteer")
-                        loggedVolunteer?.let { volunteerViewModel.updateVolunteer(updatedVolunteer) }
-                        Log.d(TAG, "Volontario loggato dopo l'aggiornamento: $loggedVolunteer")
-                        navController.popBackStack()
-                    }
-                    isUpdating = false
-                }
-            }
-            if(showSnackbar) {
-                SnackbarManager.showSnackbar(errorMessage)
-                showSnackbar = false
-            }
-        }
 
         Scaffold(
             snackbarHost = { SnackbarManager.CustomSnackbarHost() },
@@ -156,20 +122,13 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
                                     .padding(24.dp),
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                when (val resource = volunteerResource) {
+                                when (volunteerResource) {
                                     is Resource.Loading -> CircularProgressIndicator()
 
-                                    is Resource.Error -> {
-                                        Text(
-                                            text = "Errore: ${resource.message}",
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-
                                     is Resource.Success -> {
-                                        val volunteer = resource.data
+                                        val volunteer = volunteerResource.data
+
                                         if (!isInitialized) {
-                                            loggedVolunteer = volunteer
                                             nickname = volunteer?.nickname ?: ""
                                             name = volunteer?.name ?: ""
                                             surname = volunteer?.surname ?: ""
@@ -183,7 +142,6 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
                                             icon = Icons.Default.Person,
                                             placeholder = "Nickname"
                                         )
-
 
                                         ProfileTextField(
                                             value = name,
@@ -222,6 +180,37 @@ fun UpdateUserProfileScreen(navController: NavHostController) {
                                                 modifier = Modifier.padding(vertical = 8.dp)
                                             )
                                         }
+
+                                        LaunchedEffect(isUpdating) {
+                                            if (isUpdating) {
+                                                var result = authViewModel.signInWithEmailAndPassword(volunteer!!.email, password)
+                                                if (result is AuthResult.Failure) {
+                                                    SnackbarManager.showSnackbar(result.message)
+                                                    return@LaunchedEffect
+                                                } else {
+                                                    result = authViewModel.updateUserProfile(nickname)
+                                                    if (result is AuthResult.Failure) {
+                                                        showError = true
+                                                        errorMessage = result.message
+                                                    } else {
+                                                        showError = false
+                                                        volunteer.name = name
+                                                        volunteer.surname = surname
+                                                        volunteer.nickname = nickname
+                                                        volunteerViewModel.updateVolunteer(volunteer)
+                                                        navController.popBackStack()
+                                                    }
+                                                    isUpdating = false
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                    is Resource.Error -> {
+                                        Text(
+                                            text = "Errore: ${volunteerResource.message}",
+                                            color = MaterialTheme.colorScheme.error
+                                        )
                                     }
                                 }
 

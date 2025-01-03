@@ -48,7 +48,6 @@ class VolunteerRepository @Inject constructor(
 
     // Get volunteer by ID, prefer local database if offline
     suspend fun getVolunteerById(volunteerId: String): Resource<Volunteer> {
-
         try {
             // 1. Try to get the request from the local database first
             val localVolunteer = roomDataSource.getVolunteerById(volunteerId)
