@@ -121,7 +121,9 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(Screens.Home.route)
                                     }
                                     else{
-                                        navController.navigate(Screens.EmailVerification.route)
+                                        navController.navigate(Screens.EmailVerification.route) {
+                                            popUpTo(0) { inclusive = true }
+                                        }
                                     }
                                 }
                                 is AuthState.Unauthenticated -> {
