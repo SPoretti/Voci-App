@@ -24,13 +24,13 @@ fun CustomSnackbar(snackbarData: SnackbarData) {
     val isKeyboardOpen by keyboardAsState()
 
     val snackbarModifier = Modifier
-        .let {
-            if (isKeyboardOpen) {
-                it.offset(y = (-600).dp)
-            } else {
-                it
-            }
-        }
+//        .let {
+//            if (isKeyboardOpen) {
+//                it.offset(y = (-600).dp)
+//            } else {
+//                it
+//            }
+//        }
         .clip(RoundedCornerShape(12.dp))
         .background(MaterialTheme.colorScheme.primary)
         .padding(16.dp)

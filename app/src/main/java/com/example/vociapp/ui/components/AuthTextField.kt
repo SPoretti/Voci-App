@@ -22,7 +22,8 @@ fun AuthTextField(
     onValueChange: (String) -> Unit,
     label: String,
     icon: ImageVector,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    placeholder: String = "",
 ) {
     OutlinedTextField(
         value = value,
@@ -35,6 +36,7 @@ fun AuthTextField(
                 tint = MaterialTheme.colorScheme.primary
             )
         },
+        placeholder = {Text(placeholder)},
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         colors = OutlinedTextFieldDefaults.colors(
