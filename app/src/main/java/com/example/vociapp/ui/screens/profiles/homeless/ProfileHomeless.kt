@@ -107,15 +107,18 @@ fun ProfileHomelessScreen(
                     if (homelessList != null) {
                         val homeless = homelessList.firstOrNull()
                         if (homeless != null) {
+                            //Info principali
                             InfoList(homeless)
-                            LocationFrame(locationState=locationState)
+                            //Mappa
+                            LocationFrame(locationState = locationState)
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            //Richieste attive
                             Text(text = "Richieste Attive")
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(240.dp)
-                            ){
+                            ) {
                                 Column {
                                     RequestList(
                                         requests = requests,
@@ -123,11 +126,13 @@ fun ProfileHomelessScreen(
                                         sortOption = selectedSortOption,
                                         navController = navController,
                                         requestViewModel = requestViewModel,
-                                        homeLessViewModel = homelessViewModel
+                                        homeLessViewModel = homelessViewModel,
+                                        isHomelessProfile = true
                                     )
                                 }
                             }
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            //Aggiornamenti
                             Text(text = "Aggiornamenti")
                             Box(
                                 modifier = Modifier
@@ -164,6 +169,7 @@ fun ProfileHomelessScreen(
                 }
             }
         }
+        //Aggiorna posizione attuale
         FloatingActionButton(
             onClick = { showAddAddressDialog = true },
             elevation = FloatingActionButtonDefaults.elevation(50.dp),
@@ -177,7 +183,11 @@ fun ProfileHomelessScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 4.dp)
             ) {
-                Icon(Icons.Filled.LocationOn, contentDescription = "Save Location", tint = MaterialTheme.colorScheme.onBackground)
+                Icon(
+                    Icons.Filled.LocationOn,
+                    contentDescription = "Save Location",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
             }
         }
         if (showAddAddressDialog) {
@@ -205,7 +215,7 @@ fun InfoList(homeless: Homeless) {
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ){
+        ) {
             Text(
                 text = "Età: ${homeless.age}",
                 style = MaterialTheme.typography.bodyMedium
@@ -230,68 +240,17 @@ fun InfoList(homeless: Homeless) {
     }
 }
 
-// RICHIESTE Attive del senzatetto
-@Composable
-fun RequestsList(requestsState: Resource<List<Request>>) {
-    when (requestsState) {
-        is Resource.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        is Resource.Success -> {
-            val requests = requestsState.data ?: emptyList()
-            if (requests.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(requests) { request ->
-                        Card(modifier = Modifier.fillMaxWidth()) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = "ID: ${request.id}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    text = "Descrizione: ${request.description}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Text(
-                                    text = "Stato: ${request.status}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                // Add more details as needed
-                            }
-                        }
-                    }
-                }
-            } else {
-                Text(text = "Nessuna richiesta trovata.")
-            }
-        }
-
-        is Resource.Error -> {
-            if (requestsState.message != "Requests not found") {
-                Text(text = "Errore nel caricamento delle richieste: ${requestsState.message}")
-            } else {
-                Text(text = "Nessuna richiesta attiva trovata.")
-            }
-        }
-    }
-}
-
 // MAPPA Ultima posizione del senzatetto
 @Composable
 fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
     when (locationState) {
         is Resource.Loading -> {
-            Column (
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background),
                 horizontalAlignment = Alignment.CenterHorizontally,
-            ){
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -326,7 +285,8 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
 @Composable
 fun MapboxMap(latitude: Double, longitude: Double) {
     val context = LocalContext.current
-    val token = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g"
+    val token =
+        "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g"
     val zoom = 14
     val size = "600x300"
     val pin = "pin-s+ff0000($longitude,$latitude)"
