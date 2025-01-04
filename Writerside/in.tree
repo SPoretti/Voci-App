@@ -79,10 +79,20 @@
                 <toc-element topic="Volunteers-Components-Package.md"/>
                 <toc-element topic="Utils-Components-Package.md"/>
                 <toc-element topic="Updates-Components-Package.md"/>
-                <toc-element topic="Core-Components-Package.md"/>
+                <toc-element topic="Core-Components-Package.md">
+                    <toc-element topic="Custom-FAB-Component.md"/>
+                    <toc-element topic="Custom-Chip-Component.md"/>
+                    <toc-element topic="Search-Bar-Component.md"/>
+                </toc-element>
                 <toc-element topic="Homeless-Components-Package.md"/>
                 <toc-element topic="Maps-Components-Package.md"/>
                 <toc-element topic="Requests-Components-Package.md">
+                    <toc-element topic="Request-List-Item-Component.md"/>
+                    <toc-element topic="Request-List-Component.md"/>
+                    <toc-element topic="Sort-Buttons-Component.md"/>
+                    <toc-element topic="Icon-Mapping.md"/>
+                    <toc-element topic="Icon-Selector-Component.md"/>
+                    <toc-element topic="Dialog-Search-Bar-Component.md"/>
                     <toc-element topic="Modify-Request-Dialog.md"/>
                 </toc-element>
             </toc-element>

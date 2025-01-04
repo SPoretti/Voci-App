@@ -39,7 +39,6 @@ fun RequestsHistoryScreen(
 
     val serviceLocator = LocalServiceLocator.current
     // Viewmodels
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     // Requests get and sort
     val requests by requestViewModel.requests.collectAsState()
@@ -90,9 +89,7 @@ fun RequestsHistoryScreen(
                         requests = requests,
                         filterOption = RequestStatus.DONE,
                         sortOption = selectedSortOption,
-                        navController = navController,
-                        requestViewModel = requestViewModel,
-                        homeLessViewModel = homelessViewModel
+                        navController = navController
                     )
                 }
             }

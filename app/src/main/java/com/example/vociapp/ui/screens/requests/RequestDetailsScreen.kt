@@ -43,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
@@ -51,8 +50,8 @@ import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomChip
 import com.example.vociapp.ui.components.requests.ModifyRequestDialog
-import com.example.vociapp.ui.components.requests.RequestChip
 import com.example.vociapp.ui.components.requests.iconCategoryMap
 import com.example.vociapp.ui.components.updates.StatusLED
 
@@ -211,7 +210,7 @@ fun RequestDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Creata da:", style = MaterialTheme.typography.labelMedium)
-                            RequestChip(
+                            CustomChip(
                                 text = request?.creatorId ?: "",
                                 onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
                                 imageVector = Icons.Filled.Person
@@ -232,7 +231,7 @@ fun RequestDetailsScreen(
 
                             Text("Ricevente:", style = MaterialTheme.typography.labelMedium)
 
-                            RequestChip(
+                            CustomChip(
                                 text = homelessName,
                                 onClick = { navController.navigate("profileHomeless/${request?.homelessID}") },
                                 imageVector = Icons.Filled.AssignmentInd,
@@ -243,9 +242,9 @@ fun RequestDetailsScreen(
                 // Error state: Show a message and a button to leave the screen
                 // Only way this should be triggered is if the request id is invalid somehow
                 is Resource.Error -> {
+                    Log.e("RequestDetailsScreen", "Error: ${requestResource.message}")
                     Column {
                         Text("Something went wrong. Please try again later.")
-                        Log.e("RequestDetailsScreen", "Error: ${requestResource.message}")
                         Button(onClick = {
                             navController.popBackStack()
                         }) {

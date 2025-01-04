@@ -27,31 +27,39 @@ import com.example.vociapp.data.util.IconCategory
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IconSelector(
-    onIconSelected: (IconCategory) -> Unit,
-    modifier: Modifier = Modifier
+    onIconSelected: (IconCategory) -> Unit,     // Callback to handle icon selection
+    selectedIconCategory: IconCategory,         // Currently selected icon category
+    modifier: Modifier = Modifier,              // Modifier for styling
 ) {
-    var selectedIconCategory by remember { mutableStateOf(IconCategory.OTHER) }
+    //----- Region: Data Initialization -----
+    // Value used to display the dropdown menu
     var expanded by remember { mutableStateOf(false) }
 
+    // Dropdown menu to select the icon category
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
         modifier = modifier.fillMaxWidth()
     ) {
+        // OutlinedTextField used to display the currently selected icon category
         OutlinedTextField(
-            readOnly = true,
-            value = selectedIconCategory.displayName,
-            onValueChange = { },
-            label = { Text("Icona") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            readOnly = true,                                // Only display the text
+            value = selectedIconCategory.displayName,       // Display the currently selected icon
+            onValueChange = { },                            // Do nothing when the text is changed (necessary default field)
+            label = { Text("Icona") },                      // Label for the text field
+            trailingIcon = {
+                // Display the dropdown icon based on the expanded state
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryEditable, true)
+                .menuAnchor(MenuAnchorType.PrimaryEditable, true)   // Anchor the dropdown menu to the text field
                 .fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(      // Style
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
             ),
             leadingIcon = {
+                // Display the currently selected icon
                 Icon(
                     painter = painterResource(id = iconCategoryMap[selectedIconCategory]!!),
                     contentDescription = null,
@@ -59,24 +67,28 @@ fun IconSelector(
                 )
             }
         )
+        // Dropdown menu to display the list of icon categories
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) {
+            // Display each icon category as a dropdown item
             IconCategory.entries.forEach { iconCategory ->
                 DropdownMenuItem(
-                    text = { Text(iconCategory.displayName) },
-                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                    text = { Text(iconCategory.displayName) }, // Display the icon category name
                     onClick = {
-                        selectedIconCategory = iconCategory
+                        // Callback
                         onIconSelected(iconCategory)
+                        // Close the dropdown
                         expanded = false
                     },
+                    // Style
                     colors = MenuDefaults.itemColors(
                         textColor = MaterialTheme.colorScheme.onBackground,
                     ),
                     leadingIcon = {
+                        // Display the icon for the icon category
                         Icon(
                             painter = painterResource(id = iconCategoryMap[iconCategory]!!),
                             contentDescription = null,

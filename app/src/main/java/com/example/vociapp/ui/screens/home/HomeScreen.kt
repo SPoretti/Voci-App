@@ -2,7 +2,6 @@ package com.example.vociapp.ui.screens.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,9 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SnackbarDuration
@@ -34,15 +30,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.DrawerContent
 import com.example.vociapp.ui.components.core.SearchBar
 import com.example.vociapp.ui.components.homeless.AddHomelessDialog
 import com.example.vociapp.ui.components.homeless.HomelessList
-import com.example.vociapp.ui.components.utils.hapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -120,14 +115,6 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         SearchBar(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                            onSearch = { homelessViewModel.updateSearchQuery(it)},
-                            placeholderText = "Cerca...",
-                            unfocusedBorderColor = Color.Transparent,
-                            onClick = {  },
-                            onDismiss = { homelessViewModel.updateSearchQuery("") },
                             navController = navController,
                             onLeadingIconClick = { openDrawer() }
                         )
@@ -212,23 +199,12 @@ fun HomeScreen(
                 }
             }
 
-            FloatingActionButton(
+            CustomFAB(
+                text = "Aggiungi Senzatetto",
+                icon = Icons.Filled.Add,
                 onClick = { showAddHomelessDialog = true },
-                elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .hapticFeedback(),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add homeless", tint = MaterialTheme.colorScheme.onPrimary)
-                    Text("Aggiungi Senzatetto", color = MaterialTheme.colorScheme.onPrimary)
-                }
-            }
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
     }
 }

@@ -33,38 +33,47 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.util.DateTimeFormatter
 import com.example.vociapp.data.util.DateTimeFormatterImpl
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomChip
 
 @Composable
 fun RequestListItem(
     request: Request,
-    navController: NavHostController,
-    homelessViewModel: HomelessViewModel
+    navController: NavHostController
 ){
-
+    //----- Region: Data Initialization -----
+    val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    // Map of names of the homeless to get the name of the homeless
     val names = homelessViewModel.homelessNames.collectAsState().value
-
+    val homelessName by remember(request.homelessID) {
+        derivedStateOf {
+            names[request.homelessID] ?: "Unknown"
+        }
+    }
+    // Date formatter
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
 
-
+    //----- Region: View Composition -----
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(navController, request) },
+            .clickable {
+                navController.navigate("requestDetailsScreen/${request.id}")
+            },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 4.dp,
+        shadowElevation = 16.dp,
     ) {
-
+        // Display request
         Row(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
                 .fillMaxSize(),
         ) {
-
+            // Icon based on the category at the beginning
             Box(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(top = 8.dp, bottom = 8.dp, end = 0.dp, start = 12.dp)
                     .size(48.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primary,
@@ -81,13 +90,13 @@ fun RequestListItem(
                         .align(Alignment.Center)
                 )
             }
-
+            // Details of the request
             Column(
                 modifier = Modifier
-                    .padding(8.dp),
+                    .padding(top = 8.dp, bottom = 8.dp, end = 12.dp, start = 12.dp),
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.SpaceBetween
             ){
+                // Title and date
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -95,7 +104,7 @@ fun RequestListItem(
                 ){
                     Text(
                         text = request.title,
-                        style = MaterialTheme.typography.bodyMedium.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         ),
@@ -104,43 +113,28 @@ fun RequestListItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f)
                     )
-
                     Text(
                         text = dateTimeFormatter.formatDate(request.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                Row{
-                    Text(
-                        text = request.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Row (verticalAlignment = Alignment.CenterVertically) {
-
-                    val homelessName by remember(request.homelessID) {
-                        derivedStateOf {
-                            names[request.homelessID] ?: "Unknown"
-                        }
-                    }
-
-                    RequestChip(
-                        text = homelessName,
-                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
-                        imageVector = Icons.Filled.AssignmentInd
-                    )
-
-                }
+                Text(
+                    text = request.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                // Chip with homless Name and assiginment icon
+                // that navigates to the profile of the homeless
+                CustomChip(
+                    text = homelessName,
+                    onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
+                    imageVector = Icons.Filled.AssignmentInd
+                )
             }
         }
     }
-}
-
-fun onClick(navController: NavHostController, request: Request) {
-    navController.navigate("requestDetailsScreen/${request.id}")
 }
 
