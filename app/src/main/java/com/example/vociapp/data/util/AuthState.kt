@@ -2,8 +2,9 @@ package com.example.vociapp.data.util
 
 import com.google.firebase.auth.FirebaseUser
 
+// Sealed class for authentication states
 sealed class AuthState {
-    object Uninitialized : AuthState()
-    object Unauthenticated : AuthState()
+    data object Uninitialized : AuthState()
+    data object Unauthenticated : AuthState()
     data class Authenticated(val user: FirebaseUser) : AuthState()
 }

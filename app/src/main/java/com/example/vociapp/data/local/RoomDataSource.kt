@@ -11,6 +11,7 @@ import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -155,26 +156,6 @@ class RoomDataSource(
         volunteerDao.deleteById(volunteerId)
     }
 
-    // ------------------------------- Preferences Functions ----------------------------------
-
-    suspend fun getUserPreferences(userId: String): Resource<String> {
-        return try {
-            // Query the local database for the volunteer's preferences
-            val preferences = volunteerDao.getUserPreferences(userId)
-            if (preferences != null) {
-                Resource.Success(preferences)
-            } else {
-                Resource.Success("") // Return an empty json string if preferences are not found
-            }
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An error occurred while retrieving user preferences")
-        }
-    }
-
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>) {
-        volunteerDao.updateUserPreferences(userId, preferredHomelessIds)
-    }
-
     // ------------------------------- Updates Functions ----------------------------------
 
     suspend fun insertUpdate(update: Update) {
@@ -210,7 +191,19 @@ class RoomDataSource(
         return syncQueueDao.isEmpty()
     }
 
-    suspend fun addSyncAction(syncAction: SyncAction) {
+    suspend fun addSyncAction(entityType: String, operation: String, data: Any) {
+        // Serialize the data object to JSON
+        val dataJson = Gson().toJson(data)
+
+        // Create a new sync action to store in the queue
+        val syncAction = SyncAction(
+            entityType = entityType,
+            operation = operation,
+            data = dataJson,
+            timestamp = System.currentTimeMillis()
+        )
+
+        // Add to the sync queue
         syncQueueDao.addSyncAction(syncAction)
     }
 

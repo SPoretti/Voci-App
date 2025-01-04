@@ -160,7 +160,7 @@ fun HomeScreen(
                                     modifier = Modifier.align(Alignment.TopCenter),
                                     isRefreshing = isRefreshing.value,
                                     containerColor = MaterialTheme.colorScheme.primary,
-                                    color = MaterialTheme.colorScheme.onBackground,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     state = refreshState
                                 )
                             }
