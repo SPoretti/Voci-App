@@ -89,7 +89,10 @@ fun SignInScreen(
                     errorMessage = result.message
                 }else {
                     //delay(3000)
-                    volunteerViewModel.getVolunteerByEmail(email)
+                    val volunteer = volunteerViewModel.getVolunteerByEmail(email).value.data
+                    if (volunteer != null) {
+                        volunteerViewModel.setCurrentUser(volunteer)
+                    }
                     navController.navigate(Screens.Home.route) {
                         popUpTo(Screens.SignIn.route) { inclusive = true }
                     }

@@ -206,7 +206,7 @@ fun SignUpScreen(
                 val id: String = UUID.randomUUID().toString()
                 val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
-                volunteerViewModel.getVolunteerById(id)
+                volunteerViewModel.setCurrentUser(volunteer)
 
                 navController.navigate(Screens.UserProfile.route) {
                     popUpTo(Screens.SignUp.route) { inclusive = true }

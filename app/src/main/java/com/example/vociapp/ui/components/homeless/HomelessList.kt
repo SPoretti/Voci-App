@@ -24,7 +24,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +36,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.vociapp.data.local.database.Homeless
-import com.example.vociapp.data.util.AuthState
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.navigation.currentRoute
@@ -55,22 +53,11 @@ fun HomelessList(
 ) {
 
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val authViewModel = serviceLocator.obtainAuthViewModel()
-    val isLoggedIn by authViewModel.authState.collectAsState()
 
     val user by remember {mutableStateOf(volunteerViewModel.currentUser)}
 
     val currentRoute = currentRoute(navController = navController)
-
-    LaunchedEffect(isLoggedIn) {
-        if (isLoggedIn is AuthState.Authenticated){
-            homelessViewModel.getHomelesses()
-            if (user.value != null)
-                volunteerViewModel.getVolunteerById(user.value!!.id)
-        }
-    }
 
     Box(modifier = modifier.fillMaxWidth()) {
 
