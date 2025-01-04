@@ -13,14 +13,16 @@ import com.example.vociapp.ui.state.SortOption
 
 @Composable
 fun SortButtons(
-    sortOptions: List<SortOption>,
-    selectedSortOption: SortOption,
-    onSortOptionSelected: (SortOption) -> Unit
+    sortOptions: List<SortOption>,              // List of sort options
+    selectedSortOption: SortOption,             // Currently selected sort option
+    onSortOptionSelected: (SortOption) -> Unit  // Callback to handle sort option selection
 ) {
     Row {
+        // Create a button for each sort option
         sortOptions.forEach { option ->
             Button(
-                onClick = { onSortOptionSelected(option) },
+                onClick = { onSortOptionSelected(option) }, // Callback when button is clicked
+                // Style
                 modifier = Modifier.padding(4.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (option.label == selectedSortOption.label) {
@@ -36,7 +38,7 @@ fun SortButtons(
 
                 )
             ) {
-                Text(option.label)
+                Text(option.label)  // Display the button label
             }
         }
     }

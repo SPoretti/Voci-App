@@ -32,7 +32,6 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.core.SearchBar
 import com.example.vociapp.ui.components.homeless.HomelessList
 
 @Composable
@@ -41,7 +40,6 @@ fun ModifyRequestDialog(
     navController: NavHostController,   // Navigation controller for navigation
     request: Request                    // Request to be modified
 ) {
-
     //----- Region: Data Initialization -----
 
     val serviceLocator = LocalServiceLocator.current
@@ -52,6 +50,7 @@ fun ModifyRequestDialog(
     var requestTitle by remember { mutableStateOf(request.title) }
     var requestDescription by remember { mutableStateOf(request.description) }
     var homelessID by remember { mutableStateOf(request.homelessID) }
+    var selectedIconCategory by remember { mutableStateOf(request.iconCategory) }
     // Homeless Selection Data
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
@@ -67,7 +66,7 @@ fun ModifyRequestDialog(
     //----- Region: View Composition -----
 
     AlertDialog(
-        // called when the user tries to dismiss the Dialog by pressing the back button.
+        // Called when the user tries to dismiss the Dialog by pressing the back button.
         // This is not called when the dismiss button is clicked.
         onDismissRequest = { onDismiss() },
         // Style
@@ -99,14 +98,9 @@ fun ModifyRequestDialog(
                             .padding(16.dp)
                     ) {
                         // Searchbar for homeless selection
-                        SearchBar(
-                            modifier = Modifier.fillMaxWidth(),
+                        DialogSearchBar(
                             onSearch = { homelessViewModel.updateSearchQuery(it) },
-                            placeholderText = "Cerca un senzatetto...",
-                            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-                            onClick = { },
-                            onDismiss = { },
-                            navController = navController
+                            placeholderText = "Cerca..."
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -162,6 +156,16 @@ fun ModifyRequestDialog(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                             ),
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Modify icon starts with the current icon
+                        IconSelector(
+                            onIconSelected = { iconCategory ->
+                                selectedIconCategory = iconCategory
+                            },
+                            selectedIconCategory = selectedIconCategory
                         )
                     }
                 }
@@ -239,6 +243,4 @@ fun ModifyRequestDialog(
             }
         }
     )
-
-    // ----- End Region -----
 }

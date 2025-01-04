@@ -16,8 +16,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -42,10 +40,10 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.requests.AddRequestDialog
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.requests.SortButtons
-import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.state.SortOption
 import kotlinx.coroutines.launch
@@ -62,8 +60,6 @@ fun RequestsScreen(
 
     // Viewmodels
     val requestViewModel = serviceLocator.obtainRequestViewModel()
-    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     // Requests get and sort
     val requests by requestViewModel.requests.collectAsState()
     LaunchedEffect(Unit) {
@@ -151,29 +147,16 @@ fun RequestsScreen(
                             requests = requests,
                             filterOption = RequestStatus.TODO,
                             sortOption = selectedSortOption,
-                            navController = navController,
-                            requestViewModel = requestViewModel,
-                            homeLessViewModel = homelessViewModel
+                            navController = navController
                         )
                     }
                     // Add Request Floating Button
-                    FloatingActionButton(
+                    CustomFAB(
+                        text = "Aggiungi Richiesta",
+                        icon = Icons.Filled.Add,
                         onClick = { showAddRequestDialog = true },
-                        elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                            .hapticFeedback(),
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ) {
-                        Row (
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 4.dp)
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add request", tint = MaterialTheme.colorScheme.onPrimary)
-                            Text("Aggiungi Richiesta", color = MaterialTheme.colorScheme.onPrimary)
-                        }
-                    }
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
                 }
                 // Error state: Show a message and a button to leave the screen
                 // This should not be possible.
@@ -194,11 +177,6 @@ fun RequestsScreen(
         if (showAddRequestDialog) {
             AddRequestDialog(
                 onDismiss = { showAddRequestDialog = false },
-                onAdd = {
-                    requestViewModel.addRequest(it)
-                    showAddRequestDialog = false
-                },
-                volunteerViewModel = volunteerViewModel,
                 navController = navController,
             )
         }

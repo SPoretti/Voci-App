@@ -1,8 +1,8 @@
 package com.example.vociapp.ui.components.core
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Dehaze
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -34,86 +32,82 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.navigation.currentRoute
 
 @Composable
 fun SearchBar(
-    modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit,
-    placeholderText: String,
-    unfocusedBorderColor: Color,
-    onClick: () -> Unit,
-    onDismiss: () -> Unit,
-    navController: NavController,
-    onLeadingIconClick: (() -> Unit)? = null
+    navController: NavController,   // Navigation controller for navigation
+    onLeadingIconClick: () -> Unit  // Callback to open the drawer
 ) {
+    //----- Region: Data Initialization -----
     var searchText by remember { mutableStateOf("") }
-    var isSearchBarFocused by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val currentUser = authViewModel.getCurrentUserProfile()
-    val currentRoute = currentRoute(navController)
 
+    //----- Region: View Composition -----
     OutlinedTextField(
+        // Displayed text
         value = searchText,
+        // On value change
         onValueChange = { newText ->
-            searchText = newText
-            onSearch(newText)
+            searchText = newText                                // Update displayed text
+            homelessViewModel.updateSearchQuery(searchText)     // Update search query
         },
-        modifier = modifier
-            .clickable { onClick() }
-            .onFocusChanged { focusState ->
-                if (isSearchBarFocused && !focusState.isFocused) {
-                    isSearchBarFocused = false
-                    onDismiss()
-                } else if (focusState.isFocused) {
-                    isSearchBarFocused = true
-                }
-            },
+        // Style
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        placeholder = {
+            Text(
+                text = "Cerca...",
+            )
+        },
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedBorderColor = Color.Transparent,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
+        ),
+        shape = RoundedCornerShape(35.dp),
+        // Leading icon to open the drawer in the Home Page
         leadingIcon = {
-            if (onLeadingIconClick != null){
-                Row(
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                ) {
-                    IconButton(
-                        onClick = {
-                            onLeadingIconClick()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Dehaze,
-                            contentDescription = "Drawer",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .size(32.dp)
-                        )
-                    }
-                }
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .size(24.dp)
-                )
-            }
-
-        },
-        trailingIcon = {
-            if(
-                searchText.isNotEmpty()
-                && isSearchBarFocused
+            Row(
+                modifier = Modifier
+                    .padding(start = 8.dp)
             ) {
+                IconButton(
+                    onClick = {
+                        onLeadingIconClick()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Dehaze,
+                        contentDescription = "Drawer",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .size(32.dp)
+                    )
+                }
+            }
+        },
+        // Trailing icon has 3 possible states
+        // 1 -> X to clear search
+        // 2 -> Photo from url
+        // 3 -> Person icon
+        trailingIcon = {
+            if( searchText.isNotEmpty() ) { // If the search query is not empty show an X to clear it
                 Row(
                     modifier = Modifier
-                        .padding(end = 8.dp)
+                        .padding(end = 12.dp)
                 ) {
                     IconButton(
                         onClick = {
                             searchText = ""
-                            onSearch("")
+                            homelessViewModel.updateSearchQuery(searchText)
                         }
                     ) {
                         Icon(
@@ -125,76 +119,56 @@ fun SearchBar(
                         )
                     }
                 }
-            } else {
-                if(currentRoute == "home") {
-
-                    if(currentUser?.photoUrl != null) {
-
-                        Row(
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    navController.navigate("userProfile")
-                                },
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .hapticFeedback()
-                            ) {
-                                AsyncImage(
-                                    model = currentUser.photoUrl,
-                                    contentDescription = "Profile Picture",
-                                    modifier = Modifier
-                                        .align(Alignment.CenterVertically)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-
-                    } else {
-                        Row(
+            } else { // If the search query is empty show the user icon to navigate to the profile
+                if(currentUser?.photoUrl != null) { // If the user has a photoUrl set use it
+                    Row(
+                        modifier = Modifier.padding(end = 12.dp)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                navController.navigate("userProfile")
+                            },
                             modifier = Modifier
-                                .padding(end = 8.dp)
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .hapticFeedback()
                         ) {
-                            IconButton(
-                                onClick = {
-                                    navController.navigate("userProfile")
-                                },
+                            // Async Image using the photoUrl
+                            AsyncImage(
+                                model = currentUser.photoUrl,
+                                contentDescription = "Profile Picture",
                                 modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                                    .hapticFeedback()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Person,
-                                    contentDescription = "Account",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                )
-                            }
+                                    .align(Alignment.CenterVertically)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                } else { // If the user has no photoUrl set use the default icon
+                    Row(
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                navController.navigate("userProfile")
+                            },
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .hapticFeedback()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Person,
+                                contentDescription = "Account",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .size(32.dp)
+                            )
                         }
                     }
                 }
             }
-        },
-        placeholder = {
-            Text(
-                text = placeholderText,
-                //textAlign = TextAlign.Center,
-            )
-        },
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedBorderColor = unfocusedBorderColor,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = RoundedCornerShape(35.dp)
+        }
     )
 }

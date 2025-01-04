@@ -1,6 +1,7 @@
-package com.example.vociapp.ui.components.requests
+package com.example.vociapp.ui.components.core
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -15,11 +16,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RequestChip(
-    text: String,
-    onClick: () -> Unit,
-    imageVector: ImageVector? = null
+fun CustomChip(
+    text: String,                       // Text to display
+    onClick: () -> Unit,                // Callback to handle chip click
+    imageVector: ImageVector? = null    // Optional icon to display
 ) {
+    // Modular Chip to be used in different screens
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
@@ -29,6 +31,7 @@ fun RequestChip(
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icon if provided
             if (imageVector != null) {
                 Icon(
                     imageVector = imageVector,
@@ -38,6 +41,9 @@ fun RequestChip(
                         .align(Alignment.CenterVertically)
                 )
             }
+
+            Spacer(modifier = Modifier.padding(2.dp))
+            // Text
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodySmall,
