@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,9 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -44,6 +43,7 @@ import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfileInfoItem
+import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.navigation.Screens
 
 @Composable
@@ -54,200 +54,206 @@ fun UserProfileScreen(
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val currentProfile = authViewModel.getCurrentUser()
-
     val loggedUser = volunteerViewModel.getCurrentUser()
-    volunteerViewModel.getVolunteerById(loggedUser!!.id)
+
+    if (loggedUser != null) {
+        volunteerViewModel.getVolunteerById(loggedUser.id)
+    }
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     if (currentProfile != null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Card(
+        Log.d("Utente loggato", "Logged user: ${currentProfile.email} + ${currentProfile.phoneNumber} + ${currentProfile.uid}")
+        Scaffold(
+            snackbarHost = { SnackbarManager.CustomSnackbarHost() },
+            content = { padding ->
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.Transparent)
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-
-                        // Edit button
-                        IconButton(
-                            onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .size(38.dp),
-                            colors = IconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.primary,
-                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit Profile",
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .clip(CircleShape)
-                                    .size(40.dp),
-                            )
-                        }
-
-                        // Logout button
-                        IconButton(
-                            onClick = { authViewModel.signOut() },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .size(38.dp),
-                            colors = IconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.primary,
-                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                contentDescription = "Logout",
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(6.dp)
-                                    .clip(CircleShape)
-                                    .size(40.dp)
-                            )
-                        }
-
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                .padding(16.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                         ) {
-                            when (volunteerResource) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.Transparent)
+                            ) {
 
-                                is Resource.Loading -> {
-                                    CircularProgressIndicator()
+                                // Edit button
+                                IconButton(
+                                    onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
+                                    modifier = Modifier
+                                        .align(Alignment.TopStart)
+                                        .size(40.dp),
+                                    colors = IconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.primary,
+                                        disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                        disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Profile",
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .padding(6.dp)
+                                            .clip(CircleShape)
+                                            .size(40.dp),
+                                    )
                                 }
 
-                                is Resource.Success -> {
-                                    val volunteer = volunteerResource.data
+                                // Logout button
+                                IconButton(
+                                    onClick = { authViewModel.signOut()
+                                              navController.navigate(Screens.SignIn.route){
+                                            popUpTo(0) { inclusive = true }}},
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(40.dp),
+                                    colors = IconButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.primary,
+                                        disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                        disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                        contentDescription = "Logout",
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .padding(6.dp)
+                                            .clip(CircleShape)
+                                            .size(40.dp)
+                                    )
+                                }
 
-                                    val initials =
-                                        "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    when (volunteerResource) {
 
-                                    if (currentProfile.photoUrl != null) {
-                                        Log.d("ProfilePicture", "URL: ${currentProfile.photoUrl}")
-                                        AsyncImage(
-                                            model = currentProfile.photoUrl,
-                                            contentDescription = "Profile Picture",
-                                            modifier = Modifier
-                                                .size(120.dp)
-                                                .clip(CircleShape),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    } else {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .size(130.dp)
-                                                .clip(CircleShape)
-                                                .background(MaterialTheme.colorScheme.primary)
-                                        ) {
+                                        is Resource.Loading -> {
+                                            CircularProgressIndicator()
+                                        }
+
+                                        is Resource.Success -> {
+                                            val volunteer = volunteerResource.data
+
+                                            val initials =
+                                                "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+
+                                            //Profile picture
+                                            if (currentProfile.photoUrl != null) {
+                                                AsyncImage(
+                                                    model = currentProfile.photoUrl,
+                                                    contentDescription = "Profile Picture",
+                                                    modifier = Modifier
+                                                        .size(120.dp)
+                                                        .clip(CircleShape),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            } else {
+
+                                                Box(
+                                                    contentAlignment = Alignment.Center,
+                                                    modifier = Modifier
+                                                        .size(130.dp)
+                                                        .clip(CircleShape)
+                                                        .background(MaterialTheme.colorScheme.primary)
+                                                ) {
+                                                    Text(
+                                                        text = initials,
+                                                        style = MaterialTheme.typography.headlineMedium,
+                                                        fontWeight = FontWeight.Medium,
+                                                        fontSize = 60.sp
+                                                    )
+                                                }
+                                            }
+
                                             Text(
-                                                text = initials,
+                                                text = volunteer!!.nickname,
                                                 style = MaterialTheme.typography.headlineMedium,
-                                                fontWeight = FontWeight.Medium,
-                                                fontSize = 60.sp
+                                                fontWeight = FontWeight.Bold
+                                            )
+
+                                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                                            ProfileInfoItem(
+                                                icon = Icons.Default.Person,
+                                                label = "Volontario",
+                                                value = "${volunteer.name} ${volunteer.surname}",
+                                            )
+
+                                            // email
+                                            ProfileInfoItem(
+                                                icon = Icons.Default.Email,
+                                                label = "Email",
+                                                value = volunteer.email
+                                            )
+
+                                            if (currentProfile.phoneNumber?.isNotEmpty() == true) {
+                                                Log.d("ProfilePicture", "Phone: ${currentProfile.phoneNumber}")
+                                                // phone number
+                                                ProfileInfoItem(
+                                                    icon = Icons.Default.Phone,
+                                                    label = "Numero di telefono",
+                                                    value = volunteer.phone_number
+                                                )
+                                            } else {
+                                                ProfileInfoItem(
+                                                    icon = Icons.Default.Phone,
+                                                    label = "Numero di telefono",
+                                                    value = volunteer.phone_number
+                                                )
+                                            }
+                                        }
+
+                                        is Resource.Error -> {
+                                            Text(
+                                                text = "Errore: ${volunteerResource.message}",
+                                                color = MaterialTheme.colorScheme.error
                                             )
                                         }
                                     }
-
-                                    Text(
-                                        text = volunteer!!.nickname,
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                                    ProfileInfoItem(
-                                        icon = Icons.Default.Person,
-                                        label = "Volontario",
-                                        value = "${volunteer.name} ${volunteer.surname}",
-                                    )
-
-                                    // email
-                                    ProfileInfoItem(
-                                        icon = Icons.Default.Email,
-                                        label = "Email",
-                                        value = volunteer.email
-                                    )
-
-                                    // phone number
-                                    ProfileInfoItem(
-                                        icon = Icons.Default.Phone,
-                                        label = "Phone Number",
-                                        value = volunteer.phone_number
-                                    )
-
-                                    // Edit Profile Section
-                                    Button(
-                                        onClick = {
-                                            navController.navigate(Screens.UpdateUserProfile.route)
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 16.dp),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text("Modifica profilo")
-                                    }
-                                }
-
-                                is Resource.Error -> {
-                                    Text(
-                                        text = "Errore: ${volunteerResource.message}",
-                                        color = MaterialTheme.colorScheme.error
-                                    )
                                 }
                             }
                         }
                     }
                 }
+
             }
-        }
+        )
     } else {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Errore: Nessun utente loggato.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-        return
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Errore: Nessun utente loggato.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
     }
-
-
 }

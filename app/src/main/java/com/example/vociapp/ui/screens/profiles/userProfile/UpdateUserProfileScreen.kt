@@ -1,31 +1,29 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
-import android.content.ContentValues.TAG
-import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Password
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,17 +35,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.data.local.database.Volunteer
+import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.ProfilePictureDialog
 import com.example.vociapp.ui.components.ProfileTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.viewmodels.AuthResult
-
 
 @Composable
 fun UpdateUserProfileScreen(
@@ -59,11 +58,13 @@ fun UpdateUserProfileScreen(
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     val loggedUser = volunteerViewModel.getCurrentUser()
-    volunteerViewModel.getVolunteerById(loggedUser!!.id)
+    if (loggedUser != null) {
+        volunteerViewModel.getVolunteerById(loggedUser.id)
+    }
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
-    if(currentProfile != null){
+    if (currentProfile != null) {
         var photoUrl by remember { mutableStateOf("") }
         var nickname by remember { mutableStateOf("") }
         var name by remember { mutableStateOf("") }
@@ -73,8 +74,9 @@ fun UpdateUserProfileScreen(
         var showError by remember { mutableStateOf(false) }
         var errorMessage by remember { mutableStateOf("") }
         var isUpdating by remember { mutableStateOf(false) }
-        var isNavigatingBack by remember { mutableStateOf(false) }
         var isInitialized by remember { mutableStateOf(false) }
+        var showDialog by remember { mutableStateOf(false) }
+        var isPasswordCorrect by remember { mutableStateOf(true) }
 
         Scaffold(
             snackbarHost = { SnackbarManager.CustomSnackbarHost() },
@@ -85,35 +87,16 @@ fun UpdateUserProfileScreen(
                         .padding(padding)
                         .background(MaterialTheme.colorScheme.background)
                 ) {
-
-                    IconButton(
-                        onClick = {
-                            isNavigatingBack = true
-                            navController.popBackStack()
-                        },
-                        enabled = !isNavigatingBack,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .align(Alignment.TopStart)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to Profile",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 56.dp, start = 16.dp, end = 16.dp),
+                            .padding(start = 16.dp, end = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
                             "Modifica il profilo",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.headlineMedium
                         )
 
                         Card(
@@ -142,71 +125,138 @@ fun UpdateUserProfileScreen(
                                             isInitialized = true
                                         }
 
-                                        ProfileTextField(
-                                            value = photoUrl,
-                                            onValueChange = { photoUrl = it },
-                                            label = "Immagine Profilo",
-                                            icon = Icons.Default.Face,
-                                            placeholder = "URL Immagine Profilo",
-                                            modifier = Modifier
-                                                .horizontalScroll(rememberScrollState()),
-                                            singleLine = true
-                                        )
+                                        Row (
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box (
+                                                modifier = Modifier.padding(end = 16.dp)
+                                            ) {
+                                                AsyncImage(
+                                                    model = currentProfile.photoUrl,
+                                                    contentDescription = "Profile Picture",
+                                                    modifier = Modifier
+                                                        .size(120.dp)
+                                                        .clip(CircleShape),
+                                                    contentScale = ContentScale.Crop
+                                                )
+
+                                                IconButton(
+                                                    onClick = { showDialog = true },
+                                                    modifier = Modifier
+                                                        .align(Alignment.BottomEnd)
+                                                        .size(32.dp)
+                                                        .clip(CircleShape)
+                                                        .background(MaterialTheme.colorScheme.primary)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Edit,
+                                                        contentDescription = "Modifica Profilo",
+                                                        modifier = Modifier.size(24.dp)
+                                                    )
+                                                }
+
+                                                ProfilePictureDialog(
+                                                    showDialog = showDialog,
+                                                    onDismiss = { showDialog = false },
+                                                    onSave = { newPhotoUrl ->
+                                                        photoUrl = newPhotoUrl
+                                                        showDialog = false
+                                                    },
+                                                    initialPhotoUrl = photoUrl
+                                                )
+
+                                            }
+
+                                            Column (
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                ProfileTextField(
+                                                    value = name,
+                                                    onValueChange = { name = it },
+                                                    label = "Nome",
+                                                    placeholder = "Nome"
+                                                )
+                                                ProfileTextField(
+                                                    value = surname,
+                                                    onValueChange = { surname = it },
+                                                    label = "Cognome",
+                                                    placeholder = "Cognome"
+                                                )
+                                            }
+                                        }
 
                                         ProfileTextField(
                                             value = nickname,
                                             onValueChange = { nickname = it },
                                             label = "Nickname",
-                                            icon = Icons.Default.Person,
                                             placeholder = "Nickname"
-                                        )
-
-                                        ProfileTextField(
-                                            value = name,
-                                            onValueChange = { name = it },
-                                            label = "Nome",
-                                            icon = Icons.Default.Person,
-                                            placeholder = "Nome"
-                                        )
-
-                                        ProfileTextField(
-                                            value = surname,
-                                            onValueChange = { surname = it },
-                                            label = "Cognome",
-                                            icon = Icons.Default.Person,
-                                            placeholder = "Cognome"
                                         )
 
                                         ProfileTextField(
                                             value = password,
                                             onValueChange = { password = it },
-                                            label = "Password",
-                                            icon = Icons.Default.Password,
+                                            label = if (isPasswordCorrect) "Password" else "Password errata",
                                             placeholder = "Password",
+                                            colors = OutlinedTextFieldDefaults.colors(
+                                                focusedBorderColor = if (isPasswordCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                                unfocusedBorderColor = if (isPasswordCorrect) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) else MaterialTheme.colorScheme.error,
+                                                cursorColor = if (isPasswordCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                                focusedLabelColor = if (isPasswordCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                            )
                                         )
 
-                                        val isPasswordValid = password.isNotBlank()
-
-                                        Button(
-                                            onClick = { isUpdating = true },
-                                            enabled = isPasswordValid,
-                                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                                            shape = RoundedCornerShape(8.dp)
+                                        Row (
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            modifier = Modifier.align(Alignment.End)
                                         ) {
-                                            Text(
-                                                "Conferma modifiche",
-                                                textAlign = TextAlign.Center
-                                            )
+                                            OutlinedButton(
+                                                onClick = { navController.popBackStack() },
+                                                colors = ButtonDefaults.outlinedButtonColors(
+                                                    containerColor = Color.Transparent,
+                                                    contentColor = MaterialTheme.colorScheme.onBackground,
+                                                ),
+                                                border = BorderStroke(
+                                                    1.dp,
+                                                    MaterialTheme.colorScheme.onBackground
+                                                )
+                                            ) {
+                                                Text("Annulla")
+                                            }
+
+                                            Button(
+                                                onClick = { isUpdating = true },
+                                                enabled = true,
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primary,
+                                                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                                                ),
+                                                border = BorderStroke(
+                                                    1.dp,
+                                                    MaterialTheme.colorScheme.primary
+                                                ),
+
+                                                ) {
+                                                Text(
+                                                    "Conferma"
+                                                )
+                                            }
                                         }
 
                                         LaunchedEffect(isUpdating) {
                                             if (isUpdating) {
-                                                var result = authViewModel.signInWithEmailAndPassword(volunteer!!.email, password)
+                                                var result =
+                                                    authViewModel.signInWithEmailAndPassword(
+                                                        volunteer!!.email,
+                                                        password
+                                                    )
                                                 if (result is AuthResult.Failure) {
-                                                    SnackbarManager.showSnackbar(result.message)
-                                                    return@LaunchedEffect
+                                                    isPasswordCorrect = false
+                                                    //SnackbarManager.showSnackbar(result.message)
                                                 } else {
-                                                    result = authViewModel.updateUserProfile(nickname, photoUrl)
+                                                    result = authViewModel.updateUserProfile(
+                                                        nickname,
+                                                        photoUrl
+                                                    )
                                                     if (result is AuthResult.Failure) {
                                                         showError = true
                                                         errorMessage = result.message
@@ -215,15 +265,17 @@ fun UpdateUserProfileScreen(
                                                         volunteer.name = name
                                                         volunteer.surname = surname
                                                         volunteer.nickname = nickname
-                                                        volunteerViewModel.updateVolunteer(volunteer)
+                                                        volunteerViewModel.updateVolunteer(
+                                                            volunteer
+                                                        )
                                                         navController.popBackStack()
                                                     }
-                                                    isUpdating = false
                                                 }
+                                                isUpdating = false
                                             }
                                         }
-
                                     }
+
                                     is Resource.Error -> {
                                         Text(
                                             text = "Errore: ${volunteerResource.message}",
