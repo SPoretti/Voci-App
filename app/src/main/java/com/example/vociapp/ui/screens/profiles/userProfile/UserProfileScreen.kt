@@ -172,7 +172,6 @@ fun UserProfileScreen(
                                                     contentScale = ContentScale.Crop
                                                 )
                                             } else {
-
                                                 Box(
                                                     contentAlignment = Alignment.Center,
                                                     modifier = Modifier
