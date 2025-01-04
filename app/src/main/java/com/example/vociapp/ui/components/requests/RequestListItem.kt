@@ -40,8 +40,9 @@ import com.example.vociapp.ui.viewmodels.HomelessViewModel
 fun RequestListItem(
     request: Request,
     navController: NavHostController,
-    homelessViewModel: HomelessViewModel
-){
+    homelessViewModel: HomelessViewModel,
+    isHomelessProfile: Boolean
+) {
 
     val names = homelessViewModel.homelessNames.collectAsState().value
 
@@ -88,12 +89,12 @@ fun RequestListItem(
                     .padding(8.dp),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.SpaceBetween
-            ){
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = request.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -112,7 +113,7 @@ fun RequestListItem(
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                Row{
+                Row {
                     Text(
                         text = request.description,
                         style = MaterialTheme.typography.bodySmall,
@@ -121,20 +122,22 @@ fun RequestListItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Row (verticalAlignment = Alignment.CenterVertically) {
+                if (!isHomelessProfile) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
 
-                    val homelessName by remember(request.homelessID) {
-                        derivedStateOf {
-                            names[request.homelessID] ?: "Unknown"
+                        val homelessName by remember(request.homelessID) {
+                            derivedStateOf {
+                                names[request.homelessID] ?: "Unknown"
+                            }
                         }
+
+                        RequestChip(
+                            text = homelessName,
+                            onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
+                            imageVector = Icons.Filled.AssignmentInd
+                        )
+
                     }
-
-                    RequestChip(
-                        text = homelessName,
-                        onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
-                        imageVector = Icons.Filled.AssignmentInd
-                    )
-
                 }
             }
         }

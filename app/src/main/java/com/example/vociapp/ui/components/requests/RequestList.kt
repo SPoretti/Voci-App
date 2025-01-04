@@ -51,9 +51,11 @@ fun RequestList(
     navController: NavHostController,
     requestViewModel: RequestViewModel,
     homeLessViewModel: HomelessViewModel,
+    isHomelessProfile: Boolean,
 ) {
     val filteredRequests = remember(requests, sortOption) {
-        requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
+        requests.data.orEmpty().filter { it.status == filterOption }
+            .sortedWith(sortOption.comparator)
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -100,10 +102,9 @@ fun RequestList(
                                     view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                 }
                                 if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
-                                    if(request.status == RequestStatus.TODO){
+                                    if (request.status == RequestStatus.TODO) {
                                         requestViewModel.requestDone(request)
-                                    }
-                                    else {
+                                    } else {
                                         requestViewModel.deleteRequest(request)
                                     }
                                 }
@@ -114,7 +115,7 @@ fun RequestList(
                                 state = swipeState,
 
                                 backgroundContent = {
-                                    if(filterOption == RequestStatus.TODO){
+                                    if (filterOption == RequestStatus.TODO) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -134,7 +135,7 @@ fun RequestList(
                                             Text("Segna come fatta", color = Color.White)
                                         }
                                     }
-                                    if(filterOption == RequestStatus.DONE){
+                                    if (filterOption == RequestStatus.DONE) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -162,11 +163,11 @@ fun RequestList(
                                 enableDismissFromEndToStart = false, // Allow swipe from end to start
                                 gesturesEnabled = true // Enable gestures
                             ) {
-                                // Main content inside the swipe box
                                 RequestListItem(
                                     request = request,
                                     navController,
-                                    homeLessViewModel
+                                    homeLessViewModel,
+                                    isHomelessProfile
                                 )
                             }
                             Spacer(modifier = Modifier.height(16.dp))

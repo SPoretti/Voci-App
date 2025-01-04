@@ -96,7 +96,8 @@ fun RequestsHistoryScreen(
                 sortOption = selectedSortOption,
                 navController = navController,
                 requestViewModel = requestViewModel,
-                homeLessViewModel = homelessViewModel
+                homeLessViewModel = homelessViewModel,
+                isHomelessProfile = false
             )
 
         }
