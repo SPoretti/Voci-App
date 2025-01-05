@@ -43,7 +43,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.volunteers.ProfileInfoItem
-import com.example.vociapp.ui.navigation.Screens
 
 @Composable
 fun UserProfileScreen(
@@ -104,7 +103,7 @@ fun UserProfileScreen(
 
                     // Edit button
                     IconButton(
-                        onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
+                        onClick = { navController.navigate("updateUserProfile") },
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .size(38.dp),
@@ -227,7 +226,7 @@ fun UserProfileScreen(
                             // Edit Profile Section
                             Button(
                                 onClick =
-                                { navController.navigate(Screens.UpdateUserProfile.route) },
+                                { navController.navigate("updateUserProfile") },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 16.dp),

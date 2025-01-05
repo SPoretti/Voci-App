@@ -26,32 +26,41 @@ fun GenderSelector(
     selectedGender: Gender?,
     onGenderSelected: (Gender) -> Unit
 ) {
+    //----- Region: Data Initialization -----
+    // Gender list
     val genders = Gender.entries
+    // State variables
     var expanded by remember { mutableStateOf(false) }
 
+    //----- Region: View Composition -----
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
+        // Outlined text field with dropdown menu anchored to it
         OutlinedTextField(
-            readOnly = true,
-            value = selectedGender?.displayName ?: "",
-            onValueChange = { },
-            label = { Text("Sesso") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            readOnly = true,                            // Read only to prevent user from editing
+            value = selectedGender?.displayName ?: "",  // Display the selected gender or an empty string
+            onValueChange = { },                        // Empty onValueChange to prevent user from editing
+            label = { Text("Sesso") },                  // Label for the text field
+            trailingIcon = {                            // Trailing icon for the text field
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryEditable, true)
+                .menuAnchor(MenuAnchorType.PrimaryEditable, true)   // Anchor to the text field
                 .fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(              // Colors for the text field
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
             ),
         )
+        // Dropdown menu with the gender options
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier.background(MaterialTheme.colorScheme.background)
         ) {
+            // Iterate over the gender options and create a dropdown menu item for each
             genders.forEach { selectionGender ->
                 DropdownMenuItem(
                     text = { Text(selectionGender.displayName) },

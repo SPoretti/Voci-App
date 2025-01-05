@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -37,9 +36,9 @@ import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.util.IconCategory
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.core.hapticFeedback
+import com.example.vociapp.ui.components.homeless.HomelessDialogList
 import com.example.vociapp.ui.components.homeless.HomelessListItem
-import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.state.HomelessItemUiState
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -78,7 +77,14 @@ fun AddRequestDialog(
     AlertDialog(
         // Called when the user tries to dismiss the Dialog by pressing the back button.
         // This is not called when the dismiss button is clicked.
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = {
+            // Action based on step
+            when(step) {
+                1 -> onDismiss()        // Dismiss dialog if on first step
+                2 -> step--             // Step back if on second step
+                else -> onDismiss()     // Default
+            }
+        },
         // Style
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier
@@ -131,17 +137,13 @@ fun AddRequestDialog(
                                 homelesses
                             else
                                 filteredHomelesses
-                        HomelessList(
-                            homelesses = listToDisplay,
-                            showPreferredIcon = false,
+                        HomelessDialogList(
                             onListItemClick = { homeless ->
                                 homelessID = homeless.id
                                 selectedHomeless = homeless
                                 step++
                             },
-                            selectedHomeless = selectedHomeless,
-                            navController = navController,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            navController = navController
                         )
                     }
                 }
@@ -157,8 +159,7 @@ fun AddRequestDialog(
                             homelessState = HomelessItemUiState(homeless = selectedHomeless!!),
                             showPreferredIcon = false,
                             onClick = { step-- },
-                            isSelected = true,
-                            modifier = Modifier.clip(MaterialTheme.shapes.small)
+                            onChipClick = {  },
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))

@@ -44,7 +44,6 @@ import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.requests.AddRequestDialog
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.requests.SortButtons
-import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.state.SortOption
 import kotlinx.coroutines.launch
 
@@ -121,7 +120,7 @@ fun RequestsScreen(
                                 onSortOptionSelected = { selectedSortOption = it }
                             )
                             IconButton(
-                                onClick = { navController.navigate(Screens.RequestsHistory.route) },
+                                onClick = { navController.navigate("requestsHistory") },
                                 modifier = Modifier.size(38.dp),
                                 colors = IconButtonColors(
                                     containerColor = MaterialTheme.colorScheme.surface,
@@ -138,7 +137,6 @@ fun RequestsScreen(
                                         .padding(6.dp)
                                         .clip(CircleShape)
                                         .size(150.dp)
-
                                 )
                             }
                         }

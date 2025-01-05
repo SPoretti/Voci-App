@@ -34,8 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.Screens
 import com.example.vociapp.ui.components.volunteers.AuthTextField
-import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
 
 @Composable
@@ -94,7 +94,7 @@ fun SignInScreen(
                         volunteerViewModel.setCurrentUser(volunteer)
                     }
                     navController.navigate(Screens.Home.route) {
-                        popUpTo(Screens.SignIn.route) { inclusive = true }
+                        popUpTo("signIn") { inclusive = true }
                     }
                     isSigningIn = false
                 }

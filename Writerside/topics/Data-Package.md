@@ -1,4 +1,4 @@
-# data [Folder]
+# Data [Folder]
 
 ## Overview
 

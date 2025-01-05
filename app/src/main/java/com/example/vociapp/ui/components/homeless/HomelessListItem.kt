@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.components.homeless
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,43 +34,36 @@ import androidx.compose.ui.unit.dp
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.updates.StatusLED
-import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.components.core.CustomChip
+import com.example.vociapp.ui.components.core.StatusLED
+import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.state.HomelessItemUiState
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun HomelessListItem(
-    homelessState: HomelessItemUiState,
-    showPreferredIcon: Boolean,
-    onClick:(Homeless) -> Unit,
-    isSelected: Boolean = false,
-    modifier: Modifier = Modifier
+    homelessState: HomelessItemUiState,     // Data to display
+    showPreferredIcon: Boolean,             // Whether to show the preferred icon
+    onClick:(Homeless) -> Unit,             // Callback to handle item click
+    onChipClick:() -> Unit                  // Callback to handle chip click
 ){
-
+    //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
+    // Favorites Data
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val user by remember {mutableStateOf(volunteerViewModel.currentUser)}
-    val backgroundColor =
-        if (isSelected) {
-            MaterialTheme.colorScheme.surface
-        } else {
-            MaterialTheme.colorScheme.background
-        }
-
+    val user by remember { mutableStateOf(volunteerViewModel.currentUser )}
     var isPreferred by remember { mutableStateOf(false) }
-
-    LaunchedEffect(key1 = user.value?.preferredHomelessIds, key2 = homelessState) {
+    LaunchedEffect(key1 = user, key2 = homelessState) {
         isPreferred = user.value?.preferredHomelessIds?.contains(homelessState.homeless.id) == true
     }
 
+    //----- Region: View Composition -----
     Surface(
-        modifier = modifier
-            .height(80.dp)
+        modifier = Modifier
+            .height(75.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        onClick = {onClick(homelessState.homeless)},
-        color = backgroundColor,
+        onClick = { onClick(homelessState.homeless) },
+        color = MaterialTheme.colorScheme.background,
     ){
         Row(
             modifier = Modifier
@@ -79,10 +71,11 @@ fun HomelessListItem(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-        ){
+        ) {
             Column(
                 modifier = Modifier.weight(1f),
             ) {
+                // Name, StatusLED
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
@@ -97,13 +90,16 @@ fun HomelessListItem(
                         modifier = Modifier.weight(1f, false)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+                    // StatusLED with style based on homeless status
                     StatusLED(
+                        // Map the status to the color
                         color = when (homelessState.homeless.status){
                             UpdateStatus.GREEN -> Color.Green
                             UpdateStatus.YELLOW -> Color.Yellow
                             UpdateStatus.RED -> Color.Red
                             UpdateStatus.GRAY -> Color.Gray
                         },
+                        // If color is gray don't pulsate
                         isPulsating = when(homelessState.homeless.status){
                             UpdateStatus.GREEN -> true
                             UpdateStatus.YELLOW -> true
@@ -112,43 +108,62 @@ fun HomelessListItem(
                         },
                     )
                 }
-
-                HomelessChip(
-                    text = homelessState.homeless.location,
-                    imageVector = Icons.Filled.LocationOn,
-                    onClick = {},
+                // Age, Gender, Nationality dim color
+                Text(
+                    text =
+                    "${homelessState.homeless.gender.displayName}, " +
+                    "${homelessState.homeless.age},  " +
+                    "${homelessState.homeless.nationality} "
+                    ,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     modifier = Modifier
+                        .weight(1f, false)
                 )
             }
-
+            // Location, Preferred Icon
             Box(
                 contentAlignment = Alignment.Center
             ){
-
-                if (showPreferredIcon) {
-                    IconButton(
-                        onClick = {
-                            volunteerViewModel.toggleHomelessPreference(
-                                homelessState.homeless.id
-                            )
-                            isPreferred = !isPreferred
-                        },
-                        modifier = Modifier.hapticFeedback(),
-                    ) {
-                        Icon(
-                            imageVector =
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ){
+                    // Chip for the location, onClick: sends to the map
+                    CustomChip(
+                        text = homelessState.homeless.location,
+                        imageVector = Icons.Filled.LocationOn,
+                        onClick = onChipClick
+                    )
+                    // Preferred Icon, display based on the prop value since it is used both in the
+                    // home screen and in the request add/modify dialogs
+                    if (showPreferredIcon) {
+                        IconButton(
+                            onClick = {
+                                volunteerViewModel.toggleHomelessPreference(
+                                    homelessState.homeless.id
+                                )
+                                isPreferred = !isPreferred
+                            },
+                            modifier = Modifier.hapticFeedback(),
+                        ) {
+                            Icon(
+                                imageVector =
                                 if (isPreferred)
                                     Icons.Filled.Star
                                 else
                                     Icons.Filled.StarOutline,
-                            contentDescription = "Preferred icon",
-                            tint =
+                                contentDescription = "Preferred icon",
+                                tint =
                                 if (isPreferred)
                                     MaterialTheme.colorScheme.secondary
                                 else
                                     MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(24.dp)
-                        )
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }
