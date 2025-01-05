@@ -51,9 +51,9 @@ import com.example.vociapp.data.util.DateTimeFormatterImpl
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomChip
+import com.example.vociapp.ui.components.core.StatusLED
 import com.example.vociapp.ui.components.requests.ModifyRequestDialog
 import com.example.vociapp.ui.components.requests.iconCategoryMap
-import com.example.vociapp.ui.components.updates.StatusLED
 
 @Composable
 fun RequestDetailsScreen(

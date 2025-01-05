@@ -2,7 +2,6 @@ package com.example.vociapp.ui.components.core
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -19,28 +18,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.vociapp.ui.components.utils.hapticFeedback
-import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    navController: NavHostController        // Navigation controller to navigate between screens
+) {
+    //------ Region: Data Initialization -----
+    // List of screens to display in the bottom bar
     val items = listOf(
         Screens.Home,
         Screens.Requests
     )
+    // Get the current route to highlight the selected item in the bottom bar
     val currentRoute = currentRoute(navController)
 
+    //------ Region: View Composition -----
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier
-            .offset(y = 0.dp)
+        containerColor = MaterialTheme.colorScheme.background
     ) {
+        // Loop through the list of screens to create a NavigationBarItem for each
         items.forEach { screen ->
             NavigationBarItem(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .hapticFeedback(),
+                modifier = Modifier.hapticFeedback(),
+                // Icon
                 icon = {
                     Box(
                         modifier = Modifier
@@ -55,7 +56,8 @@ fun BottomBar(navController: NavHostController) {
                             contentDescription = screen.title,
                         )
                     }
-                     },
+                },
+                // Label
                 label = {
                     Text(screen.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -66,11 +68,11 @@ fun BottomBar(navController: NavHostController) {
                                     FontWeight.Normal,
                             fontSize = 16.sp
                         )
-                    )},
-                selected = currentRoute == screen.route,
-                onClick = {
-                    navController.navigate(screen.route)
+                    )
                 },
+                // Highlight the selected item in the bottom bar
+                selected = currentRoute == screen.route,
+                onClick = { navController.navigate(screen.route) },
                 colors = NavigationBarItemDefaults.colors(
                     unselectedTextColor = MaterialTheme.colorScheme.onSurface,
                     selectedTextColor = MaterialTheme.colorScheme.secondary,

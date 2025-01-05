@@ -15,24 +15,26 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 
 @Composable
 fun MultiPointMap(
-    points: List<Point>,
-    cameraLocation: Point
+    points: List<Point>,        // List of points to display
+    cameraLocation: Point       // Initial camera location
 ) {
-    val mapViewportState =
-        rememberMapViewportState()
+    //----- Region: Data Initialization -----
+    val mapViewportState = rememberMapViewportState()
 
+    //----- Region: View Composition -----
     MapboxMap(
         modifier = Modifier.fillMaxSize(),
-        mapViewportState = mapViewportState,
+        mapViewportState = mapViewportState
     ) {
+        // Load the icon image
         val marker = rememberIconImage(resourceId = R.drawable.marker_icon)
-
+        // Add points to the map
         points.forEach { point ->
             PointAnnotation(point = point) {
                 iconImage = marker
             }
         }
-
+        // Set the initial camera position with the location
         MapEffect(Unit) { mapView ->
             mapViewportState.easeTo (
                 cameraOptions {

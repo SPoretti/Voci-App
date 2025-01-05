@@ -36,35 +36,35 @@ import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.UpdateStatus
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.StatusLED
+import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.components.updates.FormText
-import com.example.vociapp.ui.components.updates.StatusLED
-import com.example.vociapp.ui.components.utils.hapticFeedback
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.ui.viewmodels.UpdatesViewModel
 import com.example.vociapp.ui.viewmodels.VolunteerViewModel
 
 @Composable
 fun UpdateAddFormScreen(
-    navController: NavController,
-    buttonOption: ButtonOption,
-    homelessId: String
+    navController: NavController,   // Navigation controller for navigating between screens
+    buttonOption: ButtonOption,     // Button option for the update
+    homelessId: String              // ID of the homeless being updated
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-
+    //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
     val updatesViewModel = serviceLocator.obtainUpdatesViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
-
+    // Form data
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
     var homeless by remember { mutableStateOf<Homeless?>(null) }
-
-    LaunchedEffect(key1 = homelessId) {
+    // Get homeless data
+    LaunchedEffect(homelessId) {
         homeless = homelessViewModel.getHomelessById(homelessId)
     }
-
-    LaunchedEffect(key1 = buttonOption){
+    // Set form data based on button option
+    LaunchedEffect(buttonOption){
         when (buttonOption) {
             ButtonOption.Green -> {
                 title = FormText.GREEN_TITLE
@@ -88,46 +88,37 @@ fun UpdateAddFormScreen(
         }
     }
 
+    //----- Region: View Composition -----
     Box(
         modifier = Modifier
             .fillMaxSize()
     ){
         Column(modifier = Modifier.padding(48.dp)) {
-
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
             ){
                 StatusLED(
+                    // Set color based on button option
                     color = when(buttonOption){
-                        ButtonOption.Green -> {
-                            Color.Green
-                        }
-                        ButtonOption.Yellow -> {
-                            Color.Yellow
-                        }
-                        ButtonOption.Red -> {
-                            Color.Red
-                        }
-                        ButtonOption.Gray -> {
-                            Color.Gray
-                        }
+                        ButtonOption.Green ->   { Color.Green }
+                        ButtonOption.Yellow ->  { Color.Yellow }
+                        ButtonOption.Red ->     { Color.Red }
+                        ButtonOption.Gray ->    { Color.Gray }
                     },
                     modifier = Modifier
                         .size(48.dp)
                         .align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
+                // Set title based on button option
                 Text(
                     text = "Aggiornamento stato di ${homeless?.name ?: ""}",
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
-
-
             Spacer(modifier = Modifier.height(24.dp))
-
+            // Form fields
             TextField(
                 value = title,
                 onValueChange = { title = it },
@@ -145,7 +136,7 @@ fun UpdateAddFormScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-
+            //---
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(
                 thickness = 2.dp,
@@ -154,7 +145,7 @@ fun UpdateAddFormScreen(
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(8.dp))
-
+            //---
             TextField(
                 value = description,
                 onValueChange = { description = it },
@@ -172,19 +163,19 @@ fun UpdateAddFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-
+        // Send and Cancel buttons
         Row(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ){
+            // Cancel button
             FloatingActionButton(
                 onClick = {
                     navController.popBackStack()
                 },
                 elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                modifier = Modifier
-                    .hapticFeedback(),
+                modifier = Modifier.hapticFeedback(),
                 containerColor = MaterialTheme.colorScheme.surface
 
             ) {
@@ -206,9 +197,8 @@ fun UpdateAddFormScreen(
                     )
                 }
             }
-
             Spacer(modifier = Modifier.width(8.dp))
-
+            // Send button
             FloatingActionButton(
                 onClick = {
                     onSend(
@@ -223,10 +213,8 @@ fun UpdateAddFormScreen(
                     )
                 },
                 elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                modifier = Modifier
-                    .hapticFeedback(),
+                modifier = Modifier.hapticFeedback(),
                 containerColor = MaterialTheme.colorScheme.primary
-
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -260,6 +248,7 @@ fun onSend(
     buttonOption: ButtonOption,
     navController: NavController
 ) {
+    // Set update status based on button option
     var updateStatus = UpdateStatus.GREEN
     updateStatus = when (buttonOption) {
         ButtonOption.Green -> {
@@ -275,6 +264,7 @@ fun onSend(
             UpdateStatus.GRAY
         }
     }
+    // Create update
     val update = Update(
         title = title,
         description = description,
@@ -282,12 +272,11 @@ fun onSend(
         creatorId = volunteerViewModel.currentUser.value!!.id,
         status = updateStatus
     )
+    // Add update to database
     updatesViewModel.addUpdate(update)
-
+    // Update homeless status
     homeless.status = updateStatus
-    if(homeless != null){
-        homelessViewModel.updateHomeless(homeless)
-    }
-
+    homelessViewModel.updateHomeless(homeless)
+    // Navigate back to home
     navController.navigate("Home")
 }

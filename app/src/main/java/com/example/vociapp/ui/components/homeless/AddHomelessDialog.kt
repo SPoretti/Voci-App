@@ -30,46 +30,62 @@ import com.example.vociapp.data.local.database.Homeless
 
 @Composable
 fun AddHomelessDialog(
-    onDismiss: () -> Unit,
-    onAdd: (Homeless) -> Unit
+    onDismiss: () -> Unit,      // Callback to dismiss the dialog
+    onAdd: (Homeless) -> Unit   // Callback to add the homeless to the database
 ) {
+    //----- Region: Data Initialization -----
+    // Error variables
     var nameError by remember { mutableStateOf<String?>(null) }
     var locationError by remember { mutableStateOf<String?>(null) }
-
+    // Step variables
     var currentStep by remember { mutableIntStateOf(1) }
-    val totalSteps = 4
     val homeless = remember { Homeless() }
-
+    // Action Variable
     var isAddingHomeless by remember { mutableStateOf(false) }
 
+    //----- Region: View Composition -----
     AlertDialog(
-        modifier = Modifier.fillMaxSize(),
+        // Called when the user tries to dismiss the Dialog by pressing the back button.
+        // This is not called when the dismiss button is clicked.
         onDismissRequest = { onDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        // Style
+        properties = DialogProperties( usePlatformDefaultWidth = false ),
         shape = RoundedCornerShape(0.dp),
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        textContentColor = MaterialTheme.colorScheme.onBackground,
+        // Tile
         title = { Text("Aggiungi Senzatetto") },
+        // Main Content
         text = {
+            // Display based on step state
             Column(
                 modifier = Modifier.padding(16.dp),
             ) {
                 when (currentStep) {
+                    // Step 1: Name and location (the only two required fields)
                     1 -> Step1(homeless, nameError, locationError) { name, location ->
-                        // Aggiorna errori in tempo reale durante la modifica
                         nameError = if (name.isBlank()) "Inserire il nome" else null
                         locationError = if (location.isBlank()) "Inserire il luogo" else null
                     }
+                    // Step 2: Age, nationality
                     2 -> Step2(homeless)
+                    // Step 3: Pets, gender
                     3 -> Step3(homeless)
+                    // Step 4: Description
                     4 -> Step4(homeless)
                 }
             }
         },
+        // Action Buttons
         confirmButton = {
-            if (currentStep < totalSteps) {
+            // Confirm button based on step state
+            if (currentStep < 4) {
+                // If the current step is not the last step, show the next button
                 Button(
                     onClick = {
                         if (currentStep == 1) {
-                            // Validazione dei campi di Step1
+                            // Field validation for step 1
                             var hasError = false
                             if (homeless.name.isBlank()) {
                                 nameError = "Inserire il nome"
@@ -94,6 +110,7 @@ fun AddHomelessDialog(
                     Text("Avanti")
                 }
             } else {
+                // If the current step is the last step, show the add button
                 Button(
                     onClick = {
                         isAddingHomeless = true
@@ -105,7 +122,9 @@ fun AddHomelessDialog(
             }
         },
         dismissButton = {
+            // Dismiss button based on step state
             if (currentStep > 1) {
+                // If the current step is not the first step, show the back button
                 OutlinedButton(
                     onClick = { currentStep-- },
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -117,6 +136,7 @@ fun AddHomelessDialog(
                     Text("Indietro")
                 }
             } else {
+                // If the current step is the first step, show the dismiss button
                 OutlinedButton(
                     onClick = { onDismiss() },
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -128,22 +148,27 @@ fun AddHomelessDialog(
                     Text("Annulla")
                 }
             }
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        textContentColor = MaterialTheme.colorScheme.onBackground,
+        }
     )
 }
 
+//----------------------------------- Region: Step Functions -----------------------------------
+
+// Step 1: Name and location (the only two required fields)
 @Composable
 fun Step1(
-    homeless: Homeless,
-    nameError: String?,
-    locationError: String?,
-    onFieldsChanged: (String, String) -> Unit
+    homeless: Homeless,                         // Homeless object to modify
+    nameError: String?,                         // Error message for the name field
+    locationError: String?,                     // Error message for the location field
+    onFieldsChanged: (String, String) -> Unit   // Callback to update the fields
 ) {
+    //----- Region: Data Initialization -----
+
     var name by remember { mutableStateOf(homeless.name) }
     var location by remember { mutableStateOf(homeless.location) }
 
+    //----- Region: View Composition -----
+    // Name
     OutlinedTextField(
         value = name,
         onValueChange = {
@@ -157,15 +182,15 @@ fun Step1(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
         ),
-        isError = nameError != null,
+        isError = nameError != null,    // Show error if not null
     )
 
-    if (nameError != null) {
+    if (nameError != null) {            // Show error message if not null
         Text(nameError, color = Color.Red)
     }
-    else
+    else                                // Else add a spacer
         Spacer(modifier = Modifier.height(20.dp))
-
+    // Location
     OutlinedTextField(
         value = location,
         onValueChange = {
@@ -179,21 +204,25 @@ fun Step1(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
         ),
-        isError = locationError != null,
+        isError = locationError != null,    // Show error if not null
     )
-    if (locationError != null) {
+    if (locationError != null) {            // Show error message if not null
         Text(locationError, color = Color.Red)
     }
-    else
+    else                                    // Else add a spacer
         Spacer(modifier = Modifier.height(20.dp))
 }
 
+// Step 2: Age, nationality
 @Composable
 fun Step2(homeless: Homeless) {
+    //----- Region: Data Initialization -----
 
     var age by remember { mutableStateOf(homeless.age) }
     var nationality by remember { mutableStateOf(homeless.nationality) }
 
+    //----- Region: View Composition -----
+    // Age
     OutlinedTextField(
         value = age,
         onValueChange = {
@@ -209,9 +238,8 @@ fun Step2(homeless: Homeless) {
             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
         ),
     )
-
     Spacer(modifier = Modifier.height(20.dp))
-
+    // Nationality
     OutlinedTextField(
         value = nationality,
         onValueChange = {
@@ -227,12 +255,16 @@ fun Step2(homeless: Homeless) {
     )
 }
 
+// Step 3: Pets, gender
 @Composable
 fun Step3(homeless: Homeless) {
+    //----- Region: Data Initialization -----
 
     var pets by remember { mutableStateOf(homeless.pets) }
     var gender by remember { mutableStateOf(homeless.gender) }
 
+    //----- Region: View Composition -----
+    // Pets
     OutlinedTextField(
         value = pets,
         onValueChange = {
@@ -246,9 +278,8 @@ fun Step3(homeless: Homeless) {
             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
         ),
     )
-
     Spacer(modifier = Modifier.height(20.dp))
-
+    // Gender
     GenderSelector(
         selectedGender = gender,
         onGenderSelected = {
@@ -258,11 +289,15 @@ fun Step3(homeless: Homeless) {
     )
 }
 
+// Step 4: Description
 @Composable
 fun Step4(homeless: Homeless) {
+    //----- Region: Data Initialization -----
 
     var description by remember { mutableStateOf(homeless.description) }
 
+    //----- Region: View Composition -----
+    // Description
     OutlinedTextField(
         value = description,
         onValueChange = {

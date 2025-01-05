@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.utils.hapticFeedback
 
 @Composable
 fun SearchBar(

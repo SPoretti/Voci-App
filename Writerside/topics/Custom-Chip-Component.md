@@ -1,26 +1,27 @@
 # Custom Chip [Component]
 
-The `CustomChip` component is a customizable UI element that displays a chip with text and optionally an icon. It is designed to be reusable across different screens in the application, providing a consistent user interface element.
+The `CustomChip` component is a modular, clickable chip UI element used to display a small text label with an optional icon. It allows customization of background color and offers a callback function when clicked, making it a flexible component for various UI scenarios.
 
 ---
 
 ## Overview
 
-- **Purpose**: Displays a chip with text and an optional icon, which can be clicked.
+- **Purpose**: Displays a customizable text label with an optional icon, designed to be used as a clickable chip in different screens.
 - **Key Features**:
-    - Displays text with an optional icon.
-    - Includes a click handler to perform actions when the chip is clicked.
-    - Supports a rounded shape with customized colors.
+    - Displays a customizable text label with optional icon.
+    - Handles chip click events via the `onClick` callback.
+    - Supports customizable background color and rounded corners.
 
 ---
 
 ## Parameters
 
-| Parameter     | Type           | Description                                        |
-|---------------|----------------|----------------------------------------------------|
-| `text`        | `String`       | The text to be displayed on the chip.              |
-| `onClick`     | `() -> Unit`   | Callback to handle the click event on the chip.    |
-| `imageVector` | `ImageVector?` | Optional parameter to display an icon on the chip. |
+| Parameter         | Type           | Description                                           |
+|-------------------|----------------|-------------------------------------------------------|
+| `text`            | `String`       | Text to display inside the chip.                      |
+| `onClick`         | `() -> Unit`   | Callback function triggered when the chip is clicked. |
+| `imageVector`     | `ImageVector?` | Optional icon to display inside the chip.             |
+| `backgroundColor` | `Color`        | Background color of the chip (default is surface).    |
 
 ---
 
@@ -32,7 +33,9 @@ CustomChip(
     onClick = { 
         // Handle chip click action
     },
-    imageVector = Icons.Default.Person // Optional icon
+    imageVector = Icons.Default.Person, // Optional icon
+    // Optional Background color
+    backgroundColor = MatherialTheme.colorpalette.surfaceVariant
 )
 ```
 
@@ -40,24 +43,43 @@ CustomChip(
 
 ## Features
 
-1. **Chip Layout**:
-    - Displays a chip with rounded corners.
-    - The chip contains either a text label, or both a text label and an icon.
+1. **Customizable Text**:
+    - Displays a customizable text label passed as the `text` parameter.
+    - Text is styled using `MaterialTheme.typography.labelSmall` with overflow handling and a maximum of one line.
 
-2. **Icon Support**:
-    - If provided, an icon will be displayed next to the text on the chip.
-    - The icon is colorized using the primary color from the theme.
+2. **Optional Icon**:
+    - Supports an optional icon displayed on the left side of the text if the `imageVector` parameter is provided.
+    - The icon is tinted with the primary color from the current `MaterialTheme`.
 
 3. **Click Handling**:
-    - The chip is clickable and triggers the `onClick` callback when clicked.
+    - The chip is clickable, with the `onClick` callback triggered when the chip is tapped.
 
-4. **Styling**:
-    - The chip is styled with a rounded shape (`16.dp` corner radius) and a surface variant background color.
-    - Padding is applied to both the text and the optional icon.
+4. **Custom Background Color**:
+    - The chip's background color is customizable via the `backgroundColor` parameter, defaulting to `MaterialTheme.colorScheme.surface`.
+
+5. **Rounded Corners**:
+    - The chip has rounded corners with a radius of `16.dp`, defined by the `RoundedCornerShape`.
+
+6. **Modular Design**:
+    - Designed to be used as a reusable component in different screens within the app.
 
 ---
 
-**Note**: This component is highly reusable and can be styled further using the `modifier` parameter to adjust its appearance and layout.
+## Known Limitations
+
+- **Icon Display**: If no `imageVector` is provided, the chip will only display the text without an icon.
+- **Text Overflow**: If the text is too long, it will be truncated with ellipsis (`...`) and may not be fully visible.
 
 ---
+
+## Notes
+
+- **Dependencies**:
+    - No external dependencies; relies on Jetpack Compose’s `MaterialTheme` and core Compose UI elements like `Surface`, `Row`, `Text`, and `Icon`.
+
+- **Future Improvements**:
+    - Add support for dynamic styling options like changing font size, weight, or adding more icons.
+    - Include an optional trailing icon or action.
+
+
 

@@ -60,14 +60,29 @@
         </toc-element>
         <toc-element topic="Ui-Package.md">
             <toc-element topic="Components.md">
+                <toc-element topic="Volunteers-Components-Package.md"/>
                 <toc-element topic="Core-Components-Package.md">
+                    <toc-element topic="Bottom-Bar-Component.md"/>
+                    <toc-element topic="Screens.md"/>
+                    <toc-element topic="StatusLED-Component.md"/>
                     <toc-element topic="Custom-FAB-Component.md"/>
                     <toc-element topic="Custom-Chip-Component.md"/>
+                    <toc-element topic="Haptic-Feedback-Extesion.md"/>
                     <toc-element topic="Search-Bar-Component.md"/>
                 </toc-element>
-                <toc-element topic="Homeless-Components-Package.md"/>
-                <toc-element topic="Maps-Components-Package.md"/>
+                <toc-element topic="Homeless-Components-Package.md">
+                    <toc-element topic="Gender-Selector-Component.md"/>
+                    <toc-element topic="Add-Homeless-Dialog-Component.md"/>
+                    <toc-element topic="Homeless-Dialog-List-Component.md"/>
+                    <toc-element topic="Homeless-List-Item-Component.md"/>
+                    <toc-element topic="Homeless-List-Component.md"/>
+                </toc-element>
+                <toc-element topic="Maps-Components-Package.md">
+                    <toc-element topic="Map-On-Device-Component.md"/>
+                    <toc-element topic="Multi-Point-Map-Component.md"/>
+                </toc-element>
                 <toc-element topic="Requests-Components-Package.md">
+                    <toc-element topic="Add-Request-Dialog-Component.md"/>
                     <toc-element topic="Request-List-Item-Component.md"/>
                     <toc-element topic="Request-List-Component.md"/>
                     <toc-element topic="Sort-Buttons-Component.md"/>
@@ -76,13 +91,9 @@
                     <toc-element topic="Dialog-Search-Bar-Component.md"/>
                     <toc-element topic="Modify-Request-Dialog.md"/>
                 </toc-element>
-                <toc-element topic="Updates-Components-Package.md"/>
-                <toc-element topic="Utils-Components-Package.md"/>
-                <toc-element topic="Volunteers-Components-Package.md"/>
             </toc-element>
             <toc-element topic="Navigation.md">
                 <toc-element topic="Nav-Graph.md"/>
-                <toc-element topic="Screens.md"/>
             </toc-element>
             <toc-element topic="Screens-Package.md">
                 <toc-element topic="Auth-Package.md">

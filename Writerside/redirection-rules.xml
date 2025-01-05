@@ -135,4 +135,21 @@
         <description>Created after removal of "Core [Package]" from Voci App Documentation</description>
         <accepts>Core-Package.html</accepts>
     </rule>
+    <rule id="3aba85d6">
+        <description>Created after removal of "Utils [Components Package]" from Voci App Documentation</description>
+        <accepts>Utils-Components-Package.html</accepts>
+    </rule>
+    <rule id="3314cc3">
+        <description>Created after removal of "Updates [Components Package]" from Voci App Documentation</description>
+        <accepts>Updates-Components-Package.html</accepts>
+    </rule>
+    <rule id="33d5297">
+        <description>Created after removal of "Volunteers [Components Package]" from Voci App Documentation
+        </description>
+        <accepts>Volunteers-Components-Package.html</accepts>
+    </rule>
+    <rule id="1cd4a279">
+        <description>Created after removal of "Utils [Components Package]" from Voci App Documentation</description>
+        <accepts>Utils-Components-Package.html</accepts>
+    </rule>
 </rules>

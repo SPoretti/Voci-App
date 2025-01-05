@@ -131,7 +131,8 @@ fun RequestListItem(
                 CustomChip(
                     text = homelessName,
                     onClick = { navController.navigate("profileHomeless/${request.homelessID}") },
-                    imageVector = Icons.Filled.AssignmentInd
+                    imageVector = Icons.Filled.AssignmentInd,
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
         }

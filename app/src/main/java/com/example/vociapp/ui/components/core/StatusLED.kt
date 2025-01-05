@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components.updates
+package com.example.vociapp.ui.components.core
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -27,30 +27,32 @@ import kotlin.random.Random
 
 @Composable
 fun StatusLED(
-    color: Color,
-    isPulsating: Boolean = true,
-    modifier: Modifier = Modifier
+    color: Color,                   // Color of the LED
+    isPulsating: Boolean = true,    // Whether the LED should pulse or not
+    modifier: Modifier = Modifier   // Modifier for the LED
 ) {
+    // Pulsating shader
     if (isPulsating) {
+        // Animation time in milliseconds
         val animationTime = remember { Random.nextInt(1000, 1500) }
-
+        // Infinite transition for the pulsation
         val infiniteTransition = rememberInfiniteTransition(label = "led_pulsation")
+        // Alpha value for the shader
         val alpha by infiniteTransition.animateFloat(
-            initialValue = 0.5f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
+            initialValue = 0.5f,                // Initial alpha value
+            targetValue = 1f,                   // Target alpha value
+            animationSpec = infiniteRepeatable( // Infinitely repeating animation
                 animation = tween(durationMillis = animationTime, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse
             ), label = "led_alpha"
         )
-
-        val glowColor = color.copy(alpha = alpha)
-
-        val glowRadius = 100.dp
-
+        val glowColor = color.copy(alpha = alpha)   // Glow shader
+        val glowRadius = 100.dp                     // Glow radius
+        // Shader brush for the glow
         val glowShaderBrush = remember(glowColor, glowRadius) {
             object : ShaderBrush() {
                 override fun createShader(size: Size): Shader {
+                    // Create a radial gradient shader with the glow color and radius
                     val biggerDimension = kotlin.comparisons.maxOf(size.height, size.width)
                     return RadialGradientShader(
                         colors = listOf(glowColor, Color.Transparent),
@@ -61,7 +63,7 @@ fun StatusLED(
                 }
             }
         }
-
+        // Box with the glow shader
         Box(
             modifier = modifier
                 .size(16.dp)
@@ -73,6 +75,7 @@ fun StatusLED(
         val staticShaderBrush = remember(color) {
             object : ShaderBrush() {
                 override fun createShader(size: Size): Shader {
+                    // Create a radial gradient shader with the color
                     val biggerDimension = maxOf(size.height, size.width)
                     return RadialGradientShader(
                         colors = listOf(color, Color.Transparent),
@@ -83,7 +86,7 @@ fun StatusLED(
                 }
             }
         }
-
+        // Box with the shader
         Box(
             modifier = modifier
                 .size(16.dp)

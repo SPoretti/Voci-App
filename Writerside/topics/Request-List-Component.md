@@ -1,4 +1,4 @@
-# Reques tList [Component]
+# Request List [Component]
 
 The `RequestList` component is designed to display a list of requests with filtering and sorting capabilities. It supports swipe-to-dismiss functionality, allowing users to perform actions like completing or deleting requests.
 

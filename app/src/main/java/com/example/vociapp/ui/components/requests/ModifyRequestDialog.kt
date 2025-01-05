@@ -32,7 +32,7 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.homeless.HomelessList
+import com.example.vociapp.ui.components.homeless.HomelessDialogList
 
 @Composable
 fun ModifyRequestDialog(
@@ -68,7 +68,14 @@ fun ModifyRequestDialog(
     AlertDialog(
         // Called when the user tries to dismiss the Dialog by pressing the back button.
         // This is not called when the dismiss button is clicked.
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = {
+            // Action based on step
+            when(step) {
+                1 -> onDismiss()        // Dismiss dialog if on first step
+                2 -> step--             // Step back if on second step
+                else -> onDismiss()     // Default
+            }
+        },
         // Style
         properties = DialogProperties(usePlatformDefaultWidth = false),
         modifier = Modifier.fillMaxSize(),
@@ -112,16 +119,12 @@ fun ModifyRequestDialog(
                                 homelesses
                             else
                                 filteredHomelesses
-                        HomelessList(
-                            homelesses = listToDisplay,
-                            showPreferredIcon = false,
+                        HomelessDialogList(
                             onListItemClick = { homeless ->
                                 selectedHomeless = homeless
                                 step++
                             },
-                            selectedHomeless = selectedHomeless,
-                            navController = navController,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            navController = navController
                         )
                     }
                 }
