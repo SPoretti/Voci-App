@@ -15,6 +15,15 @@ interface UpdateDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(update: Update)
 
+    @androidx.room.Update
+    suspend fun update(update: Update)
+
+    @Query("DELETE FROM updates")
+    suspend fun deleteAllUpdates()
+
+    @Query("DELETE FROM updates WHERE id = :updateId")
+    suspend fun deleteById(updateId: String)
+
     @Query("SELECT * FROM updates")
     fun getAllUpdates(): Flow<List<Update>>
 
@@ -23,6 +32,9 @@ interface UpdateDao {
 
     @Query("SELECT * FROM updates WHERE area = :area")
     fun getUpdatesByArea(area: Area): Flow<List<Update>>
+
+    @Query("SELECT * FROM updates WHERE id = :id LIMIT 1")
+    suspend fun getUpdateById(id: String): Update?
 
     @Transaction
     suspend fun insertOrUpdate(update: Update) {
@@ -33,16 +45,4 @@ interface UpdateDao {
             update(update)
         }
     }
-
-    @Query("SELECT * FROM updates WHERE id = :id LIMIT 1")
-    suspend fun getUpdateById(id: String): Update?
-
-    @Query("DELETE FROM updates")
-    suspend fun deleteAllUpdates()
-
-    @Query("DELETE FROM updates WHERE id = :updateId")
-    suspend fun deleteById(updateId: String)
-
-    @androidx.room.Update
-    suspend fun update(update: Update)
 }

@@ -13,6 +13,20 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RequestDao {
+
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(request: Request)
+
+    @Update
+    suspend fun update(request: Request)
+
+    @Delete
+    suspend fun delete(request: Request)
+
+    @Query("DELETE FROM requests WHERE id = :requestId")
+    suspend fun deleteById(requestId: String)
+
     @Query("SELECT * FROM requests")
     fun getAllRequests(): Flow<List<Request>>
 
@@ -25,9 +39,6 @@ interface RequestDao {
     @Query("SELECT * FROM requests WHERE area = :area")
     fun getRequestsByArea(area: Area): Flow<List<Request>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(request: Request)
-
     @Transaction
     suspend fun insertOrUpdate(request: Request) {
         val existingRequest = getRequestById(request.id)
@@ -37,13 +48,7 @@ interface RequestDao {
             update(request)
         }
     }
-
-    @Update
-    suspend fun update(request: Request)
-
-    @Delete
-    suspend fun delete(request: Request)
-
-    @Query("DELETE FROM requests WHERE id = :requestId")
-    suspend fun deleteById(requestId: String)
 }
+
+
+

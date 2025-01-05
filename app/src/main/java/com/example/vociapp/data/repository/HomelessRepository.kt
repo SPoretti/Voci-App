@@ -102,7 +102,7 @@ class HomelessRepository @Inject constructor(
                         when (action.operation) {
                             "add" -> firestoreDataSource.addHomeless(data)
                             "update" -> firestoreDataSource.updateHomeless(data)
-                            "delete" -> firestoreDataSource.deleteHomeless(data.id)
+                            "delete" -> firestoreDataSource.deleteHomelessById(data.id)
                         }
                         // Once synced, remove the action from the queue
                         roomDataSource.deleteSyncAction(action)

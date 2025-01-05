@@ -14,6 +14,20 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 @TypeConverters
 interface HomelessDao {
+
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(homeless: Homeless)
+
+    @Update
+    suspend fun update(homeless: Homeless)
+
+    @Update
+    suspend fun updateAll(homelessList: List<Homeless>)
+
+    @Query("DELETE FROM homelesses WHERE id = :homelessID")
+    suspend fun deleteById(homelessID: String)
+
     @Query("SELECT * FROM homelesses")
     fun getAllHomeless(): Flow<List<Homeless>>
 
@@ -26,9 +40,6 @@ interface HomelessDao {
     @Query("SELECT * FROM homelesses WHERE area = :area")
     fun getHomelessesByArea(area: Area): Flow<List<Homeless>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(homeless: Homeless)
-
     @Transaction
     suspend fun insertOrUpdate(homeless: Homeless) {
         val existingHomeless = getHomelessById(homeless.id)
@@ -38,15 +49,6 @@ interface HomelessDao {
             update(homeless)
         }
     }
-
-    @Update
-    suspend fun update(homeless: Homeless)
-
-    @Update
-    suspend fun updateAll(homelessList: List<Homeless>)
-
-    @Query("DELETE FROM homelesses WHERE id = :homelessID")
-    suspend fun deleteById(homelessID: String)
 }
 
 

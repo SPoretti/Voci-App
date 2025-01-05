@@ -1,6 +1,5 @@
 package com.example.vociapp.data.remote
 
-import android.util.Log
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Update
@@ -11,6 +10,7 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
+//Remote data source
 class FirestoreDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
@@ -119,7 +119,7 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless? {
+    suspend fun getHomelessById(homelessID: String): Resource<Homeless> {
         return try {
             val querySnapshot = firestore.collection("homelesses")
                 .whereEqualTo("id", homelessID)
@@ -133,15 +133,12 @@ class FirestoreDataSource @Inject constructor(
                     .get()
                     .await()
                     .toObject(Homeless::class.java)
-                homeless // Return the Homeless object if found
+                Resource.Success(homeless!!) // Return Resource.Success with the Homeless object
             } else {
-                null // Return null if homeless not found
+                Resource.Error("Homeless not found") // Return Resource.Error if homeless not found
             }
         } catch (e: Exception) {
-            // Handle exception, e.g., log the error
-            // and return null or throw an exception
-            Log.e("FirestoreDataSource", "Error fetching homeless: ${e.message}")
-            null
+            Resource.Error(e.message ?: "An unknown error occurred") // Return Resource.Error for other exceptions
         }
     }
 
@@ -167,10 +164,10 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    fun deleteHomeless(id: Any) {
+    fun deleteHomelessById(id: Any) {
         TODO()//if needed
     }
-    //----------------------------------TODO()-------------------------------
+
     // ------------------------------- Volunteer Functions ----------------------------------
 
     suspend fun addVolunteer(volunteer: Volunteer): Resource<String> {
@@ -189,59 +186,6 @@ class FirestoreDataSource @Inject constructor(
             Resource.Success(volunteers)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-    suspend fun getVolunteerById(id: String): Volunteer? {
-        val volunteerDoc = firestore.collection("volunteers")
-            .whereEqualTo("id", id)
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
-
-        return volunteerDoc?.toObject(Volunteer::class.java)
-    }
-
-    suspend fun getVolunteerByNickname(nickname: String): Volunteer? {
-        Log.d("Firestore", "Eseguo la query per il nickname: $nickname") // Aggiungi log per il nickname
-        val volunteerNickname = firestore.collection("volunteers")
-            .whereEqualTo("nickname", nickname)
-            .get()
-            .await()
-
-        Log.d("Firestore", "Risultati query: ${volunteerNickname.size()} documenti trovati") // Log per il numero di documenti trovati
-
-        return volunteerNickname.documents
-            .firstOrNull()?.toObject(Volunteer::class.java)
-    }
-
-    suspend fun getVolunteerByEmail(email: String): Volunteer? {
-        val volunteerNickname = firestore.collection("volunteers")
-            .whereEqualTo("email", email)
-            .get()
-            .await()
-            .documents
-            .firstOrNull()
-
-        return volunteerNickname?.toObject(Volunteer::class.java)
-    }
-
-    suspend fun getVolunteerIdByEmail(email: String): String? {
-        return try {
-            val querySnapshot = firestore.collection("volunteers")
-                .whereEqualTo("email", email)
-                .get()
-                .await()
-
-            if (querySnapshot.documents.isNotEmpty()) {
-                querySnapshot.documents[0].getString("id")
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("Firestore", "Error getting volunteer ID", e)
-            null
         }
     }
 
@@ -267,70 +211,6 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    // ------------------------------- Preferences Functions ----------------------------------
-
-    suspend fun getUserPreferences(userId: String): Resource<List<String>> {
-        try {
-            val volunteerQuery = firestore.collection("volunteers").whereEqualTo("id", userId).get().await()
-            if (volunteerQuery.documents.isNotEmpty()) {
-                val volunteerDocId = volunteerQuery.documents[0].id
-                val documentSnapshot = firestore
-                    .collection("volunteers")
-                    .document(volunteerDocId)
-                    .get()
-                    .await()
-                if (documentSnapshot.exists()) {
-                    val preferredHomelessIds = documentSnapshot.get("preferredHomelessIds") as? List<String> ?: emptyList()
-                    return Resource.Success(preferredHomelessIds)
-                } else {
-                    return Resource.Success(emptyList())
-                }
-            } else {
-                return Resource.Error("Volunteer not found")
-            }
-        } catch (e: Exception) {
-            return Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>): Resource<Volunteer> {
-        return try {
-            val volunteerQuery = firestore
-                .collection("volunteers")
-                .whereEqualTo("id", userId)
-                .get()
-                .await()
-            if (volunteerQuery.documents.isNotEmpty()) {
-                val volunteerDocId = volunteerQuery.documents[0].id
-                firestore
-                    .collection("volunteers")
-                    .document(volunteerDocId)
-                    .update(mapOf("preferredHomelessIds" to preferredHomelessIds))
-                    .await()
-
-                // Fetch the updated volunteer object
-                val updatedVolunteer = firestore
-                    .collection("volunteers")
-                    .document(volunteerDocId)
-                    .get()
-                    .await()
-                    .toObject(Volunteer::class.java)
-
-                if (updatedVolunteer != null) {
-                    Resource.Success(updatedVolunteer) // Return the updated volunteer
-                } else {
-                    Resource.Error("Failed to fetch updated volunteer")
-                }
-            } else {
-                Resource.Error("Volunteer not found")
-            }
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An unknown error occurred")
-        }
-    }
-
-
-
     // ------------------------------- Updates Functions ----------------------------------
 
     suspend fun addUpdate(update: Update): Resource<String> {
@@ -352,12 +232,11 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    fun updateUpdate(data: Update?) {
+    fun updateUpdate(data: Update) {
         TODO() //if needed
     }
 
     fun deleteUpdate(id: String) {
         TODO() //if needed
     }
-
 }
