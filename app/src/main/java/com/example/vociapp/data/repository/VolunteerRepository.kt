@@ -130,12 +130,7 @@ class VolunteerRepository @Inject constructor(
                         when (action.operation) {
                             "add" -> firestoreDataSource.addVolunteer(data)
                             "update" -> firestoreDataSource.updateVolunteer(data)
-                            "update_preferences" -> {
-                                firestoreDataSource.updateUserPreferences(
-                                    data.id,
-                                    data.preferredHomelessIds
-                                )
-                            }//"delete" -> firestoreDataSource.deleteVolunteer(data.id)
+                            //"delete" -> firestoreDataSource.deleteVolunteer(data.id)
                             else -> {
                                 Log.d(
                                     "SyncPendingActions",
