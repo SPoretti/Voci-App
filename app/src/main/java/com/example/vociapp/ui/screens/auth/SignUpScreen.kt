@@ -3,9 +3,6 @@ package com.example.vociapp.ui.screens.auth
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,9 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
@@ -125,7 +120,7 @@ fun SignUpScreen(
     LaunchedEffect(emailVerified) {
         if (emailVerified) {
             SnackbarManager.showSnackbar("Email confermata!")
-            step = 3;
+            step = 3
         }
     }
 

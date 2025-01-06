@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.auth
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -70,7 +69,7 @@ fun PasswordRecover(
                 }
             }
         }
-        emailExists = true;
+        emailExists = true
         checkedEmail = false
     }
 

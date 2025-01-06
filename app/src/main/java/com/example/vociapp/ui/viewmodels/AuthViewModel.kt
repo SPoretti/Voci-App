@@ -13,12 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import com.example.vociapp.data.util.ExceptionHandler
-import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuthEmailException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
-import java.util.concurrent.TimeUnit
 
 class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
@@ -92,18 +87,6 @@ class AuthViewModel : ViewModel() {
         return try {
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(displayName)
-                .setPhotoUri(photoUrl?.let { android.net.Uri.parse(it) })
-                .build()
-            auth.currentUser?.updateProfile(profileUpdates)?.await()
-            AuthResult.Success
-        } catch (e: Exception) {
-            AuthResult.Failure(e.message ?: "An unknown error occurred")
-        }
-    }
-
-    suspend fun updateProfilePicture(photoUrl: String?): AuthResult {
-        return try {
-            val profileUpdates = UserProfileChangeRequest.Builder()
                 .setPhotoUri(photoUrl?.let { android.net.Uri.parse(it) })
                 .build()
             auth.currentUser?.updateProfile(profileUpdates)?.await()

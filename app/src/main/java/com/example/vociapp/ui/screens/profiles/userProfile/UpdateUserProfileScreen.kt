@@ -82,7 +82,6 @@ fun UpdateUserProfileScreen(
         var showDialog by remember { mutableStateOf(false) }
         var isPasswordCorrect by remember { mutableStateOf(true) }
         var isPhoneNumberValid by remember { mutableStateOf(true) }
-
         var step by remember { mutableIntStateOf(1) }
 
         Scaffold(
@@ -339,9 +338,7 @@ fun UpdateUserProfileScreen(
                                                         volunteer.surname = surname
                                                         volunteer.nickname = nickname
                                                         volunteer.photoUrl = photoUrl
-                                                        volunteerViewModel.updateVolunteer(
-                                                            volunteer
-                                                        )
+                                                        volunteerViewModel.updateVolunteer(volunteer)
                                                         navController.popBackStack()
                                                     }
                                                 }
