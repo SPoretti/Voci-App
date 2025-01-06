@@ -114,16 +114,12 @@ class MainActivity : ComponentActivity() {
                         val authState by serviceLocator.obtainAuthViewModel().authState.collectAsState()
 
                         LaunchedEffect(authState) {
+                            Log.d("AuthState", "Current auth state: $authState")
                             when (authState) {
                                 is AuthState.Authenticated -> {
                                     val user = (authState as AuthState.Authenticated).user
                                     if (user.isEmailVerified) {
                                         navController.navigate(Screens.Home.route)
-                                    }
-                                    else{
-                                        navController.navigate(Screens.EmailVerification.route) {
-                                            popUpTo(0) { inclusive = true }
-                                        }
                                     }
                                 }
                                 is AuthState.Unauthenticated -> {

@@ -15,9 +15,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -37,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
+import com.example.vociapp.ui.components.getTextFieldColors
 import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.viewmodels.AuthResult
 
@@ -46,6 +51,8 @@ fun SignInScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var isFieldEmpty by remember { mutableStateOf(false) }
 
     var isSigningIn by remember { mutableStateOf(false) }
     val serviceLocator = LocalServiceLocator.current
@@ -53,6 +60,7 @@ fun SignInScreen(
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
+            isFieldEmpty = email.isEmpty() || password.isEmpty()
             val result = authViewModel.signInWithEmailAndPassword(email, password)
             if (result is AuthResult.Failure) {
                 SnackbarManager.showSnackbar(result.message)
@@ -78,18 +86,17 @@ fun SignInScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .padding(start = 16.dp, end = 16.dp, top = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         "Accedi",
                         style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Card(
                         modifier = Modifier
@@ -108,14 +115,25 @@ fun SignInScreen(
                                 value = email,
                                 onValueChange = { email = it },
                                 label = "Email",
-                                icon = Icons.Default.Email
+                                icon = Icons.Default.Email,
+                                colors = getTextFieldColors(isValid = !isFieldEmpty)
                             )
+
                             AuthTextField(
                                 value = password,
                                 onValueChange = { password = it },
                                 label = "Password",
                                 icon = Icons.Default.Lock,
-                                isPassword = true
+                                colors = getTextFieldColors(isValid = !isFieldEmpty),
+                                isPassword = !passwordVisible,
+                                trailingIcon = {
+                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                        Icon(
+                                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                            contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                                        )
+                                    }
+                                }
                             )
 
                             Box(
@@ -145,7 +163,7 @@ fun SignInScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     TextButton(
                         onClick = { navController.navigate("signUp") }
