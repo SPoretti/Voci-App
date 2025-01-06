@@ -118,9 +118,7 @@ fun UserProfileScreen(
 
                                 // Logout button
                                 IconButton(
-                                    onClick = { authViewModel.signOut()
-                                              navController.navigate(Screens.SignIn.route){
-                                            popUpTo(0) { inclusive = true }}},
+                                    onClick = { authViewModel.signOut()},
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
                                         .size(40.dp),
