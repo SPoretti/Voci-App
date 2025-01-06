@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -22,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +38,7 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.AuthTextField
 import com.example.vociapp.ui.components.SnackbarManager
+import com.example.vociapp.ui.components.getTextFieldColors
 import com.example.vociapp.ui.viewmodels.AuthResult
 import kotlinx.coroutines.delay
 
@@ -43,27 +48,30 @@ fun PasswordRecover(
 ) {
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     var email by remember { mutableStateOf("") }
     var checkedEmail by remember { mutableStateOf(false) }
     var startTimer by remember { mutableStateOf(false) }
+    var emailExists by remember { mutableStateOf(true) }
 
     LaunchedEffect(checkedEmail) {
         if (checkedEmail) {
-            if (email.isEmpty()) {
-                SnackbarManager.showSnackbar("Compila il campo email")
+            emailExists = volunteerViewModel.checkIfEmailExists(email)
+            if (!emailExists) {
+                SnackbarManager.showSnackbar("Email non registrata" )
             } else {
                 val result = authViewModel.sendPasswordResetEmail(email)
                 if (result is AuthResult.Success) {
-                    SnackbarManager.showSnackbar("Email inviata con successo")
                     startTimer = true
+                    SnackbarManager.showSnackbar("Email inviata con successo")
                 } else if (result is AuthResult.Failure) {
                     SnackbarManager.showSnackbar(result.message)
                 }
-                //navController.navigate("signIn")
             }
-            checkedEmail = false
         }
+        emailExists = true;
+        checkedEmail = false
     }
 
     Scaffold(
@@ -78,18 +86,19 @@ fun PasswordRecover(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp),
+                        .padding(start = 16.dp, end = 16.dp, top = 24.dp)
+                        .offset(y = (-70).dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         "Recupero password",
                         style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.primary
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Card(
                         modifier = Modifier
@@ -102,20 +111,23 @@ fun PasswordRecover(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
                                 "Inserisci la tua email per il recupero della password",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.width(200.dp)
                             )
 
                             AuthTextField(
                                 value = email,
                                 onValueChange = { email = it },
-                                label = "Email",
-                                icon = Icons.Default.Email
+                                label = if (emailExists) "Email" else "Email non valida",
+                                icon = Icons.Default.Email,
+                                colors = getTextFieldColors(isValid = emailExists)
                             )
 
                             Button(
@@ -124,7 +136,7 @@ fun PasswordRecover(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                if (checkedEmail && email.isNotEmpty() && !startTimer) {
+                                if (checkedEmail && emailExists && !startTimer) {
                                     Text("Invio email in corso...")
 
                                 } else {
@@ -136,7 +148,7 @@ fun PasswordRecover(
                             }
 
                             if (startTimer) {
-                                var delayTime by remember { mutableStateOf(30) }
+                                var delayTime by remember { mutableIntStateOf(30) }
                                 Text(
                                     "Attenti $delayTime secondi per inviare un'altra email",
                                     textAlign = TextAlign.Center
@@ -153,7 +165,7 @@ fun PasswordRecover(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     TextButton(
                         onClick = { navController.navigate("signIn") },

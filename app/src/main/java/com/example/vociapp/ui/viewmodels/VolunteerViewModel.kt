@@ -73,19 +73,13 @@ class VolunteerViewModel @Inject constructor(
         viewModelScope.launch {
             _specificVolunteer.value = Resource.Loading() // Set loading state
             val result = volunteerRepository.getVolunteerById(volunteerId) // Get data
-            Log.d("VolunteerViewModel", "Retrieved volunteer: ${result.data}")
             _specificVolunteer.value = result // Update state with result
         }
     }
 
-    //Ritorna un volontario tramite nickname
-    fun getVolunteerByNickname(nickname: String) {
-        viewModelScope.launch {
-            _currentUser.value = Resource.Loading()
-            val result = volunteerRepository.getVolunteerByNickname(nickname)
-            _currentUser.value = result
-            Log.d("VolunteerViewModel", "Retrieved volunteer: ${result.data}")
-        }
+    suspend fun checkIfEmailExists(email: String): Boolean {
+        return if(email.isEmpty()) false
+        else volunteerRepository.getVolunteerByEmail(email).data != null
     }
 
     fun addVolunteer(volunteer: Volunteer) {
@@ -99,7 +93,6 @@ class VolunteerViewModel @Inject constructor(
             }
         }
     }
-
 
     fun updateVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {

@@ -222,7 +222,6 @@ class FirestoreDataSource @Inject constructor(
                 val volunteer = querySnapshot.documents[0].toObject(Volunteer::class.java)!!
                 Resource.Success(volunteer)
             } else {
-                Log.d("FirestoreDataSource", nickname)
                 Resource.Error("Volunteer not found")
             }
         } catch (e: Exception) {
