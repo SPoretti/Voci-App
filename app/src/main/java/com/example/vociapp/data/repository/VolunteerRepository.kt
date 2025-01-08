@@ -152,6 +152,7 @@ class VolunteerRepository @Inject constructor(
             if (networkManager.isNetworkConnected()) {
                 // Fetch preferences from Firestore if network is connected
                 val remoteResult = firestoreDataSource.getUserPreferences(userId)
+                Log.d("UserPreferences", "Remote result: $remoteResult")
                 if (remoteResult is Resource.Success) {
                     // Save preferences to local database for offline access
                     roomDataSource.updateUserPreferences(userId, remoteResult.data!!)
@@ -179,7 +180,7 @@ class VolunteerRepository @Inject constructor(
                 remoteResult // Return the result from Firestore
             } else {
                 val currentVolunteer = roomDataSource.getVolunteerById(userId)
-                val newVolunteer = currentVolunteer?.copy(preferredHomelessIds = preferredHomelessIds)
+                val newVolunteer = currentVolunteer.copy(preferredHomelessIds = preferredHomelessIds)
                 roomDataSource.updateUserPreferences(userId, preferredHomelessIds)
                 queueSyncAction("Volunteer", "update_preferences", newVolunteer!!)
                 Resource.Error("No network connection. Data saved locally and queued for later sync.")

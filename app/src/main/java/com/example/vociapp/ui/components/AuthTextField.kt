@@ -27,11 +27,13 @@ fun AuthTextField(
     placeholder: String = "",
     modifier: Modifier = Modifier,
     trailingIcon: @Composable () -> Unit = {},
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedBorderColor = MaterialTheme.colorScheme.primary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-        cursorColor = MaterialTheme.colorScheme.primary,
-    )
+    colors: TextFieldColors =
+        OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            cursorColor = MaterialTheme.colorScheme.primary,
+        ),
+    isLoggingIn: Boolean = true
 ) {
     OutlinedTextField(
         value = value,
@@ -48,10 +50,19 @@ fun AuthTextField(
                 tint = MaterialTheme.colorScheme.primary
             )
         },
-        placeholder = {Text(placeholder)},
+        placeholder = { Text(placeholder) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        colors = colors,
+        colors = if (value.isNotEmpty() || isLoggingIn) {
+            colors
+        } else {
+            OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.error,
+                unfocusedBorderColor = MaterialTheme.colorScheme.error,
+                cursorColor = MaterialTheme.colorScheme.error,
+                focusedLabelColor = MaterialTheme.colorScheme.error
+            )
+        },
         trailingIcon = trailingIcon,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,

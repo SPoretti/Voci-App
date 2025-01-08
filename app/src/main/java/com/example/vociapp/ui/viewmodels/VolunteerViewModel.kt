@@ -21,15 +21,10 @@ class VolunteerViewModel @Inject constructor(
 
     private val _snackbarMessage = MutableStateFlow("")
 
-//    private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
-//    val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
-
     private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
 
     private val firebaseAuth = FirebaseAuth.getInstance()
-
-    private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
 
     private val _currentUser = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val currentUser: StateFlow<Resource<Volunteer>> = _currentUser.asStateFlow()
@@ -39,16 +34,21 @@ class VolunteerViewModel @Inject constructor(
 
     init {
         firebaseAuth.addAuthStateListener { auth ->
+            Log.d("AuthStateListener", "Auth state changed")
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
-                Log.d("AuthStateListener", "User is logged in: ${firebaseUser.email}")
+                Log.d("AuthStateListener", "Utente creato: ${firebaseUser.email}")
                 viewModelScope.launch {
-                    val volunteer = volunteerRepository.getVolunteerByEmail(firebaseUser.email!!)
-                    Log.d("AuthStateListener", "Volunteer ID: ${volunteer.data?.id}")
-                    if (volunteer.data != null){
+                    val volunteer = firebaseUser.email?.let {
+                        volunteerRepository.getVolunteerByEmail(it)
+                    }
+                    Log.d("AuthStateListener", "volunteer: ${volunteer?.data}")
+                    if (volunteer?.data != null){
                         _currentUser.value = Resource.Success(
                             Volunteer(email = firebaseUser.email!!, id = volunteer.data?.id.toString()))
-                        fetchUserPreferences(volunteer.data?.id.toString())
+                        Log.d("AuthStateListener", "Volunteer ID: ${volunteer.data?.id}, ${volunteer.data?.email}")
+                    } else {
+                        Log.d("AuthStateListener", "Volunteer is null")
                     }
                     fetchVolunteers()
                 }
@@ -58,14 +58,8 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    init {
-        fetchVolunteers()
-        getVolunteerById(volunteerId = "")
-    }
-
     //Ritorna il volontario connesso
     fun getCurrentUser(): Volunteer? {
-        Log.d("getCurrentUser", "${_currentUser.value.data}")
         return _currentUser.value.data
     }
 
@@ -82,17 +76,21 @@ class VolunteerViewModel @Inject constructor(
         else volunteerRepository.getVolunteerByEmail(email).data != null
     }
 
-    fun addVolunteer(volunteer: Volunteer) {
+    fun addVolunteer(volunteer: Volunteer, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             val result = volunteerRepository.addVolunteer(volunteer)
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Registrazione effettuata"
-                _currentVolunteer.value = volunteer
+                _currentUser.value = Resource.Success(volunteer)
+                Log.d("Inserimento Volontario", "Volontario ${_currentUser.value.data}")
+                onComplete(true)
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"
+                onComplete(false)
             }
         }
     }
+
 
     fun updateVolunteer(volunteer: Volunteer) {
         viewModelScope.launch {
@@ -114,8 +112,8 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun fetchUserPreferences(userId: String) {
-        volunteerRepository.getUserPreferences(userId)
+    fun fetchUserPreferences(email: String) {
+        volunteerRepository.getUserPreferences(email)
             .onEach { result ->
                 _userPreferencesResource.value = result
             }

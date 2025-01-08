@@ -63,44 +63,90 @@ fun SignUpScreen(
     val user = authViewModel.getCurrentUser()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
+    //Step 1
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isPasswordFieldFocused by remember { mutableStateOf(false) }
-    var isFieldEmpty by remember { mutableStateOf(true) }
 
+    //Step 2
+    var emailVerified by remember { mutableStateOf(user?.isEmailVerified) }
+
+    //Step 3
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var nickname by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
     var isSigningUp by remember { mutableStateOf(false) }
-    var logging by remember { mutableStateOf(false) }
-    var completingSignUp by remember { mutableStateOf(false) }
-
+    var logging by remember { mutableStateOf(true) }
     var step by remember { mutableIntStateOf(1) }
-    var emailVerified by remember { mutableStateOf(user?.isEmailVerified ?: false) }
 
     LaunchedEffect(isSigningUp) {
         if (isSigningUp) {
-            if (authViewModel.areFieldsEmpty(email, password, confirmPassword)) {
-                isFieldEmpty = false
-                SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
-            } else {
-                val isPasswordValid = authViewModel.isPasswordValid(password)
-                if (isPasswordValid) {
-                    val result = authViewModel.createUserWithEmailAndPassword(email, password)
+            when (step) {
+                1 -> {
+                    if (authViewModel.areFieldsEmpty(email, password, confirmPassword)) {
+                        SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
+                    } else {
+                        val isPasswordValid = authViewModel.isPasswordValid(password)
+                        if (isPasswordValid) {
+                            val result =
+                                authViewModel.createUserWithEmailAndPassword(email, password)
+                            if (result is AuthResult.Failure) {
+                                SnackbarManager.showSnackbar(result.message)
+                            } else {
+                                step = 2
+                                authViewModel.sendVerificationEmail()
+                            }
+                        } else {
+                            SnackbarManager.showSnackbar("Password non valida")
+                        }
+                    }
+                }
+
+                3 -> {
+                    if (authViewModel.areFieldsEmpty(name, surname, nickname, phoneNumber)) {
+                        SnackbarManager.showSnackbar("Compila tutti i campi")
+                        isSigningUp = false
+                        return@LaunchedEffect
+                    }
+
+                    val validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
+                    if (!validPhoneNumber) {
+                        SnackbarManager.showSnackbar("Numero di telefono non valido")
+                        isSigningUp = false
+                        return@LaunchedEffect
+                    }
+
+                    val result = authViewModel.updateUserProfile(nickname, null)
+                    Log.d("SignUpScreen", "Result: $result")
                     if (result is AuthResult.Failure) {
                         SnackbarManager.showSnackbar(result.message)
                     } else {
-                        step = 2
-                        authViewModel.sendVerificationEmail()
+                        logging = true
+                        val volunteer = Volunteer(
+                            UUID.randomUUID().toString(),
+                            name,
+                            surname,
+                            nickname,
+                            phoneNumber,
+                            user?.email ?: ""
+                        )
+                        volunteerViewModel.addVolunteer(volunteer) { success ->
+                            if (success) {
+                                Log.d("SignUpScreen", "Volunteer added successfully")
+                                volunteerViewModel.fetchUserPreferences(volunteer.id)
+                                navController.navigate(Screens.Home.route)
+                            } else {
+                                Log.d("SignUpScreen", "Error adding volunteer")
+                            }
+                        }
                     }
-                } else {
-                    SnackbarManager.showSnackbar("Password non valida")
                 }
             }
+            logging = true
             isSigningUp = false
         }
     }
@@ -110,7 +156,6 @@ fun SignUpScreen(
             user?.reload()?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     emailVerified = user.isEmailVerified
-                    Log.d("SignUpScreen", "Email verified: ${user.email}")
                 }
             }
             kotlinx.coroutines.delay(3000)
@@ -118,51 +163,17 @@ fun SignUpScreen(
     }
 
     LaunchedEffect(emailVerified) {
-        if (emailVerified) {
+        if (emailVerified == true) {
             SnackbarManager.showSnackbar("Email confermata!")
             step = 3
         }
     }
 
-    LaunchedEffect(completingSignUp) {
-        if (completingSignUp) {
-            if (authViewModel.areFieldsEmpty(name, surname, nickname, phoneNumber)) {
-                SnackbarManager.showSnackbar("Compila tutti i campi")
-                completingSignUp = false
-                return@LaunchedEffect
-            }
-
-            val validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
-            if (!validPhoneNumber) {
-                SnackbarManager.showSnackbar("Numero di telefono non valido")
-                completingSignUp = false
-                return@LaunchedEffect
-            } else {
-                val result = authViewModel.updateUserProfile(nickname, null)
-                if (result is AuthResult.Failure) {
-                    SnackbarManager.showSnackbar(result.message)
-                } else {
-                    logging = true
-                    val volunteer = Volunteer(
-                        UUID.randomUUID().toString(),
-                        name,
-                        surname,
-                        nickname,
-                        phoneNumber,
-                        user?.email ?: ""
-                    )
-                    volunteerViewModel.addVolunteer(volunteer)
-                    navController.navigate(Screens.Home.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            }
-            completingSignUp = false
-        }
-    }
-
     //User is quitting before completing the registration
     BackHandler(onBack = {
+        if (step == 1) {
+            navController.navigate("signIn")
+        }
         if (step == 2 || step == 3) {
             user?.delete()
         }
@@ -214,7 +225,7 @@ fun SignUpScreen(
                                         onValueChange = { email = it },
                                         label = "Email",
                                         icon = Icons.Default.Email,
-                                        colors = getTextFieldColors(isValid = isFieldEmpty)
+                                        isLoggingIn = logging
                                     )
 
                                     AuthTextField(
@@ -222,6 +233,7 @@ fun SignUpScreen(
                                         onValueChange = { password = it },
                                         label = "Password",
                                         icon = Icons.Default.Lock,
+                                        isLoggingIn = logging,
                                         isPassword = !passwordVisible,
                                         trailingIcon = {
                                             IconButton(onClick = {
@@ -235,10 +247,8 @@ fun SignUpScreen(
                                         },
                                         modifier = Modifier
                                             .onFocusChanged { focusState ->
-                                                Log.d("SignUpScreen", "Password focused: ${focusState.isFocused}")
-                                                    isPasswordFieldFocused = focusState.isFocused
-                                            },
-                                        colors = getTextFieldColors(isValid = isFieldEmpty)
+                                                isPasswordFieldFocused = focusState.isFocused
+                                            }
                                     )
 
                                     if (isPasswordFieldFocused) {
@@ -254,12 +264,12 @@ fun SignUpScreen(
                                         onValueChange = { confirmPassword = it },
                                         label = "Conferma Password",
                                         icon = Icons.Default.Lock,
-                                        isPassword = true,
-                                        colors = getTextFieldColors(isValid = isFieldEmpty)
+                                        isLoggingIn = logging,
+                                        isPassword = true
                                     )
 
                                     Button(
-                                        onClick = { isSigningUp = true },
+                                        onClick = { isSigningUp = true; logging = false },
                                         enabled = true,
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(8.dp)
@@ -336,7 +346,7 @@ fun SignUpScreen(
                         // 3 -> Complete Registration Screen
                         3 -> {
                             Text(
-                                "Crea un account",
+                                "Registrati",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.primary
@@ -361,21 +371,24 @@ fun SignUpScreen(
                                         value = name,
                                         onValueChange = { name = it },
                                         label = "Nome",
-                                        icon = Icons.Default.PersonOutline
+                                        icon = Icons.Default.PersonOutline,
+                                        isLoggingIn = logging,
                                     )
 
                                     AuthTextField(
                                         value = surname,
                                         onValueChange = { surname = it },
                                         label = "Cognome",
-                                        icon = Icons.Default.PersonOutline
+                                        icon = Icons.Default.PersonOutline,
+                                        isLoggingIn = logging,
                                     )
 
                                     AuthTextField(
                                         value = nickname,
                                         onValueChange = { nickname = it },
                                         label = "Nickname",
-                                        icon = Icons.Default.PersonOutline
+                                        icon = Icons.Default.PersonOutline,
+                                        isLoggingIn = logging,
                                     )
 
                                     AuthTextField(
@@ -383,26 +396,20 @@ fun SignUpScreen(
                                         onValueChange = { phoneNumber = it },
                                         label = "Telefono",
                                         icon = Icons.Default.Phone,
+                                        isLoggingIn = logging,
                                         placeholder = "+39"
                                     )
 
                                     Button(
-                                        onClick = { isSigningUp = true },
+                                        onClick = { isSigningUp = true; logging = false },
                                         enabled = true,
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        if (logging) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(24.dp),
-                                                color = MaterialTheme.colorScheme.onPrimary
-                                            )
-                                        } else {
-                                            Text(
-                                                "Completa Registrazione",
-                                                modifier = Modifier.padding(vertical = 8.dp)
-                                            )
-                                        }
+                                        Text(
+                                            "Completa Registrazione",
+                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        )
                                     }
                                 }
                             }
