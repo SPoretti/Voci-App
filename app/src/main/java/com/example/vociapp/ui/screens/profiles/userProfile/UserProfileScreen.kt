@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -56,6 +57,17 @@ fun UserProfileScreen(
     val currentProfile = authViewModel.getCurrentUser()
     val loggedUser = volunteerViewModel.getCurrentUser()
 
+    val currentVolunteer by volunteerViewModel.currentUser.collectAsState()
+
+    LaunchedEffect(currentVolunteer) {
+        if (currentVolunteer is Resource.Success) {
+            Log.d("Home", "Utente loggato: ${currentVolunteer.data}")
+        } else if (currentVolunteer is Resource.Error) {
+            Log.d("Home", "Errore utente: ${(currentVolunteer as Resource.Error).message}")
+            volunteerViewModel.fetchVolunteers()
+        }
+    }
+
     if (loggedUser != null) {
         volunteerViewModel.getVolunteerById(loggedUser.id)
     }
@@ -63,7 +75,6 @@ fun UserProfileScreen(
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     if (currentProfile != null) {
-        Log.d("Utente loggato", "Logged user: ${currentProfile.email} + ${currentProfile.phoneNumber} + ${currentProfile.uid}")
         Scaffold(
             snackbarHost = { SnackbarManager.CustomSnackbarHost() },
             content = { padding ->
@@ -208,7 +219,6 @@ fun UserProfileScreen(
                                             )
 
                                             if (currentProfile.phoneNumber?.isNotEmpty() == true) {
-                                                Log.d("ProfilePicture", "Phone: ${currentProfile.phoneNumber}")
                                                 // phone number
                                                 ProfileInfoItem(
                                                     icon = Icons.Default.Phone,
@@ -239,18 +249,5 @@ fun UserProfileScreen(
 
             }
         )
-    } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Errore: Nessun utente loggato.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
     }
 }

@@ -128,9 +128,8 @@ fun SearchBar(
                 }
             } else {
                 if(currentRoute == "home") {
-
                     if(currentUser?.photoUrl != null) {
-
+                        Log.d("ProfilePicture", "Immagine utente: ${currentUser.photoUrl}")
                         Row(
                             modifier = Modifier.padding(end = 8.dp)
                         ) {
