@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
@@ -134,7 +135,7 @@ fun UpdateUserProfileScreen(
                                             isInitialized = true
                                         }
 
-                                        when(step) {
+                                        when (step) {
                                             1 -> {
                                                 Row(
                                                     verticalAlignment = Alignment.CenterVertically
@@ -142,14 +143,34 @@ fun UpdateUserProfileScreen(
                                                     Box(
                                                         modifier = Modifier.padding(end = 16.dp)
                                                     ) {
-                                                        AsyncImage(
-                                                            model = currentProfile.photoUrl,
-                                                            contentDescription = "Profile Picture",
-                                                            modifier = Modifier
-                                                                .size(120.dp)
-                                                                .clip(CircleShape),
-                                                            contentScale = ContentScale.Crop
-                                                        )
+                                                        val initials =
+                                                            "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+                                                        //Profile picture
+                                                        if (currentProfile.photoUrl != null) {
+                                                            AsyncImage(
+                                                                model = currentProfile.photoUrl,
+                                                                contentDescription = "Profile Picture",
+                                                                modifier = Modifier
+                                                                    .size(120.dp)
+                                                                    .clip(CircleShape),
+                                                                contentScale = ContentScale.Crop
+                                                            )
+                                                        } else {
+                                                            Box(
+                                                                contentAlignment = Alignment.Center,
+                                                                modifier = Modifier
+                                                                    .size(130.dp)
+                                                                    .clip(CircleShape)
+                                                                    .background(MaterialTheme.colorScheme.primary)
+                                                            ) {
+                                                                Text(
+                                                                    text = initials,
+                                                                    style = MaterialTheme.typography.headlineMedium,
+                                                                    fontWeight = FontWeight.Medium,
+                                                                    fontSize = 60.sp
+                                                                )
+                                                            }
+                                                        }
 
                                                         IconButton(
                                                             onClick = { showDialog = true },
@@ -157,7 +178,7 @@ fun UpdateUserProfileScreen(
                                                                 .align(Alignment.BottomEnd)
                                                                 .size(32.dp)
                                                                 .clip(CircleShape)
-                                                                .background(MaterialTheme.colorScheme.primary)
+                                                                .background(MaterialTheme.colorScheme.secondary)
                                                         ) {
                                                             Icon(
                                                                 imageVector = Icons.Default.Edit,
@@ -265,7 +286,8 @@ fun UpdateUserProfileScreen(
                                                     onValueChange = { password = it },
                                                     label = if (isPasswordCorrect) "Password" else "Password errata",
                                                     placeholder = "Password",
-                                                    colors = getTextFieldColors(isValid = isPasswordCorrect)
+                                                    colors = getTextFieldColors(isValid = isPasswordCorrect),
+                                                    isPassword = true
                                                 )
 
                                                 Row(
@@ -308,7 +330,7 @@ fun UpdateUserProfileScreen(
                                                 }
                                             }
 
-                                            }
+                                        }
 
                                         LaunchedEffect(isUpdating) {
                                             if (isUpdating) {
@@ -317,17 +339,20 @@ fun UpdateUserProfileScreen(
                                                         volunteer!!.email,
                                                         password
                                                     )
-                                                val validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
+                                                val validPhoneNumber =
+                                                    authViewModel.isPhoneNumberValid(phoneNumber)
                                                 if (result is AuthResult.Failure) {
                                                     isPasswordCorrect = false
                                                 } else if (!validPhoneNumber) {
                                                     isPasswordCorrect = true
                                                     isPhoneNumberValid = false
-                                                }
-                                                else {
+                                                } else {
+                                                    val newPhotoUrl: String? = photoUrl.ifEmpty {
+                                                        null
+                                                    }
                                                     result = authViewModel.updateUserProfile(
                                                         nickname,
-                                                        photoUrl
+                                                        newPhotoUrl
                                                     )
                                                     if (result is AuthResult.Failure) {
                                                         showError = true
