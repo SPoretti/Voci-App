@@ -55,6 +55,7 @@ fun SignInScreen(
     var isFieldEmpty by remember { mutableStateOf(false) }
 
     var isSigningIn by remember { mutableStateOf(false) }
+    var logging by remember { mutableStateOf(true) }
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
 
@@ -70,6 +71,7 @@ fun SignInScreen(
                     popUpTo(Screens.SignIn.route) { inclusive = true }
                 }
             }
+            logging = true
             isSigningIn = false
         }
     }
@@ -116,7 +118,7 @@ fun SignInScreen(
                                 onValueChange = { email = it },
                                 label = "Email",
                                 icon = Icons.Default.Email,
-                                colors = getTextFieldColors(isValid = !isFieldEmpty)
+                                isLoggingIn = logging
                             )
 
                             AuthTextField(
@@ -124,7 +126,7 @@ fun SignInScreen(
                                 onValueChange = { password = it },
                                 label = "Password",
                                 icon = Icons.Default.Lock,
-                                colors = getTextFieldColors(isValid = !isFieldEmpty),
+                                isLoggingIn = logging,
                                 isPassword = !passwordVisible,
                                 trailingIcon = {
                                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -153,7 +155,7 @@ fun SignInScreen(
                             }
 
                             Button(
-                                onClick = { isSigningIn = true },
+                                onClick = { isSigningIn = true; logging = false },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp)
