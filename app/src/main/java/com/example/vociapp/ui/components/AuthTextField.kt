@@ -36,7 +36,7 @@ fun AuthTextField(
     isLoggingIn: Boolean = true
 ) {
     OutlinedTextField(
-        value = value,
+        value = value.trim(),
         onValueChange = { newValue ->
             if (newValue.isEmpty() || newValue.isNotBlank()) {
                 onValueChange(newValue)

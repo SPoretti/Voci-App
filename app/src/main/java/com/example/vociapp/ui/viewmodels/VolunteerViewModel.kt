@@ -3,6 +3,7 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.util.Resource
@@ -34,10 +35,8 @@ class VolunteerViewModel @Inject constructor(
 
     init {
         firebaseAuth.addAuthStateListener { auth ->
-            Log.d("AuthStateListener", "Auth state changed")
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
-                Log.d("AuthStateListener", "Utente creato: ${firebaseUser.email}")
                 viewModelScope.launch {
                     val volunteer = firebaseUser.email?.let {
                         volunteerRepository.getVolunteerByEmail(it)
@@ -71,6 +70,11 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
+    suspend fun checkIfNicknameExists(nickname: String): Boolean {
+        val result = volunteerRepository.getVolunteerByNickname(nickname)
+        return result is Resource.Success && result.data != null
+    }
+
     suspend fun checkIfEmailExists(email: String): Boolean {
         return if(email.isEmpty()) false
         else volunteerRepository.getVolunteerByEmail(email).data != null
@@ -82,7 +86,6 @@ class VolunteerViewModel @Inject constructor(
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Registrazione effettuata"
                 _currentUser.value = Resource.Success(volunteer)
-                Log.d("Inserimento Volontario", "Volontario ${_currentUser.value.data}")
                 onComplete(true)
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"

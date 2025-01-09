@@ -125,19 +125,18 @@ class VolunteerRepository @Inject constructor(
 
     suspend fun getVolunteerByNickname(nickname: String): Resource<Volunteer> {
         try {
-            if (networkManager.isNetworkConnected()) {
+            return if (networkManager.isNetworkConnected()) {
                 val firestoreResource = firestoreDataSource.getVolunteerByNickname(nickname)
                 if (firestoreResource is Resource.Success) {
                     // 4. Cache the fetched request locally
-                    //roomDataSource.insertVolunteer(firestoreResource.data!!)
-                    return firestoreResource
+                    firestoreResource
                 } else {
                     // 5. Handle Firestore error
-                    return firestoreResource // Or you can re-throw or wrap the exception
+                    firestoreResource // Or you can re-throw or wrap the exception
                 }
             } else {
                 // 6. Handle offline scenario
-                return Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
+                Resource.Error("Nessuna connessione di rete. Dati non disponibili localmente.")
             }
         } catch (e: Exception) {
             // 7. Handle unexpected errors
