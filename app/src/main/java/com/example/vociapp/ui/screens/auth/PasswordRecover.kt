@@ -63,7 +63,7 @@ fun PasswordRecover(
                 val result = authViewModel.sendPasswordResetEmail(email)
                 if (result is AuthResult.Success) {
                     startTimer = true
-                    SnackbarManager.showSnackbar("Email inviata con successo")
+                    SnackbarManager.showSnackbar("Email inviata con successo, segui le indicazioni inviate via mail")
                 } else if (result is AuthResult.Failure) {
                     SnackbarManager.showSnackbar(result.message)
                 }
@@ -85,10 +85,8 @@ fun PasswordRecover(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = 16.dp, end = 16.dp, top = 24.dp)
-                        .offset(y = (-70).dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         "Recupero password",
@@ -149,7 +147,7 @@ fun PasswordRecover(
                             if (startTimer) {
                                 var delayTime by remember { mutableIntStateOf(30) }
                                 Text(
-                                    "Attenti $delayTime secondi per inviare un'altra email",
+                                    "Attendi $delayTime secondi per inviare un'altra email",
                                     textAlign = TextAlign.Center
                                 )
 
@@ -164,7 +162,7 @@ fun PasswordRecover(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     TextButton(
                         onClick = { navController.navigate("signIn") },
@@ -172,6 +170,7 @@ fun PasswordRecover(
                         Text(
                             "Accedi",
                             color = MaterialTheme.colorScheme.primary,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
                         )
                     }
                 }

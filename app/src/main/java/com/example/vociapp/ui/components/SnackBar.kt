@@ -24,11 +24,11 @@ object SnackbarManager {
     }
 
     @Composable
-    fun CustomSnackbarHost() {
+    fun CustomSnackbarHost(isBottomBarVisible: Boolean = false) {
         SnackbarHost(
             hostState = snackbarHostState,
             snackbar = { snackbarData ->
-                CustomSnackbar(snackbarData)
+                CustomSnackbar(snackbarData, isBottomBarVisible)
             }
         )
     }

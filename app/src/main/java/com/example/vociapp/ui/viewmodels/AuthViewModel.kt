@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import com.example.vociapp.data.util.ExceptionHandler
 import com.google.firebase.auth.FirebaseAuthEmailException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 
 class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
@@ -46,7 +48,7 @@ class AuthViewModel : ViewModel() {
             auth.signInWithEmailAndPassword(email, password).await()
             AuthResult.Success
         } catch (e: FirebaseAuthInvalidCredentialsException) {
-            AuthResult.Failure("Password errata")
+            AuthResult.Failure("Credenziali non valide")
         } catch (e: FirebaseAuthException) {
             exceptionHandler.handleAuthException(e)
         } catch (e: IllegalArgumentException) {
@@ -58,6 +60,8 @@ class AuthViewModel : ViewModel() {
         return try {
             auth.createUserWithEmailAndPassword(email, password).await()
             AuthResult.Success
+        } catch (e: FirebaseAuthUserCollisionException) {
+            AuthResult.Failure("L'email è già associata a un altro account.")
         } catch (e: Exception) {
             AuthResult.Failure("Errore nella registrazione: ${e.message}")
         }

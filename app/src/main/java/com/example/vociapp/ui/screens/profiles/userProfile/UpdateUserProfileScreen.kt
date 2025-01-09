@@ -49,6 +49,7 @@ import com.example.vociapp.ui.components.ProfilePictureDialog
 import com.example.vociapp.ui.components.ProfileTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.components.getTextFieldColors
+import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.viewmodels.AuthResult
 
 @Composable
@@ -84,9 +85,10 @@ fun UpdateUserProfileScreen(
         var isPasswordCorrect by remember { mutableStateOf(true) }
         var isPhoneNumberValid by remember { mutableStateOf(true) }
         var step by remember { mutableIntStateOf(1) }
+        var logging by remember { mutableStateOf(true) }
 
         Scaffold(
-            snackbarHost = { SnackbarManager.CustomSnackbarHost() },
+            snackbarHost = { SnackbarManager.CustomSnackbarHost(isBottomBarVisible = true) },
             content = { padding ->
                 Box(
                     modifier = Modifier
@@ -97,9 +99,8 @@ fun UpdateUserProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                            .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             "Modifica il profilo",
@@ -156,6 +157,7 @@ fun UpdateUserProfileScreen(
                                                                 contentScale = ContentScale.Crop
                                                             )
                                                         } else {
+
                                                             Box(
                                                                 contentAlignment = Alignment.Center,
                                                                 modifier = Modifier
@@ -206,13 +208,15 @@ fun UpdateUserProfileScreen(
                                                             value = name,
                                                             onValueChange = { name = it },
                                                             label = "Nome",
-                                                            placeholder = "Nome"
+                                                            placeholder = "Nome",
+                                                            isLoggingIn = logging
                                                         )
                                                         ProfileTextField(
                                                             value = surname,
                                                             onValueChange = { surname = it },
                                                             label = "Cognome",
-                                                            placeholder = "Cognome"
+                                                            placeholder = "Cognome",
+                                                            isLoggingIn = logging
                                                         )
                                                     }
                                                 }
@@ -243,9 +247,7 @@ fun UpdateUserProfileScreen(
                                                     }
 
                                                     Button(
-                                                        onClick = {
-                                                            step++
-                                                        },
+                                                        onClick = { isUpdating = true },
                                                         enabled = true,
                                                         colors = ButtonDefaults.buttonColors(
                                                             containerColor = MaterialTheme.colorScheme.primary,
@@ -270,7 +272,8 @@ fun UpdateUserProfileScreen(
                                                     value = email,
                                                     onValueChange = { email = it },
                                                     label = "Email",
-                                                    placeholder = "Email"
+                                                    placeholder = "Email",
+                                                    isLoggingIn = logging
                                                 )
 
                                                 ProfileTextField(
@@ -278,7 +281,8 @@ fun UpdateUserProfileScreen(
                                                     onValueChange = { phoneNumber = it },
                                                     label = if (isPhoneNumberValid) "Numero di telefono" else "Numero di telefono non valido",
                                                     placeholder = "Numero di telefono",
-                                                    colors = getTextFieldColors(isValid = isPhoneNumberValid)
+                                                    colors = getTextFieldColors(isValid = isPhoneNumberValid),
+                                                    isLoggingIn = logging
                                                 )
 
                                                 ProfileTextField(
@@ -287,7 +291,8 @@ fun UpdateUserProfileScreen(
                                                     label = if (isPasswordCorrect) "Password" else "Password errata",
                                                     placeholder = "Password",
                                                     colors = getTextFieldColors(isValid = isPasswordCorrect),
-                                                    isPassword = true
+                                                    isPassword = true,
+                                                    isLoggingIn = logging
                                                 )
 
                                                 Row(
@@ -334,41 +339,82 @@ fun UpdateUserProfileScreen(
 
                                         LaunchedEffect(isUpdating) {
                                             if (isUpdating) {
-                                                var result =
-                                                    authViewModel.signInWithEmailAndPassword(
-                                                        volunteer!!.email,
-                                                        password
-                                                    )
-                                                val validPhoneNumber =
-                                                    authViewModel.isPhoneNumberValid(phoneNumber)
-                                                if (result is AuthResult.Failure) {
-                                                    isPasswordCorrect = false
-                                                } else if (!validPhoneNumber) {
-                                                    isPasswordCorrect = true
-                                                    isPhoneNumberValid = false
-                                                } else {
-                                                    val newPhotoUrl: String? = photoUrl.ifEmpty {
-                                                        null
+                                                when (step) {
+                                                    1 -> {
+                                                        if (authViewModel.areFieldsEmpty(
+                                                                name,
+                                                                surname
+                                                            )
+                                                        ) {
+                                                            SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
+                                                            isUpdating = false
+                                                            return@LaunchedEffect
+                                                        }
+                                                        logging = true
+                                                        step++
+                                                        isUpdating = false
                                                     }
-                                                    result = authViewModel.updateUserProfile(
-                                                        nickname,
-                                                        newPhotoUrl
-                                                    )
-                                                    if (result is AuthResult.Failure) {
-                                                        showError = true
-                                                        errorMessage = result.message
-                                                    } else {
-                                                        showError = false
-                                                        volunteer.name = name
-                                                        volunteer.surname = surname
-                                                        volunteer.nickname = nickname
-                                                        volunteer.photoUrl = photoUrl
-                                                        volunteerViewModel.updateVolunteer(volunteer)
-                                                        navController.popBackStack()
+
+                                                    2 -> {
+                                                        if (authViewModel.areFieldsEmpty(
+                                                                email,
+                                                                phoneNumber,
+                                                                password
+                                                            )
+                                                        ) {
+                                                            logging = false
+                                                            SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
+                                                            isUpdating = false
+                                                            return@LaunchedEffect
+                                                        }
+
+                                                        if (!authViewModel.isPhoneNumberValid(
+                                                                phoneNumber
+                                                            )
+                                                        ) {
+                                                            SnackbarManager.showSnackbar("Numero di telefono non valido")
+                                                            isUpdating = false
+                                                            return@LaunchedEffect
+                                                        }
+
+                                                        var result =
+                                                            authViewModel.signInWithEmailAndPassword(
+                                                                volunteer!!.email,
+                                                                password
+                                                            )
+
+                                                        if (result is AuthResult.Failure) {
+                                                            isPasswordCorrect = false
+                                                            SnackbarManager.showSnackbar(result.message)
+                                                            isUpdating = false
+                                                            return@LaunchedEffect
+                                                        }
+
+                                                        val newPhotoUrl: String? =
+                                                            photoUrl.ifEmpty { null }
+                                                        result = authViewModel.updateUserProfile(
+                                                            nickname,
+                                                            newPhotoUrl
+                                                        )
+                                                        if (result is AuthResult.Failure) {
+                                                            SnackbarManager.showSnackbar("Errore durante la modifica del profilo")
+                                                        } else {
+                                                            showError = false
+                                                            volunteer.name = name
+                                                            volunteer.surname = surname
+                                                            volunteer.nickname = nickname
+                                                            volunteer.photoUrl = photoUrl
+                                                            volunteerViewModel.updateVolunteer(
+                                                                volunteer
+                                                            )
+                                                            navController.popBackStack()
+                                                        }
+
                                                     }
                                                 }
-                                                isUpdating = false
                                             }
+                                            isPasswordCorrect = true
+                                            logging = true
                                         }
                                     }
 

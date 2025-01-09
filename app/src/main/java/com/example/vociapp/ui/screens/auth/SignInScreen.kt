@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,7 +53,7 @@ fun SignInScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var isFieldEmpty by remember { mutableStateOf(false) }
+    var validCredentials by remember { mutableStateOf(true) }
 
     var isSigningIn by remember { mutableStateOf(false) }
     var logging by remember { mutableStateOf(true) }
@@ -61,19 +62,30 @@ fun SignInScreen(
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
-            isFieldEmpty = email.isEmpty() || password.isEmpty()
             val result = authViewModel.signInWithEmailAndPassword(email, password)
-            if (result is AuthResult.Failure) {
+            if (result is AuthResult.Failure && authViewModel.areFieldsEmpty(email, password)) {
                 SnackbarManager.showSnackbar(result.message)
                 isSigningIn = false
-            } else {
+                return@LaunchedEffect
+            }
+
+            if (result is AuthResult.Failure) {
+                validCredentials = false
+                SnackbarManager.showSnackbar(result.message)
+                isSigningIn = false
+                return@LaunchedEffect
+            }
+
+            if (result is AuthResult.Success) {
+                Log.d("SignInScreen", "User signed in successfully")
                 navController.navigate(Screens.Home.route) {
                     popUpTo(Screens.SignIn.route) { inclusive = true }
                 }
             }
-            logging = true
-            isSigningIn = false
         }
+        validCredentials = true
+        logging = true
+        isSigningIn = false
     }
 
     Scaffold(
@@ -118,7 +130,8 @@ fun SignInScreen(
                                 onValueChange = { email = it },
                                 label = "Email",
                                 icon = Icons.Default.Email,
-                                isLoggingIn = logging
+                                isLoggingIn = logging,
+                                colors = getTextFieldColors(isValid = validCredentials)
                             )
 
                             AuthTextField(
@@ -129,13 +142,16 @@ fun SignInScreen(
                                 isLoggingIn = logging,
                                 isPassword = !passwordVisible,
                                 trailingIcon = {
-                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    IconButton(onClick = {
+                                        passwordVisible = !passwordVisible
+                                    }) {
                                         Icon(
                                             imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                             contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
                                         )
                                     }
-                                }
+                                },
+                                colors = getTextFieldColors(isValid = validCredentials)
                             )
 
                             Box(
@@ -165,14 +181,15 @@ fun SignInScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     TextButton(
                         onClick = { navController.navigate("signUp") }
                     ) {
                         Text(
                             "Non hai un account? Registrati!",
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
                         )
                     }
                 }
