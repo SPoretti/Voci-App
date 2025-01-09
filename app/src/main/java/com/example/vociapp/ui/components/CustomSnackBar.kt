@@ -1,44 +1,58 @@
 package com.example.vociapp.ui.components
 
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarData
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
-
 @Composable
-fun CustomSnackbar(snackbarData: SnackbarData) {
-    val isKeyboardOpen by keyboardAsState()
+fun CustomSnackbar(snackbarData: SnackbarData, isBottomBarVisible: Boolean = false) {
+    val context = LocalContext.current
+    val rootView = LocalView.current
+
+    DisposableEffect(context) {
+        val callback = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = android.graphics.Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+        }
+
+        rootView.viewTreeObserver.addOnGlobalLayoutListener(callback)
+
+        onDispose {
+            rootView.viewTreeObserver.removeOnGlobalLayoutListener(callback)
+        }
+    }
 
     val snackbarModifier = Modifier
-//        .let {
-//            if (isKeyboardOpen) {
-//                it.offset(y = (-600).dp)
-//            } else {
-//                it
-//            }
-//        }
+        .consumeWindowInsets(
+            if (!isBottomBarVisible) { WindowInsets(0.dp, 0.dp, 0.dp, 85.dp) }
+            else { WindowInsets(0.dp, 0.dp, 0.dp, 170.dp) }
+        )
+        .imePadding()
+        .wrapContentHeight()
         .clip(RoundedCornerShape(12.dp))
         .background(MaterialTheme.colorScheme.primary)
         .padding(16.dp)
-        .wrapContentHeight()
 
     Box(
-        modifier = snackbarModifier,
-        contentAlignment = Alignment.Center
+        modifier = snackbarModifier
     ) {
         Text(
             text = snackbarData.visuals.message,
@@ -49,4 +63,5 @@ fun CustomSnackbar(snackbarData: SnackbarData) {
         )
     }
 }
+
 

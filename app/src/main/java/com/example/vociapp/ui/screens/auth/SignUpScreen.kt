@@ -162,9 +162,9 @@ fun SignUpScreen(
                     }
                 }
             }
-            logging = true
-            isSigningUp = false
         }
+        logging = true
+        isSigningUp = false
     }
 
     LaunchedEffect(user) {
@@ -298,14 +298,15 @@ fun SignUpScreen(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             TextButton(
                                 onClick = { navController.navigate("signIn") }
                             ) {
                                 Text(
                                     "Hai già un account? Accedi",
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
                                 )
                             }
                         }

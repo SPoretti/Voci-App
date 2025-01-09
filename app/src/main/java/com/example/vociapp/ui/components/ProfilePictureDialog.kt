@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 
 @Composable
 fun ProfilePictureDialog(
@@ -85,7 +84,6 @@ fun ProfilePictureDialog(
                         value = photoUrl,
                         onValueChange = { photoUrl = it },
                         label = "Immagine Profilo",
-                        icon = Icons.Default.Face,
                         placeholder = "URL Immagine Profilo",
                         modifier = Modifier
                             .fillMaxWidth(),
