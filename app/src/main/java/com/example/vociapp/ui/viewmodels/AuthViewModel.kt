@@ -71,6 +71,7 @@ class AuthViewModel : ViewModel() {
     fun isPhoneNumberValid(phoneNumber: String): Boolean {
         val phoneNumberPattern = "^\\+?[0-9]{10,15}\$"
         return phoneNumber.matches(phoneNumberPattern.toRegex())
+
     }
 
     fun isPasswordValid(password: String): Boolean {

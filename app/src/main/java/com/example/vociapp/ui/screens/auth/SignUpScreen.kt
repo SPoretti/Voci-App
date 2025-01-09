@@ -70,6 +70,10 @@ fun SignUpScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var isPasswordFieldFocused by remember { mutableStateOf(false) }
 
+    var fieldEmpty by remember { mutableStateOf(false) }
+    var nicknameAlreadyUsed by remember { mutableStateOf(false) }
+    var validPhoneNumber by remember { mutableStateOf(true) }
+
     //Step 2
     var emailVerified by remember { mutableStateOf(user?.isEmailVerified) }
 
@@ -107,21 +111,33 @@ fun SignUpScreen(
                 }
 
                 3 -> {
-                    if (authViewModel.areFieldsEmpty(name, surname, nickname, phoneNumber)) {
+                    fieldEmpty = authViewModel.areFieldsEmpty(name, surname, nickname, phoneNumber)
+                    if (fieldEmpty) {
                         SnackbarManager.showSnackbar("Compila tutti i campi")
                         isSigningUp = false
+                        logging = true
                         return@LaunchedEffect
                     }
 
-                    val validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
+                    nicknameAlreadyUsed = volunteerViewModel.checkIfNicknameExists(nickname)
+                    if (nicknameAlreadyUsed) {
+                        SnackbarManager.showSnackbar("Nickname già utilizzato")
+                        nicknameAlreadyUsed = false
+                        isSigningUp = false
+                        logging = true
+                        return@LaunchedEffect
+                    }
+
+                    validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
                     if (!validPhoneNumber) {
                         SnackbarManager.showSnackbar("Numero di telefono non valido")
+                        validPhoneNumber = true
                         isSigningUp = false
+                        logging = true
                         return@LaunchedEffect
                     }
 
                     val result = authViewModel.updateUserProfile(nickname, null)
-                    Log.d("SignUpScreen", "Result: $result")
                     if (result is AuthResult.Failure) {
                         SnackbarManager.showSnackbar(result.message)
                     } else {
@@ -191,7 +207,7 @@ fun SignUpScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = 16.dp, end = 16.dp, top = 24.dp),
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when (step) {
@@ -386,9 +402,10 @@ fun SignUpScreen(
                                     AuthTextField(
                                         value = nickname,
                                         onValueChange = { nickname = it },
-                                        label = "Nickname",
+                                        label = if (nicknameAlreadyUsed) "Nickname già utilizzato" else "Nickname",
                                         icon = Icons.Default.PersonOutline,
                                         isLoggingIn = logging,
+                                        colors = getTextFieldColors(isValid = !nicknameAlreadyUsed)
                                     )
 
                                     AuthTextField(
@@ -397,7 +414,8 @@ fun SignUpScreen(
                                         label = "Telefono",
                                         icon = Icons.Default.Phone,
                                         isLoggingIn = logging,
-                                        placeholder = "+39"
+                                        placeholder = "+39",
+                                        colors = getTextFieldColors(isValid = validPhoneNumber)
                                     )
 
                                     Button(
