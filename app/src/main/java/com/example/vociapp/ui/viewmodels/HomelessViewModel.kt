@@ -154,17 +154,17 @@ class HomelessViewModel @Inject constructor(
 
     fun fetchHomelessDetailsById(homelessId: String) {
         viewModelScope.launch {
-            _homelesses.value = Resource.Loading()
+            //_homelesses.value = Resource.Loading()
             try {
                 val homeless = homelessRepository.getHomelessById(homelessId)
-                if (homeless != null) {
-                    geocodeLocation(homeless.location)
-                    _homelesses.value = Resource.Success(listOf(homeless))
+                if (homeless is Resource.Success) {
+                    geocodeLocation(homeless.data!!.location)
+                    //_homelesses.value = Resource.Success(listOf(homeless))
                 } else {
-                    _homelesses.value = Resource.Error("Senzatetto non trovato")
+                    //_homelesses.value = Resource.Error("Senzatetto non trovato")
                 }
             } catch (e: Exception) {
-                _homelesses.value = Resource.Error(e.message ?: "Errore sconosciuto")
+                //_homelesses.value = Resource.Error(e.message ?: "Errore sconosciuto")
             }
         }
     }

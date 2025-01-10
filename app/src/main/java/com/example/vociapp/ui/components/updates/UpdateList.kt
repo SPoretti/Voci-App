@@ -13,21 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.util.Resource
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
-import com.example.vociapp.ui.viewmodels.UpdatesViewModel
 
 @Composable
-fun UpdateList(
-    updates: Resource<List<Update>>,
-    navController: NavHostController,
-    updateViewModel: UpdatesViewModel,
-    homelessViewModel: HomelessViewModel,
-) {
+fun UpdateList(updates: Resource<List<Update>>) {
 
-    val Updates = remember(updates) {
+    val sortedUpdates = remember(updates) {
         updates.data.orEmpty().sortedByDescending { it.timestamp } // Sort by timestamp descending
     }
 
@@ -38,7 +30,7 @@ fun UpdateList(
             }
 
             is Resource.Success -> {
-                if (Updates.isEmpty()) {
+                if (sortedUpdates.isEmpty()) {
                     Text(
                         "Non ci sono aggiornamenti",
                         modifier = Modifier.align(Alignment.Center)
@@ -49,8 +41,8 @@ fun UpdateList(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
                     ) {
-                        items(Updates) { update ->
-                            UpdateListItem(update, navController, homelessViewModel)
+                        items(sortedUpdates) { update ->
+                            UpdateListItem(update)
                         }
                     }
                 }

@@ -41,14 +41,14 @@ import coil.compose.AsyncImage
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
-import com.example.vociapp.data.util.SortOption
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
-import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.state.SortOption
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -127,10 +127,7 @@ fun ProfileHomelessScreen(
                                         requests = requests,
                                         filterOption = RequestStatus.TODO,
                                         sortOption = selectedSortOption,
-                                        navController = navController,
-                                        requestViewModel = requestViewModel,
-                                        homeLessViewModel = homelessViewModel,
-                                        isHomelessProfile = true
+                                        navController = navController
                                     )
                                 }
                             }
@@ -273,7 +270,7 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
 
         is Resource.Success -> {
             val coordinates =
-                (locationState as Resource.Success<Pair<Double, Double>>).data
+                locationState.data
             if (coordinates != null) {
                 MapboxMap(
                     latitude = coordinates.first,
@@ -285,7 +282,7 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
         }
 
         is Resource.Error -> {
-            val errorMessage = (locationState as Resource.Error).message
+            val errorMessage = locationState.message
             Text(text = "Errore coordinate: ${errorMessage ?: "Errore sconosciuto"}")
         }
     }
@@ -304,7 +301,7 @@ fun MapboxMap(latitude: Double, longitude: Double) {
     val imageUrl = "https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/" +
             "$pin/" +
             "$longitude,$latitude,$zoom/" +
-            "$size" +
+            size +
             "?access_token=$token"
 
     Box(
