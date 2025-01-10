@@ -10,12 +10,6 @@ The Requests package is a core component of the application, responsible for man
 - **State Tracking**: Requests are categorized as `Active` or `Completed`.
 - **Sorting and Filtering**: Supports sorting requests by creation date (latest or oldest).
 
-## Dependencies
-
-- [](RequestsViewModel.md): Main ViewModel containing all the requests' data.
-- [](VolunteerViewModel.md): Resolves `CreatorId` to volunteer names.
-- [](HomelessViewModel.md): Resolves `HomelessId` to homeless individuals' names.
-
 ## Navigation Flow
 
 1. **RequestsScreen** (default): Accessed from the bottom navigation bar. Displays active requests.

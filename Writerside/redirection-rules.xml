@@ -152,4 +152,20 @@
         <description>Created after removal of "Utils [Components Package]" from Voci App Documentation</description>
         <accepts>Utils-Components-Package.html</accepts>
     </rule>
+    <rule id="64795503">
+        <description>Created after removal of "Homeless Item Ui [State]" from Voci App Documentation</description>
+        <accepts>Homeless-Item-Ui-State.html</accepts>
+    </rule>
+    <rule id="252765b">
+        <description>Created after removal of "Sort Option [State]" from Voci App Documentation</description>
+        <accepts>Sort-Option-State.html</accepts>
+    </rule>
+    <rule id="429342c8">
+        <description>Created after removal of "States [Package]" from Voci App Documentation</description>
+        <accepts>State.html</accepts>
+    </rule>
+    <rule id="2fba2662">
+        <description>Created after removal of "ThemeUtils" from Voci App Documentation</description>
+        <accepts>ThemeUtils.html</accepts>
+    </rule>
 </rules>

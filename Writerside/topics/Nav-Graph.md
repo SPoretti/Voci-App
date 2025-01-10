@@ -25,13 +25,9 @@ The `NavGraph` component sets up the navigation structure for the app, handling 
 ---
 
 ## Usage Example
-
+Navigating to a screen and passing props to it:
 ```kotlin
-NavGraph(
-    navController = navController,
-    paddingValues = paddingValues,
-    snackbarHostState = snackbarHostState
-)
+navController.navigate("UpdateAddFormScreen/${buttonData.route}/$homelessId")
 ```
 
 ---
@@ -81,6 +77,12 @@ NavGraph(
 
 ---
 
+## Navigation Flow Diagram
+
+![](navGraph.png)
+
+---
+
 ## Implementation Details
 
 - **Navigation Flow**: The navigation graph establishes clear routes and destinations, using route parameters for dynamic content.
@@ -90,4 +92,3 @@ NavGraph(
 - **Flexible Transitions**: Each screen has tailored transition animations for smoother navigation, enhancing the user experience.
 
 ---
-![](https://mermaid.ink/img/pako:eNp10d1qwyAUB_BXkXPd9AFyV6KMwLoMkxY6vHF62sgSDTYpjKTvPrNGtnbMuyO_8z9-jKCcRkgBPTXy5GUrLAkr25VVsWWcXKf1ehoJZc_5nvFDsqGUs7IkKanl-cFOU5K4kRSchiIlXSMV_mPyl32RZywoAY2R7w2So_MCbvrPtIdkjwrNJWbHrBlNP0i5C_qF3PZ-gySv2DYoY1Uz6Bj1ygu6y6ok21TsqeCH2LLsf6faXhp77-_OF5MFOK_Row4zBMAKWvStNDo89jh3C-hrbFHATLX0H_Ptr8HJoXflp1WQ9n7AFXg3nGpIj7I5h2rotOxx-axIOmnfnGsXdP0CYCGQsA?type=png)
