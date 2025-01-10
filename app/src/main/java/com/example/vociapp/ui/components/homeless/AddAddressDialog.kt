@@ -12,6 +12,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
+import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.util.Resource
 
 @Composable
 fun AddAddressDialog(
@@ -30,6 +33,7 @@ fun AddAddressDialog(
     locationHandler: LocationHandler
 ) {
     var addressText by remember { mutableStateOf("Loading address...") }
+    val homelessState by homelessViewModel.homelesses.collectAsState() // Get the list of homelesses
 
     LaunchedEffect(key1 = true) {
         locationHandler.getCurrentLocationAddress().onSuccess { address ->
@@ -38,6 +42,7 @@ fun AddAddressDialog(
             addressText = "Error: ${exception.message}"
         }
     }
+
     AlertDialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -57,7 +62,18 @@ fun AddAddressDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    homelessViewModel.updateHomelessLocation(homelessId, addressText)
+                    // Aggiorna la posizione del senzatetto
+                    if (homelessState is Resource.Success) {
+                        val homelessList = (homelessState as Resource.Success<List<Homeless>>).data
+                        if (homelessList != null && homelessList.isNotEmpty()) {
+                            // Find the correct homeless by ID
+                            val homeless = homelessList.find { it.id == homelessId }
+                            if (homeless != null) {
+                                homeless.location = addressText
+                                homelessViewModel.updateHomeless(homeless)
+                            }
+                        }
+                    }
                     onDismiss()
                 }
             ) {
