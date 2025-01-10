@@ -57,7 +57,8 @@ fun RequestList(
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     // Filtered requests based on filter and sort options
     val filteredRequests = remember(requests, sortOption) {
-        requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
+        requests.data.orEmpty().filter { it.status == filterOption }
+            .sortedWith(sortOption.comparator)
     }
     //----- Region: View Composition -----
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -176,7 +177,6 @@ fun RequestList(
                                 enableDismissFromEndToStart = false,    // Don't allow swipe from right to left
                                 gesturesEnabled = true                  // Enable gestures
                             ) {
-                                // Main content inside the swipe box
                                 RequestListItem(
                                     request = request,
                                     navController

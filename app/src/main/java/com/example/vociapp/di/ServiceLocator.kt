@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.database.VociAppRoomDatabase
 import com.example.vociapp.data.remote.FirestoreDataSource
+import com.example.vociapp.data.remote.GeocodingClient
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.repository.UpdatesRepository
@@ -51,6 +52,14 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     )
 
     // Repositories and ViewModels
+    private val homelessRepository: HomelessRepository = HomelessRepository(
+        firestoreDataSource = FirestoreDataSource(firestore),
+        roomDataSource = roomDataSource,
+        networkManager = networkManager,
+        syncQueueDao = syncQueueDao
+    )
+    private val geocodingClient: GeocodingClient = GeocodingClient()
+    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository, geocodingClient)
     private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
 
     private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
@@ -66,6 +75,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     private val updatesViewModel: UpdatesViewModel by lazy{
         UpdatesViewModel(updatesRepository)
     }
+
 
     // Getters for repositories and view models
     fun obtainRequestRepository(): RequestRepository = instance.requestRepository

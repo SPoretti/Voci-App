@@ -47,6 +47,11 @@ class UpdatesRepository @Inject constructor(
         roomDataSource.getUpdates().collect { emit(it) }
     }
 
+    fun getUpdatesByHomelessId(homelessId: String): Flow<Resource<List<Update>>> = flow {
+        emit(Resource.Loading())
+        roomDataSource.getUpdatesByHomelessId(homelessId).collect { emit(it) }
+    }
+
     suspend fun syncPendingActions() {
         // Only attempt to sync if the device is online
         if (networkManager.isNetworkConnected()) {
