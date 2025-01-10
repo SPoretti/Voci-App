@@ -52,17 +52,10 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     )
 
     // Repositories and ViewModels
-    private val homelessRepository: HomelessRepository = HomelessRepository(
-        firestoreDataSource = FirestoreDataSource(firestore),
-        roomDataSource = roomDataSource,
-        networkManager = networkManager,
-        syncQueueDao = syncQueueDao
-    )
-    private val geocodingClient: GeocodingClient = GeocodingClient()
-    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository, geocodingClient)
-    private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
 
-    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
+    private val geocodingClient: GeocodingClient = GeocodingClient()
+    private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
+    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository, geocodingClient)
 
     private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)

@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
+import com.example.vociapp.ui.viewmodels.HomelessViewModel
 
 @Composable
 fun AddAddressDialog(
