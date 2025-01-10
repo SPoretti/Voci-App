@@ -54,6 +54,9 @@ import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
+import com.example.vociapp.ui.components.homeless.LocationHandler
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 @Composable
 fun ProfileHomelessScreen(
@@ -75,6 +78,13 @@ fun ProfileHomelessScreen(
 
     var showUpdateListDialog by remember { mutableStateOf(false) }
     var showAddAddressDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+    val locationHandler = remember {
+        LocationHandler(context, fusedLocationClient, homelessViewModel)
+    } // Create LocationHandler here
 
 //    var showAddCommentDialog by remember { mutableStateOf(false) }
 
@@ -195,7 +205,8 @@ fun ProfileHomelessScreen(
                 AddAddressDialog(
                     onDismiss = { showAddAddressDialog = false },
                     homelessId = homelessID,
-                    homelessViewModel = homelessViewModel
+                    homelessViewModel = homelessViewModel,
+                    locationHandler = locationHandler
                 )
             }
         }
