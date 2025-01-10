@@ -37,8 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AuthTextField
-import com.example.vociapp.ui.navigation.Screens
+import com.example.vociapp.ui.components.volunteers.AuthTextField
 import com.example.vociapp.ui.viewmodels.AuthResult
 import java.util.UUID
 
@@ -206,10 +205,10 @@ fun SignUpScreen(
                 val id: String = UUID.randomUUID().toString()
                 val volunteer = Volunteer(id, name, surname, nickname, phoneNumber, email)
                 volunteerViewModel.addVolunteer(volunteer)
-                volunteerViewModel.getVolunteerById(id)
+                volunteerViewModel.setCurrentUser(volunteer)
 
-                navController.navigate(Screens.UserProfile.route) {
-                    popUpTo(Screens.SignUp.route) { inclusive = true }
+                navController.navigate("userProfile") {
+                    popUpTo("signUp") { inclusive = true }
                 }
             }
             isSigningUp = false

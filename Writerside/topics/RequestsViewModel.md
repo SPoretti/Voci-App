@@ -1,3 +1,0 @@
-# RequestsViewModel
-
-Start typing here...

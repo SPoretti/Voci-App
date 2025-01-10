@@ -41,22 +41,25 @@ class NetworkConnectivityListener(private val context: Context) {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
+
+    /**
+     * Triggers a synchronization operation using WorkManager.
+     *
+     * This function creates a one-time work request for the `SyncWorker` and enqueues it
+     * with WorkManager. This will schedule the worker to run in the background,
+     * performing the necessary synchronization tasks.
+     */
     private fun triggerSync() {
+        // Create a one-time work request for the SyncWorker
         val syncRequest: WorkRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
+
+        // Enqueue the work request with WorkManager
         WorkManager
             .getInstance(context)
             .enqueue(syncRequest)
+
+        // Log a message indicating that the SyncWorker has been triggered
         Log.d("NetworkConnectivity", "SyncWorker triggered")
-//        val periodicSyncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-//            5, TimeUnit.MINUTES // Adjust the interval as needed
-//        ).build()
-//
-//        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-//            "PeriodicSync",
-//            ExistingPeriodicWorkPolicy.KEEP, // Keep the periodic work schedule
-//            periodicSyncRequest
-//        )
-//        Log.d("NetworkConnectivity", "SyncWorker triggered")
     }
 
 }

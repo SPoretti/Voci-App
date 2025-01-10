@@ -1,13 +1,14 @@
 package com.example.vociapp.ui.components.requests
 
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,46 +41,50 @@ import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
-import com.example.vociapp.data.util.SortOption
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
-import com.example.vociapp.ui.viewmodels.RequestViewModel
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.state.SortOption
 
 @Composable
 fun RequestList(
-    requests: Resource<List<Request>>,
-    filterOption: RequestStatus,
-    sortOption: SortOption,
-    navController: NavHostController,
-    requestViewModel: RequestViewModel,
-    homeLessViewModel: HomelessViewModel,
+    requests: Resource<List<Request>>,      // List of requests
+    filterOption: RequestStatus,            // Filter option
+    sortOption: SortOption,                 // Sort option
+    navController: NavHostController,       // Navigation controller
 ) {
+    //----- Region: Data Initialization -----
+    val serviceLocator = LocalServiceLocator.current
+    // Viewmodels
+    val requestViewModel = serviceLocator.obtainRequestViewModel()
+    // Filtered requests based on filter and sort options
     val filteredRequests = remember(requests, sortOption) {
         requests.data.orEmpty().filter { it.status == filterOption }.sortedWith(sortOption.comparator)
     }
-
+    //----- Region: View Composition -----
     Box(modifier = Modifier.fillMaxWidth()) {
-
+        // Display based on Resource status
         when (requests) {
+            // Loading state
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-
+            // Success State
             is Resource.Success -> {
+                // If there are no requests, display a message
                 if (filteredRequests.isEmpty()) {
                     Text(
-                        "Non ci sono richieste attive",
+                        "Non ci sono richieste attive.",
                         modifier = Modifier.align(Alignment.Center)
                     )
-                } else {
-
+                } else { // Display the list of requests
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
+                        columns = GridCells.Fixed(1),       // One column
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        // Iterate through the filtered requests and display them
                         items(filteredRequests) { request ->
                             // SwipeToDismissBoxState with necessary configuration
-                            val view = LocalView.current
-                            val density = LocalDensity.current
+                            val view = LocalView.current        // Get local view for haptic feedback
+                            val density = LocalDensity.current  // Get local density for swipe gesture
                             val swipeState = remember(density) {
                                 SwipeToDismissBoxState(
                                     initialValue = SwipeToDismissBoxValue.Settled, // Initial state
@@ -96,13 +102,18 @@ fun RequestList(
 
                             // Observe dismissal state
                             LaunchedEffect(swipeState.currentValue) {
+                                // Perform haptic feedback on dismissal
                                 if (swipeState.currentValue != SwipeToDismissBoxValue.Settled) {
                                     view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
                                 }
+                                // Perform action based on the swipe direction (From left to right)
                                 if (swipeState.currentValue == SwipeToDismissBoxValue.StartToEnd) {
+                                    // Requests page
                                     if(request.status == RequestStatus.TODO){
+                                        // Swipe to complete request
                                         requestViewModel.requestDone(request)
                                     }
+                                    // History page
                                     else {
                                         requestViewModel.deleteRequest(request)
                                     }
@@ -111,10 +122,11 @@ fun RequestList(
 
                             // SwipeToDismissBox with swipe gestures
                             SwipeToDismissBox(
-                                state = swipeState,
-
+                                state = swipeState, // SwipeToDismissBoxState
                                 backgroundContent = {
+                                    // Home page
                                     if(filterOption == RequestStatus.TODO){
+                                        // Swipe to complete request (bg: Blue, icon: Check)
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -125,16 +137,18 @@ fun RequestList(
                                             Spacer(modifier = Modifier.width(16.dp))
                                             Icon(
                                                 imageVector = Icons.Default.Check,
-                                                contentDescription = "Check",
+                                                contentDescription = "Done",
                                                 tint = Color.White,
                                                 modifier = Modifier
                                                     .size(32.dp)
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Segna come fatta", color = Color.White)
+                                            Text("Completata", color = Color.White)
                                         }
                                     }
+                                    // History page
                                     if(filterOption == RequestStatus.DONE){
+                                        // Swipe to delete request (bg: Red, icon: Delete)
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -156,32 +170,34 @@ fun RequestList(
                                     }
                                 },
                                 modifier = Modifier
-                                    .padding(vertical = 8.dp)
+                                    .padding(top = 12.dp)
                                     .fillMaxWidth(),
-                                enableDismissFromStartToEnd = true, // Allow swipe from start to end
-                                enableDismissFromEndToStart = false, // Allow swipe from end to start
-                                gesturesEnabled = true // Enable gestures
+                                enableDismissFromStartToEnd = true,     // Allow swipe from left to right
+                                enableDismissFromEndToStart = false,    // Don't allow swipe from right to left
+                                gesturesEnabled = true                  // Enable gestures
                             ) {
                                 // Main content inside the swipe box
                                 RequestListItem(
                                     request = request,
-                                    navController,
-                                    homeLessViewModel
+                                    navController
                                 )
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
             }
-
+            // Error state
             is Resource.Error -> {
-                Text(
-                    text = "Error: ${requests.message}",
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Log.e("RequestDetailsScreen", "Error: ${requests.message}")
+                Column {
+                    Text("Something went wrong. Please try again later.")
+                    Button(onClick = {
+                        navController.popBackStack()
+                    }) {
+                        Text("Go back")
+                    }
+                }
             }
-
         }
     }
 }

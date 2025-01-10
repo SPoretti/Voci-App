@@ -22,13 +22,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.example.vociapp.data.types.AuthState
+import com.example.vociapp.data.util.AuthState
 import com.example.vociapp.data.util.NetworkConnectivityListener
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.di.ServiceLocator
-import com.example.vociapp.ui.components.BottomBar
+import com.example.vociapp.ui.components.core.BottomBar
 import com.example.vociapp.ui.navigation.NavGraph
-import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.theme.VociAppTheme
 import com.google.firebase.firestore.FirebaseFirestore
@@ -114,18 +113,9 @@ class MainActivity : ComponentActivity() {
                         val authState by serviceLocator.obtainAuthViewModel().authState.collectAsState()
 
                         LaunchedEffect(authState) {
-                            when (authState) {
-                                is AuthState.Authenticated -> {
-                                    navController.navigate(Screens.Home.route)
-                                }
-                                is AuthState.Unauthenticated -> {
-                                    navController.navigate(Screens.SignIn.route) {
-                                        popUpTo(0) { inclusive = true } // Clear entire back stack
-                                    }
-                                }
-
-                                AuthState.Uninitialized -> {
-                                    // Handle uninitialized state if needed
+                            if (authState == AuthState.Unauthenticated) {
+                                navController.navigate("signIn") {
+                                    popUpTo(0) { inclusive = true } // Clear entire back stack
                                 }
                             }
                         }

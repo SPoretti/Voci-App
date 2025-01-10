@@ -2,9 +2,11 @@ package com.example.vociapp.data.local.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.vociapp.data.types.Area
-import com.example.vociapp.data.types.Gender
+import com.example.vociapp.data.util.Area
+import com.example.vociapp.data.util.Gender
 import java.util.UUID
+
+// Homeless entity, used for room database
 
 @Entity(tableName = "homelesses")
 data class Homeless(

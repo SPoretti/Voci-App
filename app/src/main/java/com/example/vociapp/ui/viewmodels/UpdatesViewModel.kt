@@ -42,11 +42,11 @@ class UpdatesViewModel @Inject constructor(
 
             if (result is Resource.Success) {
 
-                _snackbarMessage.value = "Richiesta aggiunta con successo!"
+                _snackbarMessage.value = "Aggiornamento aggiunto con successo!"
 
             } else if (result is Resource.Error) {
 
-                _snackbarMessage.value = "Errore durante l'aggiunta della richiesta: ${result.message}"
+                _snackbarMessage.value = "Errore durante l'aggiunta dell'aggiornamento: ${result.message}"
 
             }
             getUpdates()

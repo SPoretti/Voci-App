@@ -11,12 +11,14 @@ import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.dao.UpdateDao
 import com.example.vociapp.data.local.dao.VolunteerDao
 
+// Room database instance (singleton)
+
 @Database(
     entities = [Homeless::class, Volunteer::class, Request::class, Update::class, SyncAction::class],
     version = 8,
     exportSchema = false // Set to true for schema versioning; useful for migrations
 )
-@TypeConverters(Converters::class)
+@TypeConverters(Converters::class)//uses Converters class as typeConverter
 abstract class VociAppRoomDatabase : RoomDatabase() {
 
     // Abstract methods to get DAOs
