@@ -55,7 +55,6 @@ fun HomelessListItem(
     LaunchedEffect(key1 = user, key2 = homelessState) {
         isPreferred = user.value?.preferredHomelessIds?.contains(homelessState.homeless.id) == true
     }
-
     //----- Region: View Composition -----
     Surface(
         modifier = Modifier
@@ -73,7 +72,7 @@ fun HomelessListItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(0.7f),
             ) {
                 // Name, StatusLED
                 Row(
@@ -119,51 +118,52 @@ fun HomelessListItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    modifier = Modifier
-                        .weight(1f, false)
+                    modifier = Modifier.weight(1f, false)
                 )
             }
             // Location, Preferred Icon
-            Box(
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.weight(1f)
             ){
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End,
-                ){
-                    // Chip for the location, onClick: sends to the map
+                ) {// Chip for the location, onClick: sends to the map
                     CustomChip(
                         text = homelessState.homeless.location,
                         imageVector = Icons.Filled.LocationOn,
                         onClick = onChipClick
                     )
-                    // Preferred Icon, display based on the prop value since it is used both in the
-                    // home screen and in the request add/modify dialogs
-                    if (showPreferredIcon) {
-                        IconButton(
-                            onClick = {
-                                volunteerViewModel.toggleHomelessPreference(
-                                    homelessState.homeless.id
-                                )
-                                isPreferred = !isPreferred
-                            },
-                            modifier = Modifier.hapticFeedback(),
-                        ) {
-                            Icon(
-                                imageVector =
-                                if (isPreferred)
-                                    Icons.Filled.Star
-                                else
-                                    Icons.Filled.StarOutline,
-                                contentDescription = "Preferred icon",
-                                tint =
-                                if (isPreferred)
-                                    MaterialTheme.colorScheme.secondary
-                                else
-                                    MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(24.dp)
+                }
+                // Preferred Icon, display based on the prop value since it is used both in the
+                // home screen and in the request add/modify dialogs
+                if (showPreferredIcon) {
+                    IconButton(
+                        onClick = {
+                            volunteerViewModel.toggleHomelessPreference(
+                                homelessState.homeless.id
                             )
-                        }
+                            isPreferred = !isPreferred
+                        },
+                        modifier = Modifier.hapticFeedback(),
+                    ) {
+                        Icon(
+                            imageVector =
+                            if (isPreferred)
+                                Icons.Filled.Star
+                            else
+                                Icons.Filled.StarOutline,
+                            contentDescription = "Preferred icon",
+                            tint =
+                            if (isPreferred)
+                                MaterialTheme.colorScheme.secondary
+                            else
+                                MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
             }

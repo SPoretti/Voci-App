@@ -42,6 +42,7 @@ import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
@@ -65,7 +66,6 @@ fun ProfileHomelessScreen(
 
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requestsByHomelessId.collectAsState()
-    val selectedSortOption = SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) }
 
     val updateViewModel = serviceLocator.obtainUpdatesViewModel()
     val updates by updateViewModel.updatesByHomelessId.collectAsState()
@@ -123,10 +123,8 @@ fun ProfileHomelessScreen(
                                     .height(180.dp)
                             ) {
                                 Column {
-                                    RequestList(
+                                    ProfileRequestList(
                                         requests = requests,
-                                        filterOption = RequestStatus.TODO,
-                                        sortOption = selectedSortOption,
                                         navController = navController
                                     )
                                 }
@@ -191,8 +189,6 @@ fun ProfileHomelessScreen(
             }
         }
         if (showAddAddressDialog) {
-            val homelessList = (homelessState as Resource.Success<List<Homeless>>).data
-
             if (homelessID != null) {
                 AddAddressDialog(
                     onDismiss = { showAddAddressDialog = false },
