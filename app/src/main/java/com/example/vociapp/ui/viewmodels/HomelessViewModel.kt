@@ -83,8 +83,18 @@ class HomelessViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    suspend fun getHomeless(homelessID: String): Homeless? {
-        return homelessRepository.getHomelessById(homelessID)
+    suspend fun getHomelessById(homelessID: String): Homeless? {
+        return try{
+            val resource = homelessRepository.getHomelessById(homelessID)
+            if (resource is Resource.Success) {
+                resource.data
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("HomelessViewModel", "Error fetching homeless by ID: ${e.message}")
+            null
+        }
     }
 
     fun addHomeless(homeless: Homeless) {
@@ -103,8 +113,7 @@ class HomelessViewModel @Inject constructor(
 
     fun updateHomeless(homeless: Homeless){
         viewModelScope.launch {
-            val result = homelessRepository.updateHomeless(homeless)
-            when(result) {
+            when(val result = homelessRepository.updateHomeless(homeless)) {
                 is Resource.Success -> {
                     _snackbarMessage.value = "Senzatetto aggiornato con successo!"
                 }

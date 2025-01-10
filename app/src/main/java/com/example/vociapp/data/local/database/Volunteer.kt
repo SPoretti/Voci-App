@@ -2,8 +2,10 @@ package com.example.vociapp.data.local.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import java.util.UUID
+
+//Volunteer entity, used for room database
 
 @Entity(tableName = "volunteers")
 

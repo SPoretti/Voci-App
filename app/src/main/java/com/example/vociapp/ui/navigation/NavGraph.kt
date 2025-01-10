@@ -18,11 +18,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.vociapp.ui.components.core.Screens
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.screens.ApiTesting
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.home.HomeScreen
+import com.example.vociapp.ui.screens.maps.HomelessesMap
 import com.example.vociapp.ui.screens.profiles.homeless.ProfileHomelessScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UpdateUserProfileScreen
 import com.example.vociapp.ui.screens.profiles.userProfile.UserProfileScreen
@@ -35,74 +37,115 @@ import com.example.vociapp.ui.screens.updates.UpdateAddScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController,
-    paddingValues: PaddingValues,
-    snackbarHostState: SnackbarHostState
+    navController: NavHostController,           // Navigation controller to set up the navigation graph
+    paddingValues: PaddingValues,               // Padding values for the content
+    snackbarHostState: SnackbarHostState        // Snackbar host state for displaying snackbar messages
 ) {
+    //-------------- Region: Navigation Graph Constants ---------------
+    val navigationAnimationDuration = 400     // Duration of navigation animations in milliseconds
 
+    // Navigation graph
     NavHost(
         navController = navController,
-        startDestination = Screens.Home.route,
-        modifier = Modifier.padding(paddingValues)
+        startDestination = Screens.Home.route,      // Starting destination
+        modifier = Modifier.padding(paddingValues)  // Apply padding values to the screen
     ) {
-        // Sign in and up screens
-        composable(route = Screens.SignIn.route) { SignInScreen(navController) }
-        composable(route = Screens.SignUp.route) { SignUpScreen(navController) }
+        //--------------- Region: Navigation Graph Routes ---------------
 
-        // Home screen
+        //---------- Home screen ----------
         composable(
-            route = Screens.Home.route,
+            route = "home",
             enterTransition = {
-                slideInHorizontally(
-                    animationSpec = tween(600),
-                    initialOffsetX = { -it }
-                )
+                // Slide in from the left if coming from Requests
+                when (initialState.destination.route) {
+                    Screens.Requests.route -> slideInHorizontally(animationSpec = tween(navigationAnimationDuration), initialOffsetX = { -it })
+                    else -> null
+                }
             },
             exitTransition = {
-                slideOutHorizontally(
-                    animationSpec = tween(600),
-                    targetOffsetX = { -it }
-                )
+                // Slide out to the right if going to Requests
+                when (targetState.destination.route) {
+                    Screens.Requests.route -> slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { -it })
+                    else -> null
+                }
             }
         ) { HomeScreen(navController, snackbarHostState) }
 
-        // Requests screens
+
+        //---------- User screens ----------
+        composable(route = "signIn") { SignInScreen(navController) }
+        composable(route = "signUp") { SignUpScreen(navController) }
+        // Profile screens
         composable(
-            route = Screens.Requests.route,
+            route = "userProfile",
             enterTransition = {
-                // Slide in from the right if coming from Home
-                // Slide in from the left if coming from UserProfile
-                when (initialState.destination.route) {
-                    Screens.Home.route -> slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
-                    Screens.UserProfile.route -> slideInHorizontally(animationSpec = tween(600), initialOffsetX = { -it })
-                    else -> null
-                }
+                slideInHorizontally(animationSpec = tween(navigationAnimationDuration), initialOffsetX = { it })
             },
             exitTransition = {
-                // Slide out to the left if going to Home
-                // Slide out to the right if going to UserProfile
-                when (targetState.destination.route) {
-                    Screens.Home.route -> slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
-                    Screens.UserProfile.route -> slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { -it })
-                    else -> null
-                }
+                slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { it })
             }
-        ) { RequestsScreen(navController, snackbarHostState) }
-
-        composable(route = Screens.RequestsHistory.route) { RequestsHistoryScreen(navController) }
-
+        ) { UserProfileScreen(navController) }
         composable(
-            route = "RequestDetailsScreen/{requestId}",
-            arguments = listOf(navArgument("requestId") { type = NavType.StringType }),
+            route = "ProfileVolontario/{creatorId}",
+            arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
             enterTransition = {
                 slideInHorizontally(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
                     initialOffsetX = { it }
                 )
             },
             exitTransition = {
                 slideOutHorizontally(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
+                    targetOffsetX = { it }
+                )
+            }
+        ) { backStackEntry ->
+            val creatorId = backStackEntry.arguments?.getString("creatorId")
+            ProfileVolunteerScreen(creatorId)
+        }
+        composable(route = "updateUserProfile") { UpdateUserProfileScreen(navController) }
+
+
+        //---------- Requests screens ----------
+        composable(
+            route = "requests",
+            enterTransition = {
+                // Slide in from the right if coming from Home
+                when (initialState.destination.route) {
+                    Screens.Home.route -> slideInHorizontally(animationSpec = tween(navigationAnimationDuration), initialOffsetX = { it })
+                    else -> null
+                }
+            },
+            exitTransition = {
+                // Slide out to the left if going to Home
+                when (targetState.destination.route) {
+                    Screens.Home.route -> slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { it })
+                    else -> null
+                }
+            }
+        ) { RequestsScreen(navController, snackbarHostState) }
+        composable(
+            route = "requestsHistory",
+            enterTransition = {
+                slideInHorizontally(animationSpec = tween(navigationAnimationDuration), initialOffsetX = { it })
+            },
+            exitTransition = {
+                slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { it })
+            }
+        ) { RequestsHistoryScreen(navController) }
+        composable(
+            route = "RequestDetailsScreen/{requestId}",
+            arguments = listOf(navArgument("requestId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(navigationAnimationDuration),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(navigationAnimationDuration),
                     targetOffsetX = { it }
                 )
             }
@@ -112,51 +155,20 @@ fun NavGraph(
             RequestDetailsScreen(requestId.toString(), navController)
         }
 
-        // Profile screens
-        composable(
-            route = Screens.UserProfile.route,
-            enterTransition = {
-                slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
-            },
-            exitTransition = {
-                slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
-            }
-        ) { UserProfileScreen(navController) }
 
-        composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
-
-        composable(
-            route = "ProfileVolontario/{creatorId}",
-            arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
-            enterTransition = {
-                slideInHorizontally(
-                    animationSpec = tween(600),
-                    initialOffsetX = { it }
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    animationSpec = tween(600),
-                    targetOffsetX = { it }
-                )
-            }
-        ) { backStackEntry ->
-            val creatorId = backStackEntry.arguments?.getString("creatorId")
-            ProfileVolunteerScreen(creatorId)
-        }
-
+        //---------- Homeless screens ----------
         composable(
             route = "ProfileHomeless/{homelessId}",
             arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
             enterTransition = {
                 slideInHorizontally(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
                     initialOffsetX = { it }
                 )
             },
             exitTransition = {
                 slideOutHorizontally(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
                     targetOffsetX = { it }
                 )
             }
@@ -165,20 +177,20 @@ fun NavGraph(
             ProfileHomelessScreen(homelessId)
         }
 
-        // Updates Screens
 
+        //---------- Updates Screens ----------
         composable(
             route = "UpdatesAddScreen/{homelessId}",
             arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
             enterTransition = {
                 slideInVertically(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
                     initialOffsetY = { it }
                 )
             },
             exitTransition = {
                 slideOutVertically(
-                    animationSpec = tween(600),
+                    animationSpec = tween(navigationAnimationDuration),
                     targetOffsetY = { it }
                 )
             }
@@ -187,7 +199,6 @@ fun NavGraph(
             val homelessId = backStackEntry.arguments?.getString("homelessId")
             UpdateAddScreen(navController, homelessId.toString())
         }
-
         composable(
             route = "UpdateAddFormScreen/{buttonOption}/{homelessId}",
             arguments = listOf(
@@ -216,7 +227,31 @@ fun NavGraph(
                 snackbarHostState = snackbarHostState
             )
         }
-
+        //---------- Maps Screens ----------
+        composable(
+            route = "HomelessesMap/{homelessId}",
+            arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInVertically(
+                    animationSpec = tween(navigationAnimationDuration),
+                    initialOffsetY = { it }
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    animationSpec = tween(navigationAnimationDuration),
+                    targetOffsetY = { it }
+                )
+            }
+        ) {
+                backStackEntry ->
+            val homelessId = backStackEntry.arguments?.getString("homelessId")
+            HomelessesMap(
+                navController,
+                snackbarHostState,
+                homelessId.toString()
+            )
+        }
     }
 }
 

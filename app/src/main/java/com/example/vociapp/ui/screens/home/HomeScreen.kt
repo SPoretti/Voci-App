@@ -2,19 +2,14 @@ package com.example.vociapp.ui.screens.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.SnackbarDuration
@@ -34,15 +29,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.DrawerContent
-import com.example.vociapp.ui.components.SearchBar
+import com.example.vociapp.ui.components.core.CustomFAB
+import com.example.vociapp.ui.components.core.DrawerContent
+import com.example.vociapp.ui.components.core.SearchBar
 import com.example.vociapp.ui.components.homeless.AddHomelessDialog
 import com.example.vociapp.ui.components.homeless.HomelessList
-import com.example.vociapp.ui.components.utils.hapticFeedback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -52,30 +46,32 @@ fun HomeScreen(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState
 ) {
-    val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    //----- Region: Data Initialization -----
 
+    val serviceLocator = LocalServiceLocator.current
+    // Viewmodels
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    // Homeless Data
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
-
+    // Display the list of homelesses based on the search query
+    val listToDisplay =
+        if (searchQuery.isBlank()) {
+            homelesses
+        } else {
+            filteredHomelesses
+        }
+    // Dialog Variable
     var showAddHomelessDialog by remember { mutableStateOf(false) }
-
+    // PullToRefresh Variables
     val coroutineScope = rememberCoroutineScope()
-
     val refreshState = rememberPullToRefreshState()
     val isRefreshing = remember { mutableStateOf(false) }
-
+    // Drawer Variable
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    fun openDrawer() {
-        scope.launch { drawerState.open() }
-    }
-
     // Osserva uno stato del ViewModel per i messaggi Snackbar
     val message by homelessViewModel.snackbarMessage.collectAsState(initial = "")
-
     // Mostra la Snackbar quando il messaggio cambia
     LaunchedEffect(message) {
         if (message.isNotEmpty()) {
@@ -88,151 +84,93 @@ fun HomeScreen(
             }
         }
     }
-
+    // Initial Setup
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
         homelessViewModel.updateSearchQuery("")
     }
 
-
+    //----- Region: View Composition -----
     ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = { DrawerContent(navController) },
-        gesturesEnabled = true
-    ){
+        drawerState = drawerState,                          // Drawer state
+        drawerContent = { DrawerContent(navController) },   // Drawer content
+        gesturesEnabled = true                              // Enable drawer gestures (swipe to open)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        SearchBar(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth(),
-                            onSearch = { homelessViewModel.updateSearchQuery(it)},
-                            placeholderText = "Cerca...",
-                            unfocusedBorderColor = Color.Transparent,
-                            onClick = {  },
-                            onDismiss = { homelessViewModel.updateSearchQuery("") },
-                            navController = navController,
-                            onLeadingIconClick = { openDrawer() }
-                        )
-
-                        val listToDisplay =
-                            if (searchQuery.isBlank()) {
-                                homelesses
-                            } else {
-                                filteredHomelesses
-                            }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text(
-                            text = "Persone",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .align(Alignment.Start)
-                                .padding(8.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        PullToRefreshBox(
-                            state = refreshState,
-                            onRefresh = {
-                                isRefreshing.value = true
-                                // Launch a coroutine to fetch data
-                                coroutineScope.launch {
-                                    delay(300)
-                                    serviceLocator.fetchAllData()
-                                    delay(150)
-                                    homelessViewModel.getHomelesses()
-                                    isRefreshing.value = false
-                                }
-                            },
-                            isRefreshing = isRefreshing.value,
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            indicator = {
-                                Indicator(
-                                    modifier = Modifier.align(Alignment.TopCenter),
-                                    isRefreshing = isRefreshing.value,
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    state = refreshState
-                                )
-                            }
-                        ) {
-                            HomelessList(
-                                homelesses = listToDisplay,
-                                showPreferredIcon = true,
-                                onListItemClick = {homeless ->
-                                    navController.navigate("profileHomeless/${homeless.name}")
-                                },
-                                navController = navController,
-                                onSwipe = { homeless ->
-                                    navController.navigate("UpdatesAddScreen/${homeless.id}")
-                                }
-                            )
-                        }
-
-
-                    }
-                }
-            }
-
-            if (showAddHomelessDialog) {
-                Box(
+                // Custom Searchbar with leading and trailing icons
+                // Leading Icon to open the drawer
+                // Trailing Icon to navigate to the user profile
+                SearchBar(
+                    navController = navController,
+                    onLeadingIconClick = { coroutineScope.launch { drawerState.open() } }
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                // Leading text displaying the number of homelesses in the database
+                Text(
+                    text = "${listToDisplay.data?.size} Senzatetto",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                ){
-                    AddHomelessDialog(
-                        onDismiss = { showAddHomelessDialog = false },
-                        onAdd = {
-                            homelessViewModel.addHomeless(it)
-                            showAddHomelessDialog = false
+                        .align(Alignment.Start)
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                // PullToRefreshBox to refresh the data when activated
+                PullToRefreshBox(
+                    state = refreshState,
+                    onRefresh = {
+                        isRefreshing.value = true               // Set refreshing state to true
+                        // Launch a coroutine to fetch data
+                        coroutineScope.launch {
+                            serviceLocator.fetchAllData()       // Fetch all data (homelesses, requests, etc.)
+                            delay(150)                          // This delay is here because the refresh animation would break if it wasn't
+                            homelessViewModel.getHomelesses()   // Refresh the data for this ui
+                            isRefreshing.value = false          // Set refreshing state to false
                         }
+                    },
+                    isRefreshing = isRefreshing.value,
+                    indicator = {
+                        // Pre built indicator to show when refreshing
+                        Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = isRefreshing.value,
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            state = refreshState
+                        )
+                    }
+                ) {
+                    // Main Content: Display the list of homeless
+                    HomelessList(
+                        navController = navController,
                     )
                 }
             }
-
-            FloatingActionButton(
+            // Custom FAB to add a new homeless
+            CustomFAB(
+                text = "Aggiungi Senzatetto",
+                icon = Icons.Filled.Add,
                 onClick = { showAddHomelessDialog = true },
-                elevation = FloatingActionButtonDefaults.elevation(50.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .hapticFeedback(),
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add homeless", tint = MaterialTheme.colorScheme.onPrimary)
-                    Text("Aggiungi Senzatetto", color = MaterialTheme.colorScheme.onPrimary)
-                }
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+            // AddHomelessDialog to add a new homeless
+            if (showAddHomelessDialog) {
+                AddHomelessDialog(
+                    onDismiss = { showAddHomelessDialog = false },
+                    onAdd = {
+                        homelessViewModel.addHomeless(it)
+                        showAddHomelessDialog = false
+                    }
+                )
             }
         }
     }
 }
-
-
-

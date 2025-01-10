@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,8 +27,11 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,10 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.ProfileInfoItem
-import com.example.vociapp.ui.navigation.Screens
+import com.example.vociapp.ui.components.volunteers.ProfileInfoItem
 
 @Composable
 fun UserProfileScreen(
@@ -51,9 +51,16 @@ fun UserProfileScreen(
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val currentUser = authViewModel.getCurrentUserProfile()
-    Log.d("ProfileVolunteerScreen", "photoUrl: ${currentUser?.photoUrl}")
+    val currentUserProfile = authViewModel.getCurrentUserProfile()
+    Log.d("ProfileVolunteerScreen", "photoUrl: ${currentUserProfile?.photoUrl}")
 
+    var currentUser by remember { mutableStateOf(volunteerViewModel.currentUser.value) }
+
+    LaunchedEffect(key1 = volunteerViewModel.currentUser) {
+        volunteerViewModel.currentUser.collect { volunteer ->
+            currentUser = volunteer
+        }
+    }
     val volunteerLoggedEmail = authViewModel.getCurrentUser()?.email
 
     if (volunteerLoggedEmail == null) {
@@ -71,9 +78,6 @@ fun UserProfileScreen(
         }
         return
     }
-
-    val volunteerResource by volunteerViewModel.getVolunteerByEmail(volunteerLoggedEmail)
-        .collectAsState(initial = Resource.Loading())
 
     Box(
         modifier = Modifier
@@ -99,7 +103,7 @@ fun UserProfileScreen(
 
                     // Edit button
                     IconButton(
-                        onClick = { navController.navigate(Screens.UpdateUserProfile.route) },
+                        onClick = { navController.navigate("updateUserProfile") },
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .size(38.dp),
@@ -152,93 +156,83 @@ fun UserProfileScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        when (val resource = volunteerResource) {
-                            is Resource.Loading -> {
-                                CircularProgressIndicator()
-                            }
-
-                            is Resource.Error -> {
-                                Text(
-                                    text = "Errore: ${resource.message}",
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-
-                            is Resource.Success -> {
-                                val volunteer = resource.data
-                                // Profile picture placeholder
-                                if(currentUser?.photoUrl != null) {
-                                    AsyncImage(
-                                        model = currentUser.photoUrl,
-                                        contentDescription = "Profile Picture",
-                                        modifier = Modifier
-                                            .size(120.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(120.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.surface),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = "Profile Picture",
-                                            modifier = Modifier.size(64.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = volunteer?.nickname ?: "User",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                                // name
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Person,
-                                    label = "Name",
-                                    value = volunteer?.name ?: "Unknown Volunteer"
-                                )
-
-                                // surname
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Person,
-                                    label = "Surname",
-                                    value = volunteer?.surname ?: "Unknown Volunteer"
-                                )
-
-                                // email
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Email,
-                                    label = "Email",
-                                    value = volunteer?.email ?: "Unknown Volunteer"
-                                )
-
-                                // phone number
-                                ProfileInfoItem(
-                                    icon = Icons.Default.Phone,
-                                    label = "Phone Number",
-                                    value = volunteer?.phone_number ?: "Unknown Volunteer"
-                                )
-
-                                // Edit Profile Section
-                                Button(
-                                    onClick =
-                                    { navController.navigate(Screens.UpdateUserProfile.route) },
+                        if (currentUser == null){
+                            Text(
+                                text = "Errore: User not found",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        } else{
+                            if(currentUserProfile?.photoUrl != null) {
+                                AsyncImage(
+                                    model = currentUserProfile.photoUrl,
+                                    contentDescription = "Profile Picture",
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 16.dp),
-                                    shape = RoundedCornerShape(8.dp)
+                                        .size(120.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text("Modifica profilo")
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Profile Picture",
+                                        modifier = Modifier.size(64.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
                                 }
+                            }
+                            Text(
+                                text = currentUser?.nickname ?: "User",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                            // name
+                            ProfileInfoItem(
+                                icon = Icons.Default.Person,
+                                label = "Name",
+                                value = currentUser?.name ?: "Unknown Volunteer"
+                            )
+
+                            // surname
+                            ProfileInfoItem(
+                                icon = Icons.Default.Person,
+                                label = "Surname",
+                                value = currentUser?.surname ?: "Unknown Volunteer"
+                            )
+
+                            // email
+                            ProfileInfoItem(
+                                icon = Icons.Default.Email,
+                                label = "Email",
+                                value = currentUser?.email ?: "Unknown Volunteer"
+                            )
+
+                            // phone number
+                            ProfileInfoItem(
+                                icon = Icons.Default.Phone,
+                                label = "Phone Number",
+                                value = currentUser?.phone_number ?: "Unknown Volunteer"
+                            )
+
+                            // Edit Profile Section
+                            Button(
+                                onClick =
+                                { navController.navigate("updateUserProfile") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Modifica profilo")
                             }
                         }
                     }

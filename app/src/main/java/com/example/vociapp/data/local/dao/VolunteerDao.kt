@@ -9,12 +9,25 @@ import androidx.room.TypeConverters
 import androidx.room.Update
 import com.example.vociapp.data.local.database.Converters
 import com.example.vociapp.data.local.database.Volunteer
-import com.example.vociapp.data.types.Area
+import com.example.vociapp.data.util.Area
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
 interface VolunteerDao {
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(volunteer: Volunteer)
+
+    @Update
+    suspend fun update(volunteer: Volunteer)
+
+    @Query("UPDATE volunteers SET preferredHomelessIds = :preferredHomelessIds WHERE id = :userId")
+    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>)
+
+    @Query("DELETE FROM volunteers WHERE id = :volunteerId")
+    suspend fun deleteById(volunteerId: String)
+
     @Query("SELECT * FROM volunteers")
     fun getAllVolunteers(): Flow<List<Volunteer>>
 
@@ -39,12 +52,6 @@ interface VolunteerDao {
     @Query("SELECT preferredHomelessIds FROM volunteers WHERE id = :userId")
     suspend fun getUserPreferences(userId: String): String?
 
-    @Query("UPDATE volunteers SET preferredHomelessIds = :preferredHomelessIds WHERE id = :userId")
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(volunteer: Volunteer)
-
     @Transaction
     suspend fun insertOrUpdate(volunteer: Volunteer) {
         val existingVolunteer = getVolunteerById(volunteer.id)
@@ -54,10 +61,4 @@ interface VolunteerDao {
             update(volunteer)
         }
     }
-
-    @Update
-    suspend fun update(volunteer: Volunteer)
-
-    @Query("DELETE FROM volunteers WHERE id = :volunteerId")
-    suspend fun deleteById(volunteerId: String)
 }

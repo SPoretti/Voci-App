@@ -10,8 +10,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,90 +23,101 @@ class VolunteerViewModel @Inject constructor(
     private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
     val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
 
-    private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
-    val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
+    private val _specificVolunteer = MutableStateFlow<Resource<Volunteer?>>(Resource.Loading())
+    val specificVolunteer: StateFlow<Resource<Volunteer?>> = _specificVolunteer.asStateFlow()
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    private val _currentVolunteer = MutableStateFlow<Volunteer?>(null)
-
+    //current user logged in the app
     private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
     val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
 
-    private val _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
-    val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
-
     init {
+        fetchVolunteers()
+
         firebaseAuth.addAuthStateListener { auth ->
-            val firebaseUser = auth.currentUser
-            if (firebaseUser != null) {
-                Log.d("AuthStateListener", "User is logged in: ${firebaseUser.email}")
+            auth.currentUser?.email?.let { email ->
+                Log.d("AuthStateListener", "User is logged in: $email")
                 viewModelScope.launch {
-                    val volunteerId = volunteerRepository.getVolunteerIdByEmail(firebaseUser.email!!)
-                    Log.d("AuthStateListener", "Volunteer ID: $volunteerId")
-                    if (volunteerId != null){
-                        _currentUser.value =
-                            Volunteer(email = firebaseUser.email!!, id = volunteerId)
-                        fetchUserPreferences(volunteerId)
+                    when (val volunteerIdResource = volunteerRepository.getVolunteerIdByEmail(email)) {
+                        is Resource.Success -> {
+                            val volunteerId = volunteerIdResource.data!!
+                            val volunteer = volunteerRepository.getVolunteerById(volunteerId)
+                            _currentUser.value =
+                                if (volunteer is Resource.Success)
+                                    volunteer.data
+                                else
+                                    null
+                        }
+                        is Resource.Error -> {
+                            // Handle error fetching volunteer ID
+                            Log.e("AuthStateListener", "Error fetching volunteer ID: ${volunteerIdResource.message}")
+                        }
+                        is Resource.Loading -> {
+                            // Handle loading state if needed
+                        }
                     }
-                    fetchVolunteers()
                 }
-            } else {
-                _currentUser.value = null // Update MutableStateFlow
+            } ?: run {
+                _currentUser.value = null
             }
         }
     }
 
-    init {
-        fetchVolunteers()
-        getVolunteerById(id = "")
+    fun setCurrentUser(volunteer: Volunteer) {
+        _currentUser.value = volunteer
     }
 
-    fun getVolunteerById(id: String) {
-        volunteerRepository.getVolunteerById(id)
-            .onEach { result ->
-                if (result is Resource.Success && result.data != null) {
-                    _currentVolunteer.value = result.data
-                }
-            }
-            .launchIn(viewModelScope)
+    suspend fun setCurrentUserFromId(userId: String):Resource<Volunteer> {
+        return try {
+            val volunteer = volunteerRepository.getVolunteerById(userId)
+            if (volunteer is Resource.Success) {
+                _currentUser.value = volunteer.data
+                Resource.Success(volunteer.data!!)
+            }else
+                Resource.Error("Errore durante il recupero dei dati dell'utente")
+        } catch (e: Exception) {
+            Resource.Error("Errore durante il recupero dei dati dell'utente: ${e.message}")
+        }
+    }
+
+    fun getVolunteerById(id: String): StateFlow<Resource<Volunteer?>> {
+        _specificVolunteer.value = Resource.Loading()
+        viewModelScope.launch {
+            _specificVolunteer.value = volunteerRepository.getVolunteerById(id)
+        }
+        return specificVolunteer
     }
 
     //Ritorna un volontario tramite nickname
-    fun getVolunteerByNickname(nickname: String): StateFlow<Resource<Volunteer>> {
+    fun getVolunteerByNickname(nickname: String): StateFlow<Resource<Volunteer?>> {
         _specificVolunteer.value = Resource.Loading()
         viewModelScope.launch {
-            volunteerRepository.getVolunteerByNickname(nickname)
-                .collect { result ->
-                    _specificVolunteer.value = result
-                }
+            _specificVolunteer.value = volunteerRepository.getVolunteerByNickname(nickname)
         }
-        return _specificVolunteer.asStateFlow()
+        return specificVolunteer
     }
 
-    fun getVolunteerByEmail(email: String): StateFlow<Resource<Volunteer>> {
+    fun getVolunteerByEmail(email: String): StateFlow<Resource<Volunteer?>>{
         _specificVolunteer.value = Resource.Loading()
         viewModelScope.launch {
-            volunteerRepository.getVolunteerByEmail(email)
-                .collect { result ->
-                    _specificVolunteer.value = result
-                }
+            _specificVolunteer.value = volunteerRepository.getVolunteerByEmail(email)
         }
-        return _specificVolunteer.asStateFlow()
+        return specificVolunteer
     }
 
     // ritorna il valore "name" del volontario corrente
     fun getVolunteerName(): String? {
-        return _currentVolunteer.value?.name
+        return _specificVolunteer.value.data?.name
     }
 
     // ritorna il valore "surname" del volontario corrente
     fun getVolunteerSurname(): String? {
-        return _currentVolunteer.value?.surname
+        return _specificVolunteer.value.data?.surname
     }
 
     fun getCurrentVolunteer(): Volunteer? {
-        return _currentVolunteer.value
+        return _specificVolunteer.value.data
     }
 
     fun addVolunteer(volunteer: Volunteer) {
@@ -116,27 +125,9 @@ class VolunteerViewModel @Inject constructor(
             val result = volunteerRepository.addVolunteer(volunteer)
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Registrazione effettuata"
-                _currentVolunteer.value = volunteer
+                _currentUser.value = volunteer
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"
-            }
-        }
-    }
-
-    fun updateVolunteer(volunteer: Volunteer) {
-        viewModelScope.launch {
-            val result = volunteerRepository.updateVolunteer(volunteer)
-            when (result){
-                is Resource.Success -> {
-                    // Request updated successfully, you might want to refresh the requests list
-                    getVolunteerById(volunteer.id)
-                }
-                is Resource.Error -> {
-                    // Handle error, e.g., show an error message to the user
-                    println("Errore nella modifica dell'utente: ${result.message}")
-                }
-
-                is Resource.Loading -> TODO()
             }
         }
     }
@@ -147,34 +138,19 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun fetchUserPreferences(userId: String) {
-        volunteerRepository.getUserPreferences(userId)
-            .onEach { result ->
-                _userPreferencesResource.value = result
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun toggleHomelessPreference(userId: String, homelessId: String) {
+    fun toggleHomelessPreference(homelessId: String) {
         viewModelScope.launch {
-            if (userPreferencesResource.value is Resource.Success) {
-                val userPreferences = userPreferencesResource.value.data!!
-                val updatedPreferredIds = if (homelessId in userPreferences) {
-                    userPreferences - homelessId
-                } else {
-                    userPreferences + homelessId
-                }
-                viewModelScope.launch { // Launch a separate coroutine for updating preferences
-                    val updateResult = volunteerRepository.updateUserPreferences(userId, updatedPreferredIds)
-                    if (updateResult is Resource.Success) {
-                        _userPreferencesResource.value.data = updatedPreferredIds // Emit new value to MutableStateFlow
-                    } else if (updateResult is Resource.Error) {
-                        // Handle error, e.g., show a Snackbar message
-                        // You might want to revert the UI state here if the update fails
+            val currentVolunteer = currentUser.value
+            if (currentVolunteer != null) {
+                val updatedPreferredIds =
+                    if (homelessId in currentVolunteer.preferredHomelessIds) {
+                        currentVolunteer.preferredHomelessIds - homelessId
+                    } else {
+                        currentVolunteer.preferredHomelessIds + homelessId
                     }
-                }
-            } else if (userPreferencesResource.value is Resource.Error) {
-                // Handle error, e.g., show a Snackbar message
+                volunteerRepository.updateVolunteer(currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds))
+                // Update _currentUser state to reflect the change
+                _currentUser.value = currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds)
             }
         }
     }

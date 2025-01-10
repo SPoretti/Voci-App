@@ -67,23 +67,3 @@ Our app is primarily written in Kotlin, a modern, concise, and type-safe program
     └── data/
         └── Data.kt
 ```
-
-## Getting Started
-
-### Prerequisites
-- Android Studio installed
-- Kotlin plugin enabled
-- Firebase project setup with Firestore and Authentication enabled
-
-### Installation
-1. Clone the repository from GitHub.
-2. Open the project in Android Studio.
-3. Sync the Gradle files to download dependencies.
-4. Configure Firebase by adding the `google-services.json` file to the `app` directory.
-5. Run the project on an Android emulator or physical device.
-
-## Acknowledgements
-
-We would like to thank:
-- Our professor for the guidance and support throughout the course.
-- VoCi ONLUS for inspiring the project concept and their ongoing work to aid the homeless community.

@@ -7,20 +7,24 @@ import com.example.vociapp.data.local.dao.UpdateDao
 import com.example.vociapp.data.local.dao.VolunteerDao
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
+//Offline data source
+
 class RoomDataSource(
-    val homelessDao: HomelessDao,
+    private val homelessDao: HomelessDao,
     private val volunteerDao: VolunteerDao,
-    val requestDao: RequestDao,
-    val updateDao: UpdateDao,
-    val syncQueueDao: SyncQueueDao
+    private val requestDao: RequestDao,
+    private val updateDao: UpdateDao,
+    private val syncQueueDao: SyncQueueDao
 ) {
     // ------------------------------- Request Functions ----------------------------------
 
@@ -30,15 +34,19 @@ class RoomDataSource(
 
     fun getRequests(): Flow<Resource<List<Request>>>  = flow {
         try {
-            emit(Resource.Loading()) // Indicate loading state
+            // Indicate loading state
+            emit(Resource.Loading())
             requestDao.getAllRequests().collect { requestList ->
-                emit(Resource.Success(requestList)) // Emit success with the fetched list
+                // Emit success with the fetched list
+                emit(Resource.Success(requestList))
             }
         } catch (e: Exception) {
+            //Emit error if there's an issue
             emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
         }
     }
 
+    //get all requests from room (not a flow)
     suspend fun getRequestsSnapshot(): List<Request> = withContext(Dispatchers.IO) {
         requestDao.getAllRequestsSnapshot()
     }
@@ -73,15 +81,19 @@ class RoomDataSource(
     // Collecting Flow from Room DAO and emitting Resource
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
         try {
-            emit(Resource.Loading()) // Indicate loading state
+            // Indicate loading state
+            emit(Resource.Loading())
             homelessDao.getAllHomeless().collect { homelessList ->
-                emit(Resource.Success(homelessList)) // Emit success with the fetched list
+                // Emit success with the fetched list
+                emit(Resource.Success(homelessList))
             }
         } catch (e: Exception) {
+            //Emit error if there's an issue
             emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
         }
     }
 
+    //get all homelesses from room (not a flow)
     suspend fun getHomelessesSnapshot(): List<Homeless> = withContext(Dispatchers.IO) {
         homelessDao.getAllHomelessesSnapshot()
     }
@@ -98,7 +110,7 @@ class RoomDataSource(
         homelessDao.insertOrUpdate(homeless)
     }
 
-    suspend fun deleteHomeless(homelessID: String) {
+    suspend fun deleteHomelessById(homelessID: String) {
         homelessDao.deleteById(homelessID)
     }
 
@@ -144,26 +156,6 @@ class RoomDataSource(
         volunteerDao.deleteById(volunteerId)
     }
 
-    // ------------------------------- Preferences Functions ----------------------------------
-
-    suspend fun getUserPreferences(userId: String): Resource<String> {
-        return try {
-            // Query the local database for the volunteer's preferences
-            val preferences = volunteerDao.getUserPreferences(userId)
-            if (preferences != null) {
-                Resource.Success(preferences)
-            } else {
-                Resource.Success("") // Return an empty json string if preferences are not found
-            }
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "An error occurred while retrieving user preferences")
-        }
-    }
-
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>) {
-        volunteerDao.updateUserPreferences(userId, preferredHomelessIds)
-    }
-
     // ------------------------------- Updates Functions ----------------------------------
 
     suspend fun insertUpdate(update: Update) {
@@ -193,7 +185,33 @@ class RoomDataSource(
         updateDao.deleteById(updateId)
     }
 
+    // ------------------------------- Sync Functions ----------------------------------
 
+    suspend fun isSyncQueueEmpty(): Boolean {
+        return syncQueueDao.isEmpty()
+    }
 
+    suspend fun addSyncAction(entityType: String, operation: String, data: Any) {
+        // Serialize the data object to JSON
+        val dataJson = Gson().toJson(data)
 
+        // Create a new sync action to store in the queue
+        val syncAction = SyncAction(
+            entityType = entityType,
+            operation = operation,
+            data = dataJson,
+            timestamp = System.currentTimeMillis()
+        )
+
+        // Add to the sync queue
+        syncQueueDao.addSyncAction(syncAction)
+    }
+
+    suspend fun deleteSyncAction(syncAction: SyncAction) {
+        syncQueueDao.deleteSyncAction(syncAction)
+    }
+
+    fun getPendingSyncActions(timestamp: Long): Flow<List<SyncAction>> {
+        return syncQueueDao.getPendingSyncActions(timestamp)
+    }
 }

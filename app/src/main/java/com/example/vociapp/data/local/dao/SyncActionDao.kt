@@ -12,11 +12,11 @@ interface SyncQueueDao {
     @Insert
     suspend fun addSyncAction(syncAction: SyncAction)
 
-    @Query("SELECT * FROM sync_queue WHERE timestamp <= :timestamp")
-    fun getPendingSyncActions(timestamp: Long): Flow<List<SyncAction>>
-
     @Delete
     suspend fun deleteSyncAction(syncAction: SyncAction)
+
+    @Query("SELECT * FROM sync_queue WHERE timestamp <= :timestamp")
+    fun getPendingSyncActions(timestamp: Long): Flow<List<SyncAction>>
 
     @Query("DELETE FROM sync_queue")
     suspend fun clearAllSyncActions()

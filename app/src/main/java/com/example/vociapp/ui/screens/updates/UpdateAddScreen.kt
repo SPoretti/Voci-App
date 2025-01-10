@@ -22,19 +22,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.vociapp.ui.components.utils.hapticFeedback
+import com.example.vociapp.ui.components.updates.StatusButtonData
+import com.example.vociapp.ui.components.updates.UpdateButton
 
 @Composable
 fun UpdateAddScreen(
-    navController: NavHostController,
-    homelessId: String
+    navController: NavHostController,   // Navigation controller for navigating between screens
+    homelessId: String                  // ID of the homeless being updated
 ) {
-
+    //----- Region: Data Initialization -----
+    val buttonsData = listOf(
+        StatusButtonData("Buone Condizioni", Color.Green, "Green"),
+        StatusButtonData("Problematiche Segnalate", Color.Yellow, "Yellow"),
+        StatusButtonData("Condizioni Critiche", Color.Red, "Red"),
+        StatusButtonData("Non trovato", Color.Gray, "Gray")
+    )
+    //----- Region: View Composition -----
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
-
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,90 +56,18 @@ fun UpdateAddScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+                // Title
                 Text(
                     text = "Scegli uno stato per il tuo aggiornamento:",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("UpdateAddFormScreen/Green/$homelessId")
-                    },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .hapticFeedback(),
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = Color.Green,
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Green,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Stabile")
+                // Buttons
+                buttonsData.forEach { buttonData ->
+                    UpdateButton(buttonData, homelessId, navController)
                 }
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("UpdateAddFormScreen/Yellow/$homelessId")
-                    },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .hapticFeedback(),
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = Color.Yellow,
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Yellow,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text(text = "Instabile")
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("UpdateAddFormScreen/Red/$homelessId")
-                    },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .hapticFeedback(),
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = Color.Red,
-                    ),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Red,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Text("Negativo")
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("UpdateAddFormScreen/Gray/$homelessId")
-                    },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .hapticFeedback(),
-                    border = BorderStroke(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                ) {
-                    Text(
-                        text = "Non trovato",
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
+                // Cancel Button
                 OutlinedButton(
                     onClick = {
                         navController.popBackStack()
@@ -146,9 +81,7 @@ fun UpdateAddScreen(
                 ){
                     Text("Annulla")
                 }
-
             }
         }
-
     }
 }
