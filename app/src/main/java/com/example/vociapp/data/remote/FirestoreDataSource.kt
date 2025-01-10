@@ -5,6 +5,7 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.util.Resource
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
@@ -92,6 +93,24 @@ class FirestoreDataSource @Inject constructor(
                 Resource.Success(request)
             } else {
                 Resource.Error("Request not found")
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun getRequestsByHomelessId(homelessId: String): Resource<List<Request>> {
+        return try {
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("homelessID", homelessId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val requests = querySnapshot.documents.mapNotNull { it.toObject(Request::class.java) }
+                Resource.Success(requests)
+            } else {
+                Resource.Error("Requests not found")
             }
         } catch (e: Exception) {
             Resource.Error(e.message ?: "An unknown error occurred")

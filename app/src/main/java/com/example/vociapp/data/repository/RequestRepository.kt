@@ -110,6 +110,15 @@ class RequestRepository @Inject constructor(
         }
     }
 
+    fun getRequestsByHomelessId(homelessId: String): Flow<Resource<List<Request>>> = flow {
+        try {
+            emit(Resource.Loading())
+            roomDataSource.getRequestsByHomelessId(homelessId).collect { emit(it) }
+        } catch (e: Exception) {
+            emit(Resource.Error("Errore durante il recupero delle richieste: ${e.message}"))
+        }
+    }
+
     // Add a new sync action to the queue
     suspend fun syncPendingActions() {
         // Only attempt to sync if the device is online

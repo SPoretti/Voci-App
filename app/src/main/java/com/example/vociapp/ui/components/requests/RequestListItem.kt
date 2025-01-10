@@ -101,7 +101,7 @@ fun RequestListItem(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = request.title,
                         style = MaterialTheme.typography.titleMedium.copy(

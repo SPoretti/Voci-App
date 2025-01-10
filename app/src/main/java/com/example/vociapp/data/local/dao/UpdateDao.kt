@@ -27,6 +27,9 @@ interface UpdateDao {
     @Query("SELECT * FROM updates")
     fun getAllUpdates(): Flow<List<Update>>
 
+    @Query("SELECT * FROM updates WHERE homelessId = :homelessId")
+    fun getUpdatesByHomelessId(homelessId: String): Flow<List<Update>>
+
     @Query("SELECT * FROM updates")
     fun getAllUpdatesSnapshot(): List<Update>
 
