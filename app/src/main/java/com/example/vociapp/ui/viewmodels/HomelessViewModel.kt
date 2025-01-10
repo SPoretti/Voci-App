@@ -128,18 +128,6 @@ class HomelessViewModel @Inject constructor(
         getHomelesses()
     }
 
-    fun updateHomelessLocation(homelessID: String, location: String) {
-        viewModelScope.launch {
-            val result = homelessRepository.updateHomelessLocation(homelessID, location)
-            if (result is Resource.Success) {
-                _snackbarMessage.value = "Posizione aggiornata con successo!"
-                geocodeLocation(location)
-            } else if (result is Resource.Error) {
-                _snackbarMessage.value = "Errore durante l'aggiornamento della posizione: ${result.message}"
-            }
-        }
-    }
-
     private fun fetchHomelessNames() {
         viewModelScope.launch {
             homelessRepository.getHomelesses()
@@ -161,9 +149,8 @@ class HomelessViewModel @Inject constructor(
             try {
                 val homeless = homelessRepository.getHomelessById(homelessId)
                 if (homeless != null) {
-                    _homelesses.value = Resource.Success(listOf(homeless))
-                    // Trigger geocoding when homeless data is successfully fetched
                     geocodeLocation(homeless.location)
+                    _homelesses.value = Resource.Success(listOf(homeless))
                 } else {
                     _homelesses.value = Resource.Error("Senzatetto non trovato")
                 }

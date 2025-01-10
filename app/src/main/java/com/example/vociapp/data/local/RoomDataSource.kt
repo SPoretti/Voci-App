@@ -105,14 +105,6 @@ class RoomDataSource(
         homelessDao.update(homeless)
     }
 
-    suspend fun updateHomelessLocation(homelessID: String, location: String): Homeless {
-        // Qui devi recuperare l'Homeless dal database, aggiornare la posizione, e poi salvarlo.
-        val homeless = homelessDao.getHomelessById(homelessID) ?: throw Exception("Homeless not found")
-        val updatedHomeless = homeless.copy(location = location)
-        updateHomeless(updatedHomeless)
-        return updatedHomeless
-    }
-
     suspend fun insertOrUpdateHomeless(homeless: Homeless) {
         homelessDao.insertOrUpdate(homeless)
     }
