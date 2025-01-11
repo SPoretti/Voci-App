@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.auth
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -77,7 +76,6 @@ fun SignInScreen(
             }
 
             if (result is AuthResult.Success) {
-                Log.d("SignInScreen", "User signed in successfully")
                 navController.navigate(Screens.Home.route) {
                     popUpTo(Screens.SignIn.route) { inclusive = true }
                 }

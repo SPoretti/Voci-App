@@ -363,7 +363,7 @@ fun SignUpScreen(
                                                 .align(Alignment.CenterHorizontally)
                                         )
                                         Text(
-                                            "Ti abbiamo inviato un link di verifica al seguente indirizzo email: $email",
+                                            "Ti abbiamo inviato un link di verifica al seguente indirizzo email: ${user?.email}",
                                             style = MaterialTheme.typography.bodyMedium,
                                             textAlign = TextAlign.Center
                                         )
