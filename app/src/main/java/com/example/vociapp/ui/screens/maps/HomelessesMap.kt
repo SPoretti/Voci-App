@@ -30,16 +30,12 @@ fun HomelessesMap(
                 val point = Point.fromLngLat(lon, lat)
                 points.add(point)
             }
+            MultiPointMap(
+                points = points
+            )
         }
 
         is Resource.Error -> { Log.d("HomelessesMap", "Error")}
         is Resource.Loading -> { Log.d("HomelessesMap", "Loading")}
-    }
-
-    if (coordinates is Resource.Success){
-        MultiPointMap(
-            points = points,
-            cameraLocation = Point.fromLngLat(9.19, 45.4642)
-        )
     }
 }

@@ -1,10 +1,28 @@
 package com.example.vociapp.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.vociapp.ui.components.maps.MapOnDevice
+import com.example.vociapp.data.util.Resource
+import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomFAB
+import com.example.vociapp.ui.components.homeless.AddLocationSearchbar
+import com.example.vociapp.ui.components.maps.MultiPointMap
+import com.example.vociapp.ui.components.maps.SearchBox
+import com.mapbox.geojson.Point
 
 @Composable
 fun ApiTesting(
@@ -13,39 +31,9 @@ fun ApiTesting(
 ) {
     // Thias: 9.033408, 45.527823
     // Milano: 9.19, 45.4642
+    SearchBox(
+        onConfirmLocation = {
 
-    MapOnDevice(
-        onAddNewLocation = {
-            // Add a new location to the database
-            Log.d("ApiTesting:Location", it.toString())
         }
     )
-
-//    MapWithMarker(
-//        location = Point.fromLngLat(9.033408, 45.527823)
-//    )
-
-//    val centerLat = 45.4642
-//    val centerLon = 9.19
-//    val radiusInMeters = 5000.0 // 5km radius
-//
-//    val points = (1..10).map {
-//        val randomAngle = Random.nextDouble() * 2 * Math.PI
-//        val randomRadius = Random.nextDouble() * radiusInMeters
-//
-//        val x = centerLon + (randomRadius * cos(randomAngle) / (111320 * cos(
-//            Math.toRadians(
-//                centerLat
-//            )
-//        )))
-//        val y = centerLat + (randomRadius * sin(randomAngle) / 111320)
-//
-//        Point.fromLngLat(x, y)
-//    }
-//
-//    MultiPointMap(
-//        points = points,
-//        cameraLocation = Point.fromLngLat(9.19, 45.4642)
-//    )
-
 }

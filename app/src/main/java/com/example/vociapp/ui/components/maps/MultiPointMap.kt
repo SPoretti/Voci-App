@@ -2,9 +2,11 @@ package com.example.vociapp.ui.components.maps
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.example.vociapp.R
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -16,7 +18,7 @@ import com.mapbox.maps.plugin.animation.MapAnimationOptions
 @Composable
 fun MultiPointMap(
     points: List<Point>,        // List of points to display
-    cameraLocation: Point       // Initial camera location
+    cameraOptions: CameraOptions = CameraOptions.Builder().center(Point.fromLngLat(9.19, 45.4642)).zoom(10.0).build(),       // Initial camera location
 ) {
     //----- Region: Data Initialization -----
     val mapViewportState = rememberMapViewportState()
@@ -38,10 +40,23 @@ fun MultiPointMap(
         MapEffect(Unit) { mapView ->
             mapViewportState.easeTo (
                 cameraOptions {
-                    center(cameraLocation)
+                    center(Point.fromLngLat(9.19, 45.4642))
                     pitch(45.0)
                     zoom(10.5)
                     bearing(-17.6)
+                },
+                animationOptions = MapAnimationOptions.mapAnimationOptions {
+                    duration(1000)
+                }
+            )
+        }
+        LaunchedEffect(cameraOptions) {
+            mapViewportState.easeTo (
+                cameraOptions {
+                    center(cameraOptions.center)
+                    pitch(cameraOptions.pitch)
+                    zoom(cameraOptions.zoom)
+                    bearing(cameraOptions.bearing)
                 },
                 animationOptions = MapAnimationOptions.mapAnimationOptions {
                     duration(1000)

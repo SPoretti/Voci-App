@@ -82,6 +82,8 @@ dependencies {
     // Annotation processor for Room
     kapt(libs.androidx.room.compiler)
     implementation(libs.retrofit)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
     //implementation(libs.converter.gson)
     implementation("com.mapbox.maps:android:11.9.0")
     implementation("com.mapbox.extension:maps-compose:11.9.0")
