@@ -53,7 +53,7 @@ fun AddAddressDialog(
                 modifier = Modifier.padding(16.dp),
             ) {
                 Text(
-                    text = "Vuoi aggiornare la posizione attuale del senzatetto?",
+                    text = "Vuoi aggiornare la posizione attuale del senzatetto con la seguente?",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text("Indirizzo: $addressText")
@@ -65,7 +65,7 @@ fun AddAddressDialog(
                     // Aggiorna la posizione del senzatetto
                     if (homelessState is Resource.Success) {
                         val homelessList = (homelessState as Resource.Success<List<Homeless>>).data
-                        if (homelessList != null && homelessList.isNotEmpty()) {
+                        if (!homelessList.isNullOrEmpty()) {
                             // Find the correct homeless by ID
                             val homeless = homelessList.find { it.id == homelessId }
                             if (homeless != null) {

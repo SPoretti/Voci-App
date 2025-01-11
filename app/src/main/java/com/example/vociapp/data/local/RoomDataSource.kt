@@ -74,7 +74,7 @@ class RoomDataSource(
     fun getRequestsByHomelessId(homelessId: String): Flow<Resource<List<Request>>> = flow {
         try {
             emit(Resource.Loading()) // Indicate loading state
-            requestDao.getRequestsByHomelessId(homelessId).collect { requestList ->
+            requestDao.getActiveRequestsByHomelessId(homelessId).collect { requestList ->
                 emit(Resource.Success(requestList)) // Emit success with the fetched list
             }
         } catch (e: Exception) {
@@ -111,6 +111,20 @@ class RoomDataSource(
 
     suspend fun getHomelessById(homelessID: String): Homeless?{
         return homelessDao.getHomelessById(homelessID)
+    }
+
+    fun getHomelessesLocations():Flow<Resource<List<String>>> = flow {
+        try {
+            // Indicate loading state
+            emit(Resource.Loading())
+            homelessDao.getAllLocations().collect { locationsList ->
+                // Emit success with the fetched list
+                emit(Resource.Success(locationsList))
+            }
+        } catch (e: Exception) {
+            //Emit error if there's an issue
+            emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
+        }
     }
 
     suspend fun updateHomeless(homeless: Homeless){

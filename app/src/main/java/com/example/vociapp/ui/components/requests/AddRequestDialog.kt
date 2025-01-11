@@ -1,7 +1,6 @@
 package com.example.vociapp.ui.components.requests
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +19,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +39,6 @@ import com.example.vociapp.ui.components.homeless.HomelessDialogList
 import com.example.vociapp.ui.components.homeless.HomelessListItem
 import com.example.vociapp.ui.state.HomelessItemUiState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AddRequestDialog(
     onDismiss: () -> Unit,                  // Callback to dismiss the dialog
@@ -58,9 +55,6 @@ fun AddRequestDialog(
     // 2 -> Add title, description and icon
     var step by remember { mutableIntStateOf(1) }
     // Homeless Selection Data
-    val homelesses by homelessViewModel.homelesses.collectAsState()
-    val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
-    val searchQuery by homelessViewModel.searchQuery.collectAsState()
     var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
     LaunchedEffect(Unit) {
         homelessViewModel.updateSearchQuery("")
@@ -131,12 +125,6 @@ fun AddRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // List of homelesses to select, updates based on search query
-                        val listToDisplay =
-                            if (searchQuery.isBlank())
-                                homelesses
-                            else
-                                filteredHomelesses
                         HomelessDialogList(
                             onListItemClick = { homeless ->
                                 homelessID = homeless.id
@@ -225,6 +213,8 @@ fun AddRequestDialog(
                             )
                             // Add the request to the database
                             requestViewModel.addRequest(newRequest)
+                            // Dismiss the dialog
+                            onDismiss()
                         },
                         modifier = Modifier
                             .hapticFeedback(),

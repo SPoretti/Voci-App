@@ -115,7 +115,11 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 // Leading text displaying the number of homelesses in the database
                 Text(
-                    text = "${listToDisplay.data?.size} Senzatetto",
+                    text = if (listToDisplay.data?.size == 1) {
+                        "1 Persona"
+                    } else {
+                        "${listToDisplay.data?.size ?: 0} Persone"
+                    },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     modifier = Modifier
@@ -131,7 +135,7 @@ fun HomeScreen(
                         // Launch a coroutine to fetch data
                         coroutineScope.launch {
                             serviceLocator.fetchAllData()       // Fetch all data (homelesses, requests, etc.)
-                            delay(150)                          // This delay is here because the refresh animation would break if it wasn't
+                            delay(150)                 // This delay is here because the refresh animation would break if it wasn't
                             homelessViewModel.getHomelesses()   // Refresh the data for this ui
                             isRefreshing.value = false          // Set refreshing state to false
                         }
@@ -143,7 +147,7 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.TopCenter),
                             isRefreshing = isRefreshing.value,
                             containerColor = MaterialTheme.colorScheme.primary,
-                            color = MaterialTheme.colorScheme.onBackground,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             state = refreshState
                         )
                     }
@@ -156,7 +160,7 @@ fun HomeScreen(
             }
             // Custom FAB to add a new homeless
             CustomFAB(
-                text = "Aggiungi Senzatetto",
+                text = "Aggiungi persona",
                 icon = Icons.Filled.Add,
                 onClick = { showAddHomelessDialog = true },
                 modifier = Modifier.align(Alignment.BottomEnd)

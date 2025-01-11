@@ -174,7 +174,9 @@ fun NavGraph(
             }
         ) { backStackEntry ->
             val homelessId = backStackEntry.arguments?.getString("homelessId")
-            ProfileHomelessScreen(navController, homelessId)
+            if (homelessId != null) {
+                ProfileHomelessScreen(navController, homelessId)
+            }
         }
 
 
@@ -249,7 +251,7 @@ fun NavGraph(
             HomelessesMap(
                 navController,
                 snackbarHostState,
-                homelessId.toString()
+                homelessId.toString(),
             )
         }
     }

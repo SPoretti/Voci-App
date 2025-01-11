@@ -150,7 +150,7 @@ fun RequestsScreen(
                     }
                     // Add Request Floating Button
                     CustomFAB(
-                        text = "Aggiungi Richiesta",
+                        text = "Aggiungi richiesta",
                         icon = Icons.Filled.Add,
                         onClick = { showAddRequestDialog = true },
                         modifier = Modifier.align(Alignment.BottomEnd)

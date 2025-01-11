@@ -39,29 +39,26 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.data.local.database.Homeless
-import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
-import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
-import com.example.vociapp.ui.state.SortOption
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
 @Composable
 fun ProfileHomelessScreen(
     navController: NavHostController,
-    homelessID: String?
+    homelessID: String
 ) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
 
-    val homelessState by homelessViewModel.homelesses.collectAsState()
+    val homelessState by homelessViewModel.specificHomeless.collectAsState()
     val locationState by homelessViewModel.locationCoordinates.collectAsState()
 
     val requestViewModel = serviceLocator.obtainRequestViewModel()
@@ -81,8 +78,8 @@ fun ProfileHomelessScreen(
     }
 
     LaunchedEffect(homelessID) {
-        homelessID?.let {
-            homelessViewModel.fetchHomelessDetailsById(it)
+        homelessID.let {
+            homelessViewModel.getHomelessDetailsById(it)
             requestViewModel.getRequestsByHomelessId(it)
             updateViewModel.getUpdatesByHomelessId(it)
         }
@@ -105,59 +102,56 @@ fun ProfileHomelessScreen(
                 }
 
                 is Resource.Success -> {
-                    // Check if data is null
-                    val homelessList = (homelessState as Resource.Success<List<Homeless>>).data
-                    if (homelessList != null) {
-                        val homeless = homelessList.firstOrNull()
-                        if (homeless != null) {
-                            //Info principali
-                            InfoList(homeless)
-                            //Mappa
-                            LocationFrame(locationState = locationState)
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                            //Richieste attive
-                            Text(text = "Richieste Attive")
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                            ) {
-                                Column {
-                                    ProfileRequestList(
-                                        requests = requests,
-                                        navController = navController
-                                    )
-                                }
-                            }
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                            //Aggiornamenti
-                            Text(text = "Aggiornamenti")
-                            Box(
-                                modifier = Modifier
-                                    .clickable { showUpdateListDialog = true },
-                            ) {
-                                if (showUpdateListDialog) {
-                                    UpdateListDialog(
-                                        onDismiss = { showUpdateListDialog = false },
-                                        updates = updates,
-                                        navController = navController,
-                                        updateViewModel = updateViewModel,
-                                        homelessViewModel = homelessViewModel
-                                    )
-                                }
-                                UpdateLastItem(
-                                    updates = updates,
-                                    navController = navController,
-                                    homelessViewModel = homelessViewModel
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                        } else {
-                            Text(text = "Senzatetto non trovato")
+                    //Success implies homeless is not null
+                    val homeless = homelessState.data!!
+
+                    //Info principali
+                    InfoList(homeless)
+                    //Mappa
+                    LocationFrame(locationState = locationState)
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    //Richieste attive
+                    Text(text = "Richieste Attive")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                    ) {
+                        Column {
+                            ProfileRequestList(
+                                requests = requests,
+                                navController = navController,
+                                homelessId = homelessID,
+                            )
                         }
-                    } else {
-                        Text(text = "Senzatetto non trovato")
                     }
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    //Aggiornamenti
+                    Text(text = "Aggiornamenti")
+                    Box(
+                        modifier = Modifier
+                            .clickable { showUpdateListDialog = true },
+                    ) {
+                        if (showUpdateListDialog) {
+                            UpdateListDialog(
+                                onDismiss = { showUpdateListDialog = false },
+                                updates = updates,
+                            )
+                        }
+                        if (updates.data?.isNotEmpty() == true){
+                            UpdateLastItem(
+                                updates = updates,
+                                navController = navController,
+                                homelessViewModel = homelessViewModel
+                            )
+                        } else {
+                            Text(
+                                text = "Non ci sono aggiornamenti",
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 is Resource.Error -> {
@@ -184,19 +178,20 @@ fun ProfileHomelessScreen(
                 Icon(
                     Icons.Filled.LocationOn,
                     contentDescription = "Save Location",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
         if (showAddAddressDialog) {
-            if (homelessID != null) {
-                AddAddressDialog(
-                    onDismiss = { showAddAddressDialog = false },
-                    homelessId = homelessID,
-                    homelessViewModel = homelessViewModel,
-                    locationHandler = locationHandler
-                )
-            }
+            AddAddressDialog(
+                onDismiss = {
+                    showAddAddressDialog = false
+                    homelessViewModel.getHomelessDetailsById(homelessID)
+                },
+                homelessId = homelessID,
+                homelessViewModel = homelessViewModel,
+                locationHandler = locationHandler
+            )
         }
     }
 }

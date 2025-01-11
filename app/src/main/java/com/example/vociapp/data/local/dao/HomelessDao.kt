@@ -40,6 +40,9 @@ interface HomelessDao {
     @Query("SELECT * FROM homelesses WHERE area = :area")
     fun getHomelessesByArea(area: Area): Flow<List<Homeless>>
 
+    @Query("SELECT location FROM homelesses")
+    fun getAllLocations(): Flow<List<String>>
+
     @Transaction
     suspend fun insertOrUpdate(homeless: Homeless) {
         val existingHomeless = getHomelessById(homeless.id)
