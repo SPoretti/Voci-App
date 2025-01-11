@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -474,7 +473,6 @@ fun UpdateUserProfileScreen(
                                                             authViewModel.updateUserProfile(nickname, newPhotoUrl)
 
                                                             val result = authViewModel.signInWithEmailAndPassword(volunteer!!.email, password)
-                                                            Log.d("reauth", "result signin dentro : $result + ${password}")
 
                                                             if (result is AuthResult.Failure) {
                                                                 isPasswordCorrect = false
