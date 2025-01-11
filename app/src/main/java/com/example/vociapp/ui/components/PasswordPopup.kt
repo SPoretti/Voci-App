@@ -18,8 +18,8 @@ import androidx.compose.ui.window.Popup
 @Composable
 fun PasswordPopup(onDismiss: () -> Unit) {
     Popup(
-        alignment = Alignment.BottomEnd,
-        offset = IntOffset(0, -110),
+        alignment = Alignment.BottomCenter,
+        offset = IntOffset(0, -150),
     ) {
         Box(
             modifier = Modifier
@@ -37,12 +37,11 @@ fun PasswordPopup(onDismiss: () -> Unit) {
         ) {
             Text(
                 text = """
-                            Criteri della password:
                             - Almeno 8 caratteri
                             - Almeno una lettera maiuscola
                             - Almeno una lettera minuscola
                             - Almeno un numero
-                            - Almeno un carattere speciale
+                            - Almeno un carattere speciale (@$!#%*?&)
                         """.trimIndent(),
                 style = MaterialTheme.typography.bodySmall
             )

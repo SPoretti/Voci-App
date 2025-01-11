@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import com.example.vociapp.data.util.ExceptionHandler
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthEmailException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 
 class AuthViewModel : ViewModel() {
@@ -80,8 +80,13 @@ class AuthViewModel : ViewModel() {
 
     fun isPasswordValid(password: String): Boolean {
         val passwordPattern =
-            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!#%*?&])[A-Za-z\\d@$!#%*?&]{8,}$"
         return password.matches(passwordPattern.toRegex())
+    }
+
+    fun isEmailValid(email: String): Boolean {
+        val emailPattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$"
+        return email.matches(Regex(emailPattern))
     }
 
     fun signOut() {
@@ -115,6 +120,27 @@ class AuthViewModel : ViewModel() {
 
     fun sendVerificationEmail() {
         auth.currentUser?.sendEmailVerification()
+    }
+
+    fun reauthenticateAndVerifyEmail(newEmail: String, password: String) {
+        val user = auth.currentUser
+        if (user != null) {
+            val cred = EmailAuthProvider.getCredential(user.email ?: "", password)
+
+            user.reauthenticate(cred).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    user.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener { verifyTask ->
+                        if (verifyTask.isSuccessful) {
+                            Log.d("AuthViewModel", "Email di verifica inviata a: $newEmail")
+                        } else {
+                            Log.e("AuthViewModel", "Errore nell'invio dell'email di verifica: ${verifyTask.exception?.message}")
+                        }
+                    }
+                } else {
+                    Log.e("AuthViewModel", "Reautenticazione fallita: ${task.exception?.message}")
+                }
+            }
+        }
     }
 
     fun sendPasswordResetEmail(email: String): AuthResult {
