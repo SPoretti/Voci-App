@@ -1,5 +1,6 @@
 package com.example.vociapp.data.remote
 
+import com.example.vociapp.data.util.MapboxGeocodingApi
 import com.example.vociapp.data.util.MapboxSearchApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -24,5 +25,14 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(MapboxSearchApi::class.java)
+    }
+
+    val geocodingApi: MapboxGeocodingApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MapboxGeocodingApi::class.java)
     }
 }

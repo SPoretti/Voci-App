@@ -1,8 +1,5 @@
 package com.example.vociapp.ui.screens.profiles.homeless
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Male
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Transgender
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -32,16 +35,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.UpdateStatus
+import com.example.vociapp.data.util.Gender
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.CustomChip
+import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.ProfileRequestList
+import com.example.vociapp.ui.components.core.StatusLED
 import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
@@ -53,31 +61,32 @@ import com.google.android.gms.location.LocationServices
 
 @Composable
 fun ProfileHomelessScreen(
-    navController: NavHostController,
-    homelessID: String
+    navController: NavHostController,   // Pass the navController
+    homelessID: String                  // Pass the homelessID
 ) {
+    //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
+    // Homeless
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
-
-    val homelessState by homelessViewModel.specificHomeless.collectAsState()
+    val specificHomeless by homelessViewModel.specificHomeless.collectAsState()
     val locationState by homelessViewModel.locationCoordinates.collectAsState()
-
+    // Requests
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requestsByHomelessId.collectAsState()
-
+    // Updates
     val updateViewModel = serviceLocator.obtainUpdatesViewModel()
     val updates by updateViewModel.updatesByHomelessId.collectAsState()
-
+    // Dialogs
     var showUpdateListDialog by remember { mutableStateOf(false) }
     var showAddAddressDialog by remember { mutableStateOf(false) }
-
+    // Location
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val locationHandler = remember {
         LocationHandler(context, fusedLocationClient, homelessViewModel)
     }
-
+    // Init
     LaunchedEffect(homelessID) {
         homelessID.let {
             homelessViewModel.getHomelessDetailsById(it)
@@ -85,7 +94,7 @@ fun ProfileHomelessScreen(
             updateViewModel.getUpdatesByHomelessId(it)
         }
     }
-
+    //----- Region: View Composition -----
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,7 +105,7 @@ fun ProfileHomelessScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (homelessState) {
+            when (specificHomeless) {
                 is Resource.Loading -> {
                     // Show a loading indicator
                     CircularProgressIndicator()
@@ -104,7 +113,7 @@ fun ProfileHomelessScreen(
 
                 is Resource.Success -> {
                     //Success implies homeless is not null
-                    val homeless = homelessState.data!!
+                    val homeless = specificHomeless.data!!
 
                     //Info principali
                     InfoList(homeless)
@@ -137,6 +146,9 @@ fun ProfileHomelessScreen(
                             UpdateListDialog(
                                 onDismiss = { showUpdateListDialog = false },
                                 updates = updates,
+                                onConfirm = {
+                                    navController.navigate("UpdatesAddScreen/${homeless.id}")
+                                }
                             )
                         }
                         if (updates.data?.isNotEmpty() == true){
@@ -157,32 +169,18 @@ fun ProfileHomelessScreen(
 
                 is Resource.Error -> {
                     // Display the error message
-                    val errorMessage = (homelessState as Resource.Error).message
+                    val errorMessage = (specificHomeless as Resource.Error).message
                     Text(text = errorMessage ?: "Errore sconosciuto")
                 }
             }
         }
         //Aggiorna posizione attuale
-        FloatingActionButton(
+        CustomFAB(
             onClick = { showAddAddressDialog = true },
-            elevation = FloatingActionButtonDefaults.elevation(50.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .hapticFeedback(),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 4.dp)
-            ) {
-                Icon(
-                    Icons.Filled.LocationOn,
-                    contentDescription = "Save Location",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
+            modifier = Modifier.align(Alignment.BottomEnd),
+            icon = Icons.Filled.LocationOn,
+            text = "Posizione Attuale"
+        )
         if (showAddAddressDialog) {
             AddAddressDialog(
                 onDismiss = {
@@ -202,39 +200,89 @@ fun ProfileHomelessScreen(
 fun InfoList(homeless: Homeless) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier
+            .padding(top = 16.dp)
     ) {
-        Text(
-            text = homeless.name,
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Row (
+            horizontalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "${homeless.age}  -",
-                style = MaterialTheme.typography.bodyMedium
+                text = homeless.name,
+                style = MaterialTheme.typography.headlineLarge
             )
-            Text(
-                text = "${homeless.gender}  -",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = homeless.nationality,
-                style = MaterialTheme.typography.bodyMedium
+            StatusLED(
+                // Map the status to the color
+                color = when (homeless.status){
+                    UpdateStatus.GREEN -> Color.Green
+                    UpdateStatus.YELLOW -> Color.Yellow
+                    UpdateStatus.RED -> Color.Red
+                    UpdateStatus.GRAY -> Color.Gray
+                },
+                // If color is gray don't pulsate
+                isPulsating = when(homeless.status){
+                    UpdateStatus.GREEN -> true
+                    UpdateStatus.YELLOW -> true
+                    UpdateStatus.RED -> true
+                    UpdateStatus.GRAY -> false
+                },
             )
         }
+        Row(
+            horizontalArrangement = Arrangement.Center
+        ) {
+            CustomChip(
+                text = if(homeless.age == "") "?" else ("${homeless.age} anni"),
+                onClick = {},
+                imageVector = Icons.Default.CalendarMonth
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            when(homeless.gender){
+                Gender.Female -> {
+                    CustomChip(
+                        text = "${homeless.gender}",
+                        onClick = {},
+                        imageVector = Icons.Default.Female,
+                    )
+                }
+                Gender.Male -> {
+                    CustomChip(
+                        text = "${homeless.gender}",
+                        onClick = {},
+                        imageVector = Icons.Default.Male
+                    )
+                }
+                Gender.Unspecified -> {
+                    CustomChip(
+                        text = "${homeless.gender}",
+                        onClick = {},
+                        imageVector = Icons.Default.Transgender
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            CustomChip(
+                text = if(homeless.nationality == "") "?" else (homeless.nationality),
+                onClick = {},
+                imageVector = Icons.Default.Public
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Descrizione: ${homeless.description}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
+            text = homeless.description,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Indirizzo: ${homeless.location}",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
+            text = homeless.location,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            ),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

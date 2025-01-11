@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,33 +16,47 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.homeless.AddLocationSearchbar
+import com.example.vociapp.ui.components.homeless.LocationHandler
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
+import kotlinx.coroutines.delay
 
 @Composable
 fun SearchBox(
-    onConfirmLocation: () -> Unit
+    onConfirmLocation: (String) -> Unit
 ){
     //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
-    val locationState by homelessViewModel.locationCoordinates.collectAsState()
+    val locationCoordinates by homelessViewModel.locationCoordinates.collectAsState()
+    val locationAddress by homelessViewModel.locationAddress.collectAsState()
     // Initialize camera location and points
     var cameraLocation by remember { mutableStateOf<Point?>(null) }
     var points by remember { mutableStateOf<List<Point>>(emptyList()) }
     var address by remember { mutableStateOf("") }
     var cameraOptions by remember { mutableStateOf<CameraOptions?>(null) }
+    // Current Location
+    val context = LocalContext.current
+    val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+    val locationHandler = remember {
+        LocationHandler(context, fusedLocationClient, homelessViewModel)
+    }
+    var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     // Fetch location coordinates
-    when (locationState) {
+    when (locationCoordinates) {
         is Resource.Loading -> {
             CircularProgressIndicator()
         }
         is Resource.Success -> {
-            val coordinates = locationState.data
+            val coordinates = locationCoordinates.data
             if (coordinates != null) {
                 cameraLocation = Point.fromLngLat(coordinates.second, coordinates.first)
                 points = listOf(Point.fromLngLat(coordinates.second, coordinates.first))
@@ -56,8 +72,20 @@ fun SearchBox(
             // Handle error state (e.g., show an error message)
         }
     }
+    LaunchedEffect(Unit) {
+        locationHandler.getCurrentLocation(
+            callback = { location ->
+                currentLocation = location
+            }
+        )
+        homelessViewModel.mapboxReverseGeocoding(
+            currentLocation?.first ?: 0.0,
+            currentLocation?.second ?: 0.0
+        )
+    }
     //----- Region: View Composition -----
     Box(modifier = Modifier.fillMaxSize()) {
+        // MapView with points and camera options
         MultiPointMap(
             points = points,
             cameraOptions = cameraOptions ?:
@@ -69,19 +97,31 @@ fun SearchBox(
                     .bearing(-17.6)
                     .build()
         )
+        // Searchbar with suggestions
         AddLocationSearchbar(
             modifier = Modifier.align(Alignment.TopCenter),
             onClick = {
                 address = it
-                homelessViewModel.geocodeAddress(it)
+                homelessViewModel.mapboxForwardGeocoding(it)
                 Log.d("ApiTesting", it)
             }
         )
-        // Button to save current location
+        // Button to save current location - LEFT
+        CustomFAB(
+            text = "Current Location",
+            icon = Icons.Default.LocationOn,
+            onClick = {
+                Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
+                address = locationAddress.data ?: ""
+                homelessViewModel.mapboxForwardGeocoding(address)
+            },
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+        // Button to save the selected location - RIGHT
         CustomFAB(
             text = "Confirm Location",
-            icon = Icons.Default.LocationOn,
-            onClick = onConfirmLocation,
+            icon = Icons.Default.Check,
+            onClick = { onConfirmLocation(address) },
             modifier = Modifier.align(Alignment.BottomEnd)
         )
     }

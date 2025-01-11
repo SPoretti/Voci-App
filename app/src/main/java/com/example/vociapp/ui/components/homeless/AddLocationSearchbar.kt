@@ -3,6 +3,7 @@ package com.example.vociapp.ui.components.homeless
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -92,7 +93,7 @@ fun AddLocationSearchbar (
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.background,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedBorderColor = Color.Transparent,
                 focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedBorderColor = Color.Transparent,
@@ -142,7 +143,7 @@ fun AddLocationSearchbar (
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
         )
         when (suggestedLocations) {
             is Resource.Loading -> {}
@@ -152,8 +153,8 @@ fun AddLocationSearchbar (
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .background(MaterialTheme.colorScheme.background)
                         .clip(shape = RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     sortedSuggestions.forEach { suggestion ->
                         Column(
@@ -180,7 +181,9 @@ fun AddLocationSearchbar (
                                         proximity = "${currentLocation?.second},${currentLocation?.first}"
                                     )
                                 }
-                                .padding(16.dp)
+                                .padding(horizontal = 16.dp)
+                                .height(56.dp),
+                            verticalArrangement = Arrangement.Center
                         ) {
                             Row {
                                 Text(text = suggestion.name, style = MaterialTheme.typography.labelLarge)
@@ -199,7 +202,7 @@ fun AddLocationSearchbar (
                                         modifier = Modifier.weight(1f)
                                     )
                                 } else {
-                                    Spacer(modifier = Modifier.height(8.dp))
+//                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
                         }
