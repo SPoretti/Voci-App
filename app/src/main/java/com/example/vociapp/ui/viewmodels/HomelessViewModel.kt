@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.remote.GeocodingClient
+import com.example.vociapp.data.remote.RetrofitClient
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
+import com.example.vociapp.data.util.Suggestion
+import com.example.vociapp.data.util.SuggestionResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -53,6 +56,9 @@ class HomelessViewModel @Inject constructor(
 
     private val _locations = MutableStateFlow<Resource<List<Pair<Double, Double>>>>(Resource.Loading())
     val locations: StateFlow<Resource<List<Pair<Double, Double>>>> = _locations
+
+    private val _suggestedLocations = MutableStateFlow<Resource<List<Suggestion>>>(Resource.Loading())
+    val suggestedLocations: StateFlow<Resource<List<Suggestion>>> = _suggestedLocations
 
     init {
         fetchHomelesses()
@@ -257,4 +263,73 @@ class HomelessViewModel @Inject constructor(
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }
+
+    suspend fun getMapboxSuggestions(
+        query: String,
+        accessToken: String,
+        sessionToken: String,
+        language: String? = null,
+        limit: Int? = null,
+        proximity: String? = null,
+        bbox: String? = null,
+        country: String? = null,
+        types: String? = null,
+        poiCategory: String? = null,
+        poiCategoryExclusions: String? = null,
+        etaType: String? = null,
+        navigationProfile: String? = null,
+        origin: String? = null
+    ): SuggestionResponse {
+        return RetrofitClient.api.getSuggestions(
+            query = query,
+            accessToken = accessToken,
+            sessionToken = sessionToken,
+            language = language,
+            limit = limit,
+            proximity = proximity,
+            bbox = bbox,
+            country = country,
+            types = types,
+            poiCategory = poiCategory,
+            poiCategoryExclusions = poiCategoryExclusions,
+            etaType = etaType,
+            navigationProfile = navigationProfile,
+            origin = origin
+        )
+    }
+
+    // In your HomelessViewModel
+    fun fetchSuggestions(
+        query: String,
+        sessionToken: String,
+        proximity: String? = null,
+    ) {
+        viewModelScope.launch {
+            _suggestedLocations.value = Resource.Loading() // Set loading state
+            try {
+                val response = getMapboxSuggestions(
+                    query = query,
+                    accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g", // Replace with your token
+                    sessionToken = sessionToken,
+                    limit = 5,
+                    language = "it",
+                    country = "it",
+                    proximity = proximity,
+                    bbox = "9.0,45.3,9.3,45.6",
+                    types = "place,neighborhood,street,address,poi"
+                )
+                _suggestedLocations.value = Resource.Success(response.suggestions) // Set success state
+            } catch (e: Exception) {
+                Log.e("MapboxSearch", "Error: ${e.message}")
+                _suggestedLocations.value = Resource.Error(e.message ?: "Errore durante la ricerca") // Set error state
+            }
+        }
+    }
+
+    fun geocodeAddress(address: String) {
+        viewModelScope.launch {
+            geocodeLocation(address)
+        }
+    }
+
 }

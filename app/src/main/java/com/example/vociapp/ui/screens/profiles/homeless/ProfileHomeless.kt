@@ -45,6 +45,7 @@ import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.AddAddressDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
+import com.example.vociapp.ui.components.maps.StaticMap
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -263,7 +264,7 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
             val coordinates =
                 locationState.data
             if (coordinates != null) {
-                MapboxMap(
+                StaticMap(
                     latitude = coordinates.first,
                     longitude = coordinates.second
                 )
@@ -276,49 +277,5 @@ fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
             val errorMessage = locationState.message
             Text(text = "Errore coordinate: ${errorMessage ?: "Errore sconosciuto"}")
         }
-    }
-}
-
-// MAPBOX
-@Composable
-fun MapboxMap(latitude: Double, longitude: Double) {
-    val context = LocalContext.current
-    val token =
-        "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g"
-    val zoom = 14
-    val size = "600x300"
-    val pin = "pin-s+ff0000($longitude,$latitude)"
-
-    val imageUrl = "https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/" +
-            "$pin/" +
-            "$longitude,$latitude,$zoom/" +
-            size +
-            "?access_token=$token"
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(200.dp)
-            .clickable {
-                val gmmIntentUri = Uri.parse("google.navigation:q=$latitude,$longitude")
-                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                mapIntent.setPackage("com.google.android.apps.maps")
-
-                try {
-                    context.startActivity(mapIntent)
-                } catch (e: ActivityNotFoundException) {
-                    // Fallback per altri navigatori se Google Maps non è installato
-                    val genericUri = Uri.parse("geo:$latitude,$longitude")
-                    val genericIntent = Intent(Intent.ACTION_VIEW, genericUri)
-                    context.startActivity(genericIntent)
-                }
-            }
-    ) {
-        AsyncImage(
-            model = imageUrl,
-            contentDescription = "Map location",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
     }
 }

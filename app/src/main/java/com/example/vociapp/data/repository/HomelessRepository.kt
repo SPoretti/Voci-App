@@ -3,8 +3,10 @@ package com.example.vociapp.data.repository
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.remote.FirestoreDataSource
+import com.example.vociapp.data.remote.RetrofitClient
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.data.util.Resource
+import com.example.vociapp.data.util.SuggestionResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
