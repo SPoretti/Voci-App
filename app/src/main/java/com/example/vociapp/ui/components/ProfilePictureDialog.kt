@@ -106,13 +106,24 @@ fun ProfilePictureDialog(
                                 singleLine = true
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
-                            if (isUrlValid && photoUrl.isNotEmpty()) {
-                                val painter = rememberAsyncImagePainter(
-                                    model = photoUrl,
-                                    onError = {photoNotAvailable = true}
+                            val painter = rememberAsyncImagePainter(
+                                model =  photoUrl,
+                                onError = {photoNotAvailable = true},
+                                onSuccess = {photoNotAvailable = false}
+                            )
+
+                            if (isUrlValid && photoUrl.isNotEmpty() && photoNotAvailable) {
+
+                                Text(
+                                    "Immagine non disponibile",
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
+
+                            } else if (!photoNotAvailable && photoUrl.isNotEmpty()) {
                                 Image(
                                     painter = painter,
                                     contentDescription = "Anteprima immagine profilo",
