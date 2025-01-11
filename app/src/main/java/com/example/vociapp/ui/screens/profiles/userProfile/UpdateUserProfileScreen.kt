@@ -410,7 +410,9 @@ fun UpdateUserProfileScreen(
                                                             }
                                                         },
                                                         enabled = true,
-                                                        modifier = Modifier.fillMaxWidth(),
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(top = 16.dp),
                                                         shape = RoundedCornerShape(8.dp)
                                                     ) {
                                                         Text(
@@ -461,6 +463,10 @@ fun UpdateUserProfileScreen(
                                                             if (!authViewModel.isEmailValid(email)){
                                                                 isEmailValid = false
                                                                 SnackbarManager.showSnackbar("Email non valida")
+                                                                isUpdating = false
+                                                            } else if (volunteerViewModel.checkIfEmailExists(email)){
+                                                                isEmailValid = false
+                                                                SnackbarManager.showSnackbar("Email già utilizzata")
                                                                 isUpdating = false
                                                             } else {
                                                                 authViewModel.reauthenticateAndVerifyEmail(email, password)
