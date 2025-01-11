@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.remote.GeocodingClient
-import com.example.vociapp.data.remote.RetrofitClient
+import com.example.vociapp.data.remote.MapboxGeocodingClient
+import com.example.vociapp.data.remote.MapboxSuggestionsClient
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.Suggestion
-import com.example.vociapp.data.util.SuggestionResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -39,7 +39,7 @@ class HomelessViewModel @Inject constructor(
     private val _specificHomeless = MutableStateFlow<Resource<Homeless>>(Resource.Loading())
     val specificHomeless: StateFlow<Resource<Homeless>> = _specificHomeless
 
-    private val _searchQuery = MutableStateFlow("") // Use MutableStateFlow
+    private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _filteredHomelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
@@ -64,7 +64,7 @@ class HomelessViewModel @Inject constructor(
         fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
-        getLocations()
+//        getLocations()
         updateSearchQuery("")
     }
 
@@ -205,7 +205,7 @@ class HomelessViewModel @Inject constructor(
             try {
                 val homeless = homelessRepository.getHomelessById(homelessId)
                 if (homeless is Resource.Success)
-                    geocodeLocation(homeless.data!!.location)
+                    mapboxForwardGeocoding(homeless.data!!.location)
                 _specificHomeless.value = homeless
             } catch (e: Exception) {
                 _specificHomeless.value = Resource.Error(e.message ?: "Errore sconosciuto")
@@ -264,41 +264,6 @@ class HomelessViewModel @Inject constructor(
         _snackbarMessage.value = ""
     }
 
-    suspend fun getMapboxSuggestions(
-        query: String,
-        accessToken: String,
-        sessionToken: String,
-        language: String? = null,
-        limit: Int? = null,
-        proximity: String? = null,
-        bbox: String? = null,
-        country: String? = null,
-        types: String? = null,
-        poiCategory: String? = null,
-        poiCategoryExclusions: String? = null,
-        etaType: String? = null,
-        navigationProfile: String? = null,
-        origin: String? = null
-    ): SuggestionResponse {
-        return RetrofitClient.api.getSuggestions(
-            query = query,
-            accessToken = accessToken,
-            sessionToken = sessionToken,
-            language = language,
-            limit = limit,
-            proximity = proximity,
-            bbox = bbox,
-            country = country,
-            types = types,
-            poiCategory = poiCategory,
-            poiCategoryExclusions = poiCategoryExclusions,
-            etaType = etaType,
-            navigationProfile = navigationProfile,
-            origin = origin
-        )
-    }
-
-    // In your HomelessViewModel
     fun fetchSuggestions(
         query: String,
         sessionToken: String,
@@ -307,7 +272,7 @@ class HomelessViewModel @Inject constructor(
         viewModelScope.launch {
             _suggestedLocations.value = Resource.Loading() // Set loading state
             try {
-                val response = getMapboxSuggestions(
+                val response = MapboxSuggestionsClient().getMapboxSuggestions(
                     query = query,
                     accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g", // Replace with your token
                     sessionToken = sessionToken,
@@ -326,9 +291,83 @@ class HomelessViewModel @Inject constructor(
         }
     }
 
-    fun geocodeAddress(address: String) {
+    fun mapboxForwardGeocoding(query: String) {
         viewModelScope.launch {
-            geocodeLocation(address)
+            _locationCoordinates.value = Resource.Loading()
+            try {
+                Log.d("ApiTesting", query.toString())
+                val response = MapboxGeocodingClient().geocodeAddress(
+                    query = query,
+                    accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g",
+                    language = "it",
+                    country = "it",
+                    types = "place,neighborhood,street,address"
+                )
+                Log.d("ApiTesting", response.toString())
+                if (response.features.isNotEmpty()) {
+                    val firstFeature = response.features[0]
+                    val coordinates = firstFeature.geometry.coordinates
+                    if (coordinates != null) { // Null check for coordinates
+                        if (coordinates.size == 2) {
+                            _locationCoordinates.value = Resource.Success(Pair(coordinates[1], coordinates[0]))
+                            Log.d("ApiTesting", coordinates.toString())
+                        } else {
+                            _locationCoordinates.value = Resource.Error("Coordinates are not just 2")
+                            Log.d("ApiTesting", "Coordinates are not just 2")
+                        }
+                    } else {
+                        _locationCoordinates.value = Resource.Error("Coordinates are null")
+                        Log.d("ApiTesting", "Coordinates are null")
+                    }
+                } else {
+                    _locationCoordinates.value = Resource.Error("Features Are null")
+                    Log.d("ApiTesting", "Features Are null")
+                }
+            } catch (e: Exception) {
+                _locationCoordinates.value = Resource.Error(e.message ?: "Errore di geocoding")
+                Log.d("ApiTesting", e.message.toString())
+            }
+        }
+    }
+
+    fun mapboxReverseGeocoding(latitude: Double, longitude: Double) {
+        viewModelScope.launch {
+            _locationAddress.value = Resource.Loading()
+            try {
+                Log.d("ReverseGeocoding", "Reverse Geocoding: $latitude, $longitude")
+                val response = MapboxGeocodingClient().reverseGeocode(
+                    latitude = latitude.toString(),
+                    longitude = longitude.toString(),
+                    accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g",
+                    language = "it",
+                    types = "place,neighborhood,street,address"
+                )
+                Log.d("ReverseGeocoding", "Reverse Geocoding Response: $response")
+                if (response.features.isNotEmpty()) {
+                    val firstFeature = response.features[0]
+                    val fullAddress = firstFeature.properties.full_address
+                    val placeFormatted = firstFeature.properties.place_formatted
+                    val placeName = firstFeature.place_name
+
+                    val address = when {
+                        !fullAddress.isNullOrBlank() -> fullAddress
+                        !placeFormatted.isNullOrBlank() -> placeFormatted
+                        !placeName.isNullOrBlank() -> placeName
+                        else -> null
+                    }
+                    Log.d("ReverseGeocoding", "Address: $address")
+                    if (address != null) {
+                        _locationAddress.value = Resource.Success(address)
+                    } else {
+                        _locationAddress.value = Resource.Error("Indirizzo non trovato")
+                    }
+                    Log.d("ReverseGeocoding", "Address: $locationAddress")
+                } else {
+                    _locationAddress.value = Resource.Error("Indirizzo non trovato")
+                }
+            } catch (e: Exception) {
+                _locationAddress.value = Resource.Error(e.message ?: "Errore di geocoding")
+            }
         }
     }
 

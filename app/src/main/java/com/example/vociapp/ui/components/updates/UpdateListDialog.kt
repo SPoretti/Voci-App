@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -22,6 +23,7 @@ import com.example.vociapp.data.util.Resource
 fun UpdateListDialog(
     onDismiss: () -> Unit,
     updates: Resource<List<Update>>,
+    onConfirm: () -> Unit
 ) {
     AlertDialog(
         modifier = Modifier.fillMaxSize(),
@@ -36,7 +38,7 @@ fun UpdateListDialog(
                 UpdateList(updates)
             }
         },
-        confirmButton = {
+        dismissButton = {
             OutlinedButton(
                 onClick = { onDismiss() },
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -46,6 +48,16 @@ fun UpdateListDialog(
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground)
             ) {
                 Text("Indietro")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm()
+                    onDismiss()
+                },
+            ) {
+                Text("Aggiungi")
             }
         },
         containerColor = MaterialTheme.colorScheme.background,

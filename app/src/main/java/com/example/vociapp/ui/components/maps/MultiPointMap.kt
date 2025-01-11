@@ -37,19 +37,19 @@ fun MultiPointMap(
             }
         }
         // Set the initial camera position with the location
-        MapEffect(Unit) { mapView ->
-            mapViewportState.easeTo (
-                cameraOptions {
-                    center(Point.fromLngLat(9.19, 45.4642))
-                    pitch(45.0)
-                    zoom(10.5)
-                    bearing(-17.6)
-                },
-                animationOptions = MapAnimationOptions.mapAnimationOptions {
-                    duration(1000)
-                }
-            )
-        }
+//        MapEffect(Unit) { mapView ->
+//            mapViewportState.easeTo (
+//                cameraOptions {
+//                    center(Point.fromLngLat(9.19, 45.4642))
+//                    pitch(45.0)
+//                    zoom(10.5)
+//                    bearing(-17.6)
+//                },
+//                animationOptions = MapAnimationOptions.mapAnimationOptions {
+//                    duration(1000)
+//                }
+//            )
+//        }
         LaunchedEffect(cameraOptions) {
             mapViewportState.easeTo (
                 cameraOptions {
