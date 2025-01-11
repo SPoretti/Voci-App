@@ -32,7 +32,7 @@ fun UpdateList(updates: Resource<List<Update>>) {
             is Resource.Success -> {
                 if (sortedUpdates.isEmpty()) {
                     Text(
-                        "Non ci sono aggiornamenti",
+                        text = "Non ci sono aggiornamenti",
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {

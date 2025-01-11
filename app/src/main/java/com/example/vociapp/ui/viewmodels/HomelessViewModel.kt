@@ -7,7 +7,11 @@ import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.remote.GeocodingClient
 import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class HomelessViewModel @Inject constructor(
@@ -27,6 +32,9 @@ class HomelessViewModel @Inject constructor(
 
     private val _homelesses = MutableStateFlow<Resource<List<Homeless>>>(Resource.Loading())
     val homelesses: StateFlow<Resource<List<Homeless>>> = _homelesses
+
+    private val _specificHomeless = MutableStateFlow<Resource<Homeless>>(Resource.Loading())
+    val specificHomeless: StateFlow<Resource<Homeless>> = _specificHomeless
 
     private val _searchQuery = MutableStateFlow("") // Use MutableStateFlow
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -43,10 +51,14 @@ class HomelessViewModel @Inject constructor(
     private val _locationAddress = MutableStateFlow<Resource<String>>(Resource.Loading())
     val locationAddress: StateFlow<Resource<String>> = _locationAddress
 
+    private val _locations = MutableStateFlow<Resource<List<Pair<Double, Double>>>>(Resource.Loading())
+    val locations: StateFlow<Resource<List<Pair<Double, Double>>>> = _locations
+
     init {
         fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
+        getLocations()
         updateSearchQuery("")
     }
 
@@ -152,20 +164,71 @@ class HomelessViewModel @Inject constructor(
         }
     }
 
-    fun fetchHomelessDetailsById(homelessId: String) {
+    fun getLocations() {
         viewModelScope.launch {
-            //_homelesses.value = Resource.Loading()
+            _locations.value = Resource.Loading()
+            homelessRepository.getLocations().collect { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        if (resource.data != null) {
+                            val geocodedResults = try {
+                                geocodeAddresses(resource.data!!)
+                            } catch (e: Exception) {
+                                _locations.value = Resource.Error("Error during geocoding")
+                                return@collect
+                            }
+                            _locations.value = Resource.Success(geocodedResults.filterNotNull())
+                        } else {
+                            _locations.value = Resource.Error("No data available")
+                        }
+                    }
+                    is Resource.Error -> {
+                        _locations.value = Resource.Error(resource.message ?: "Unknown error")
+                    }
+                    is Resource.Loading -> {
+                        _locations.value = Resource.Loading()
+                    }
+                }
+            }
+        }
+    }
+
+    fun getHomelessDetailsById(homelessId: String) {
+        viewModelScope.launch {
+            _specificHomeless.value = Resource.Loading()
             try {
                 val homeless = homelessRepository.getHomelessById(homelessId)
-                if (homeless is Resource.Success) {
+                if (homeless is Resource.Success)
                     geocodeLocation(homeless.data!!.location)
-                    //_homelesses.value = Resource.Success(listOf(homeless))
-                } else {
-                    //_homelesses.value = Resource.Error("Senzatetto non trovato")
-                }
+                _specificHomeless.value = homeless
             } catch (e: Exception) {
-                //_homelesses.value = Resource.Error(e.message ?: "Errore sconosciuto")
+                _specificHomeless.value = Resource.Error(e.message ?: "Errore sconosciuto")
             }
+        }
+    }
+
+    private suspend fun geocodeAddresses(
+        addresses: List<String>,
+    ): List<Pair<Double, Double>?> = withContext(Dispatchers.IO) {
+        coroutineScope {
+            val geocodingJobs = addresses.map { address ->
+                async {
+                    geocodeOneLocation(address)
+                }
+            }
+            geocodingJobs.awaitAll()
+        }
+    }
+
+    private suspend fun geocodeOneLocation(address: String): Pair<Double, Double>? {
+        return try {
+            val response = geocodingClient.nominatimService.geocodeAddress(address)
+            response.firstOrNull()?.let {
+                Pair(it.lat.toDouble(), it.lon.toDouble())
+            }
+        } catch (e: Exception) {
+            Log.e("HomelessViewModel", "Error geocoding address: $address", e)
+            null // Return null on error
         }
     }
 
@@ -194,5 +257,4 @@ class HomelessViewModel @Inject constructor(
     fun clearSnackbarMessage() {
         _snackbarMessage.value = ""
     }
-
 }

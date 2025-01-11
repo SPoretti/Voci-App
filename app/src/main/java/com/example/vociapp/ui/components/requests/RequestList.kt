@@ -113,10 +113,12 @@ fun RequestList(
                                     if(request.status == RequestStatus.TODO){
                                         // Swipe to complete request
                                         requestViewModel.requestDone(request)
+                                        requestViewModel.getRequests()
                                     }
                                     // History page
                                     else {
                                         requestViewModel.deleteRequest(request)
+                                        requestViewModel.getRequests()
                                     }
                                 }
                             }

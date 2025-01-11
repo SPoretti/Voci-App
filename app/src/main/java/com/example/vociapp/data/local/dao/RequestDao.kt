@@ -36,8 +36,8 @@ interface RequestDao {
     @Query("SELECT * FROM requests WHERE id = :requestId LIMIT 1")
     suspend fun getRequestById(requestId: String): Request
 
-    @Query("SELECT * FROM requests WHERE homelessId = :homelessId")
-    fun getRequestsByHomelessId(homelessId: String): Flow<List<Request>>
+    @Query("SELECT * FROM requests WHERE homelessId = :homelessId AND status = 'TODO'")
+    fun getActiveRequestsByHomelessId(homelessId: String): Flow<List<Request>>
 
     @Query("SELECT * FROM requests WHERE area = :area")
     fun getRequestsByArea(area: Area): Flow<List<Request>>

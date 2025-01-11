@@ -1,40 +1,45 @@
 package com.example.vociapp.ui.screens.maps
 
+import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
+import com.example.vociapp.data.util.Resource
+import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.maps.MultiPointMap
 import com.mapbox.geojson.Point
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.random.Random
 
 @Composable
 fun HomelessesMap(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    homelessId: String
+    homelessId: String,
 ) {
-    val centerLat = 45.4642
-    val centerLon = 9.19
-    val radiusInMeters = 5000.0 // 5km radius
+    val serviceLocator = LocalServiceLocator.current
+    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    homelessViewModel.getLocations()
 
-    val points = (1..10).map {
-        val randomAngle = Random.nextDouble() * 2 * Math.PI
-        val randomRadius = Random.nextDouble() * radiusInMeters
+    val points = mutableListOf<Point>()
+    val coordinates = remember { homelessViewModel.locations.value}
+    when (coordinates) {
+        is Resource.Success -> {
+            for (coordinate in coordinates.data!!) {
+                val lat = coordinate.first
+                val lon = coordinate.second
+                val point = Point.fromLngLat(lon, lat)
+                points.add(point)
+            }
+        }
 
-        val x = centerLon + (randomRadius * cos(randomAngle) / (111320 * cos(
-            Math.toRadians(
-                centerLat
-            )
-        )))
-        val y = centerLat + (randomRadius * sin(randomAngle) / 111320)
-
-        Point.fromLngLat(x, y)
+        is Resource.Error -> { Log.d("HomelessesMap", "Error")}
+        is Resource.Loading -> { Log.d("HomelessesMap", "Loading")}
     }
 
-    MultiPointMap(
-        points = points,
-        cameraLocation = Point.fromLngLat(9.19, 45.4642)
-    )
+    if (coordinates is Resource.Success){
+        MultiPointMap(
+            points = points,
+            cameraLocation = Point.fromLngLat(9.19, 45.4642)
+        )
+    }
 }

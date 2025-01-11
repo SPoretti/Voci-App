@@ -98,8 +98,7 @@ class RequestViewModel @Inject constructor(
 
     fun updateRequest(request: Request) {
         viewModelScope.launch {
-            val result = requestRepository.updateRequest(request)
-            when (result) {
+            when (val result = requestRepository.updateRequest(request)) {
                 is Resource.Success -> {
                     // Request updated successfully, you might want to refresh the requests list
                     getRequests()

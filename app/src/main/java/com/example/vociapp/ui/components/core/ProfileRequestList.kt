@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -42,16 +41,12 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.requests.RequestListItem
-import com.example.vociapp.ui.state.SortOption
-import kotlin.collections.filter
-import kotlin.collections.orEmpty
-import kotlin.collections.sortedWith
 
 @Composable
 fun ProfileRequestList(
     requests: Resource<List<Request>>,      // List of requests
     navController: NavHostController,       // Navigation controller
+    homelessId: String,                      // Homeless ID
 ) {
     //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
@@ -110,10 +105,12 @@ fun ProfileRequestList(
                                     if(request.status == RequestStatus.TODO){
                                         // Swipe to complete request
                                         requestViewModel.requestDone(request)
+                                        requestViewModel.getRequestsByHomelessId(homelessId)
                                     }
                                     // History page
                                     else {
                                         requestViewModel.deleteRequest(request)
+                                        requestViewModel.getRequestsByHomelessId(homelessId)
                                     }
                                 }
                             }
