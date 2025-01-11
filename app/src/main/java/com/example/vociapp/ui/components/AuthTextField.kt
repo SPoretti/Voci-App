@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -47,7 +48,7 @@ fun AuthTextField(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         placeholder = { Text(placeholder) },
@@ -63,7 +64,7 @@ fun AuthTextField(
                 focusedLabelColor = MaterialTheme.colorScheme.error
             )
         },
-        trailingIcon = trailingIcon,
+        trailingIcon = if (isPassword) trailingIcon else null,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
         singleLine = true

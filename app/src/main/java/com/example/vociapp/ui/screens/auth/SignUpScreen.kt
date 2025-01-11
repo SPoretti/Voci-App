@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +68,8 @@ fun SignUpScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isPasswordFieldFocused by remember { mutableStateOf(false) }
+    var isEmailValid by remember { mutableStateOf(true) }
+    var isPasswordValid by remember { mutableStateOf(true) }
 
     var fieldEmpty by remember { mutableStateOf(false) }
     var nicknameAlreadyUsed by remember { mutableStateOf(false) }
@@ -92,48 +93,54 @@ fun SignUpScreen(
             when (step) {
                 1 -> {
                     if (authViewModel.areFieldsEmpty(email, password, confirmPassword)) {
+                        logging = false
                         SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
+                        isSigningUp = false
+                        return@LaunchedEffect
+                    }
+
+                    isPasswordValid = authViewModel.isPasswordValid(password)
+                    isEmailValid = authViewModel.isEmailValid(email)
+
+                    if (!(isPasswordValid && isEmailValid)) {
+                        SnackbarManager.showSnackbar("Email o password non validi")
+                        isSigningUp = false
+                        return@LaunchedEffect
+                    }
+
+                    val result = authViewModel.createUserWithEmailAndPassword(email, password)
+                    if (result is AuthResult.Failure) {
+                        SnackbarManager.showSnackbar(result.message)
                     } else {
-                        val isPasswordValid = authViewModel.isPasswordValid(password)
-                        if (isPasswordValid) {
-                            val result =
-                                authViewModel.createUserWithEmailAndPassword(email, password)
-                            if (result is AuthResult.Failure) {
-                                SnackbarManager.showSnackbar(result.message)
-                            } else {
-                                step = 2
-                                authViewModel.sendVerificationEmail()
-                            }
-                        } else {
-                            SnackbarManager.showSnackbar("Password non valida")
-                        }
+                        step = 2
+                        authViewModel.sendVerificationEmail()
                     }
                 }
 
                 3 -> {
                     fieldEmpty = authViewModel.areFieldsEmpty(name, surname, nickname, phoneNumber)
                     if (fieldEmpty) {
+                        logging = false
                         SnackbarManager.showSnackbar("Compila tutti i campi")
                         isSigningUp = false
-                        logging = true
                         return@LaunchedEffect
                     }
 
                     nicknameAlreadyUsed = volunteerViewModel.checkIfNicknameExists(nickname)
                     if (nicknameAlreadyUsed) {
-                        SnackbarManager.showSnackbar("Nickname già utilizzato")
                         nicknameAlreadyUsed = false
+                        logging = false
+                        SnackbarManager.showSnackbar("Nickname già utilizzato")
                         isSigningUp = false
-                        logging = true
                         return@LaunchedEffect
                     }
 
                     validPhoneNumber = authViewModel.isPhoneNumberValid(phoneNumber)
                     if (!validPhoneNumber) {
-                        SnackbarManager.showSnackbar("Numero di telefono non valido")
                         validPhoneNumber = true
+                        logging = false
+                        SnackbarManager.showSnackbar("Numero di telefono non valido")
                         isSigningUp = false
-                        logging = true
                         return@LaunchedEffect
                     }
 
@@ -163,6 +170,8 @@ fun SignUpScreen(
                 }
             }
         }
+        isPasswordValid = true
+        isEmailValid = true
         logging = true
         isSigningUp = false
     }
@@ -241,7 +250,8 @@ fun SignUpScreen(
                                         onValueChange = { email = it },
                                         label = "Email",
                                         icon = Icons.Default.Email,
-                                        isLoggingIn = logging
+                                        isLoggingIn = logging,
+                                        colors = getTextFieldColors(isValid = isEmailValid)
                                     )
 
                                     AuthTextField(
@@ -264,7 +274,8 @@ fun SignUpScreen(
                                         modifier = Modifier
                                             .onFocusChanged { focusState ->
                                                 isPasswordFieldFocused = focusState.isFocused
-                                            }
+                                            },
+                                        colors = getTextFieldColors(isValid = isPasswordValid)
                                     )
 
                                     if (isPasswordFieldFocused) {
@@ -281,7 +292,8 @@ fun SignUpScreen(
                                         label = "Conferma Password",
                                         icon = Icons.Default.Lock,
                                         isLoggingIn = logging,
-                                        isPassword = true
+                                        isPassword = true,
+                                        colors = getTextFieldColors(isValid = isPasswordValid)
                                     )
 
                                     Button(

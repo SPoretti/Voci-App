@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.screens.profiles.userProfile
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,17 +9,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,18 +44,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfilePictureDialog
 import com.example.vociapp.ui.components.ProfileTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.components.getTextFieldColors
-import com.example.vociapp.ui.navigation.currentRoute
 import com.example.vociapp.ui.viewmodels.AuthResult
+import com.example.vociapp.ui.viewmodels.AuthViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun UpdateUserProfileScreen(
@@ -77,15 +87,17 @@ fun UpdateUserProfileScreen(
         var email by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
 
-        var showError by remember { mutableStateOf(false) }
-        var errorMessage by remember { mutableStateOf("") }
         var isUpdating by remember { mutableStateOf(false) }
         var isInitialized by remember { mutableStateOf(false) }
         var showDialog by remember { mutableStateOf(false) }
-        var isPasswordCorrect by remember { mutableStateOf(true) }
-        var isPhoneNumberValid by remember { mutableStateOf(true) }
         var step by remember { mutableIntStateOf(1) }
         var logging by remember { mutableStateOf(true) }
+
+        var isPasswordCorrect by remember { mutableStateOf(true) }
+        var isPhoneNumberValid by remember { mutableStateOf(true) }
+        var isEmailValid by remember { mutableStateOf(true) }
+
+        val coroutineScope = rememberCoroutineScope()
 
         Scaffold(
             snackbarHost = { SnackbarManager.CustomSnackbarHost(isBottomBarVisible = true) },
@@ -271,9 +283,10 @@ fun UpdateUserProfileScreen(
                                                 ProfileTextField(
                                                     value = email,
                                                     onValueChange = { email = it },
-                                                    label = "Email",
+                                                    label = if (isEmailValid) "Email" else "Email non valida",
                                                     placeholder = "Email",
-                                                    isLoggingIn = logging
+                                                    isLoggingIn = logging,
+                                                    colors = getTextFieldColors(isValid = isEmailValid)
                                                 )
 
                                                 ProfileTextField(
@@ -281,8 +294,17 @@ fun UpdateUserProfileScreen(
                                                     onValueChange = { phoneNumber = it },
                                                     label = if (isPhoneNumberValid) "Numero di telefono" else "Numero di telefono non valido",
                                                     placeholder = "Numero di telefono",
-                                                    colors = getTextFieldColors(isValid = isPhoneNumberValid),
-                                                    isLoggingIn = logging
+                                                    isLoggingIn = logging,
+                                                    colors = getTextFieldColors(isValid = isPhoneNumberValid)
+                                                )
+
+                                                HorizontalDivider(
+                                                    modifier = Modifier
+                                                        .padding(top = 8.dp, bottom = 0.dp),
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.12f
+                                                    ),
+                                                    thickness = 1.dp
                                                 )
 
                                                 ProfileTextField(
@@ -293,6 +315,14 @@ fun UpdateUserProfileScreen(
                                                     colors = getTextFieldColors(isValid = isPasswordCorrect),
                                                     isPassword = true,
                                                     isLoggingIn = logging
+                                                )
+
+                                                Text(
+                                                    "Inserisci la password per confermare le modifiche",
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterHorizontally)
+                                                        .offset(y = (-4).dp),
+                                                    style = MaterialTheme.typography.bodySmall
                                                 )
 
                                                 Row(
@@ -335,6 +365,66 @@ fun UpdateUserProfileScreen(
                                                 }
                                             }
 
+                                            3 -> {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                ) {
+                                                    Text(
+                                                        "Ti abbiamo inviato un link di verifica al seguente indirizzo email: $email",
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        textAlign = TextAlign.Center,
+                                                    )
+
+                                                    Icon(
+                                                        imageVector = Icons.Default.Email,
+                                                        contentDescription = "Email",
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier
+                                                            .size(150.dp)
+                                                            .align(Alignment.CenterHorizontally)
+                                                    )
+
+                                                    Text(
+                                                        "Una volta confermata la mail, verrai disconnesso e dovrai effettuare nuovamente il login con la nuova email",
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        textAlign = TextAlign.Center,
+                                                    )
+
+                                                    Button(
+                                                        onClick = {
+                                                            coroutineScope.launch {
+                                                                try {
+                                                                    currentProfile.reload().await()
+                                                                    SnackbarManager.showSnackbar("Non hai confermato la mail")
+                                                                } catch (e: Exception) {
+                                                                    if (volunteer != null) {
+                                                                        volunteer.apply {
+                                                                            this.name = name
+                                                                            this.surname = surname
+                                                                            this.nickname = nickname
+                                                                            this.photoUrl = photoUrl
+                                                                            this.phone_number = phoneNumber
+                                                                            this.email = email
+                                                                        }
+                                                                        volunteerViewModel.updateVolunteer(volunteer)
+                                                                    authViewModel.signInWithEmailAndPassword(email, password)
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        enabled = true,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        shape = RoundedCornerShape(8.dp)
+                                                    ) {
+                                                        Text(
+                                                            "Ho confermato la mail",
+                                                            modifier = Modifier.padding(vertical = 8.dp)
+                                                        )
+                                                    }
+
+                                                }
+                                            }
                                         }
 
                                         LaunchedEffect(isUpdating) {
@@ -356,65 +446,61 @@ fun UpdateUserProfileScreen(
                                                     }
 
                                                     2 -> {
-                                                        if (authViewModel.areFieldsEmpty(
-                                                                email,
-                                                                phoneNumber,
-                                                                password
-                                                            )
-                                                        ) {
+                                                        if (authViewModel.areFieldsEmpty(email, phoneNumber, password)) {
                                                             logging = false
                                                             SnackbarManager.showSnackbar("Uno o più campi sono vuoti")
                                                             isUpdating = false
                                                             return@LaunchedEffect
                                                         }
 
-                                                        if (!authViewModel.isPhoneNumberValid(
-                                                                phoneNumber
-                                                            )
-                                                        ) {
+                                                        if (!authViewModel.isPhoneNumberValid(phoneNumber)) {
+                                                            isPhoneNumberValid = false
                                                             SnackbarManager.showSnackbar("Numero di telefono non valido")
                                                             isUpdating = false
                                                             return@LaunchedEffect
                                                         }
 
-                                                        var result =
-                                                            authViewModel.signInWithEmailAndPassword(
-                                                                volunteer!!.email,
-                                                                password
-                                                            )
-
-                                                        if (result is AuthResult.Failure) {
-                                                            isPasswordCorrect = false
-                                                            SnackbarManager.showSnackbar(result.message)
-                                                            isUpdating = false
-                                                            return@LaunchedEffect
-                                                        }
-
-                                                        val newPhotoUrl: String? =
-                                                            photoUrl.ifEmpty { null }
-                                                        result = authViewModel.updateUserProfile(
-                                                            nickname,
-                                                            newPhotoUrl
-                                                        )
-                                                        if (result is AuthResult.Failure) {
-                                                            SnackbarManager.showSnackbar("Errore durante la modifica del profilo")
+                                                        //Se cambia la mail, la deve confermare
+                                                        if (currentProfile.email != email) {
+                                                            if (!authViewModel.isEmailValid(email)){
+                                                                isEmailValid = false
+                                                                SnackbarManager.showSnackbar("Email non valida")
+                                                                isUpdating = false
+                                                            } else {
+                                                                authViewModel.reauthenticateAndVerifyEmail(email, password)
+                                                                isUpdating = false
+                                                                step = 3
+                                                            }
                                                         } else {
-                                                            showError = false
-                                                            volunteer.name = name
-                                                            volunteer.surname = surname
-                                                            volunteer.nickname = nickname
-                                                            volunteer.photoUrl = photoUrl
-                                                            volunteerViewModel.updateVolunteer(
-                                                                volunteer
-                                                            )
-                                                            navController.popBackStack()
-                                                        }
+                                                            val newPhotoUrl: String? =
+                                                                photoUrl.ifEmpty { null }
+                                                            authViewModel.updateUserProfile(nickname, newPhotoUrl)
 
+                                                            val result = authViewModel.signInWithEmailAndPassword(volunteer!!.email, password)
+                                                            Log.d("reauth", "result signin dentro : $result + ${password}")
+
+                                                            if (result is AuthResult.Failure) {
+                                                                isPasswordCorrect = false
+                                                                SnackbarManager.showSnackbar(result.message)
+                                                                isUpdating = false
+                                                            } else {
+                                                                volunteer.name = name
+                                                                volunteer.surname = surname
+                                                                volunteer.nickname = nickname
+                                                                volunteer.photoUrl = photoUrl
+                                                                volunteer.phone_number = phoneNumber
+                                                                volunteer.email = email
+                                                                volunteerViewModel.updateVolunteer(volunteer)
+                                                                navController.popBackStack()
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
+                                            isPhoneNumberValid = true
                                             isPasswordCorrect = true
                                             logging = true
+                                            isEmailValid = true
                                         }
                                     }
 
@@ -424,15 +510,6 @@ fun UpdateUserProfileScreen(
                                             color = MaterialTheme.colorScheme.error
                                         )
                                     }
-                                }
-
-                                if (showError) {
-                                    Text(
-                                        errorMessage,
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    )
                                 }
                             }
                         }
