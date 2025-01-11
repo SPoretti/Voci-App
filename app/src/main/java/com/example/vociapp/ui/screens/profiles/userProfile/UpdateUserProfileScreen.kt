@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.vociapp.data.types.AuthState
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.ProfilePictureDialog
@@ -57,8 +56,6 @@ import com.example.vociapp.ui.components.ProfileTextField
 import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.ui.components.getTextFieldColors
 import com.example.vociapp.ui.viewmodels.AuthResult
-import com.example.vociapp.ui.viewmodels.AuthViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
