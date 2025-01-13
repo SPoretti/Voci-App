@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.updates
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,9 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.ui.components.core.DismissButton
 import com.example.vociapp.ui.components.updates.StatusButtonData
 import com.example.vociapp.ui.components.updates.UpdateButton
 
@@ -68,19 +66,10 @@ fun UpdateAddScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 // Cancel Button
-                OutlinedButton(
-                    onClick = {
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.width(200.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                ){
-                    Text("Annulla")
-                }
+                DismissButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.width(200.dp)
+                )
             }
         }
     }

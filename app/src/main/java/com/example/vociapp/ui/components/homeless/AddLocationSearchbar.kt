@@ -6,14 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -42,7 +38,6 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.util.UUID
-import kotlin.collections.orEmpty
 
 @Composable
 fun AddLocationSearchbar (
@@ -83,7 +78,7 @@ fun AddLocationSearchbar (
                     sessionToken = sessionToken,
                     proximity = "${currentLocation?.second},${currentLocation?.first}"
                 )
-                Log.d("ApiTesting", newText)
+                Log.d("AddLocationSearchbar", newText)
             },
             placeholder = {
                 Text(
@@ -127,7 +122,7 @@ fun AddLocationSearchbar (
                                     sessionToken = sessionToken,
                                     proximity = "${currentLocation?.second},${currentLocation?.first}"
                                 )
-                                Log.d("ApiTesting", searchText)
+                                Log.d("AddLocationSearchbar", searchText)
                             }
                         ) {
                             Icon(
@@ -165,15 +160,15 @@ fun AddLocationSearchbar (
                                     if(suggestion.full_address != null){
                                         onClick(suggestion.full_address)
                                         searchText = suggestion.full_address
-                                        Log.d("ApiTesting", "Clicked on: ${suggestion.full_address}")
+                                        Log.d("AddLocationSearchbar", "Clicked on: ${suggestion.full_address}")
                                     } else if(suggestion.address != null){
                                         onClick(suggestion.address)
                                         searchText = suggestion.address
-                                        Log.d("ApiTesting", "Clicked on: ${suggestion.address}")
+                                        Log.d("AddLocationSearchbar", "Clicked on: ${suggestion.address}")
                                     } else {
                                         onClick(suggestion.name)
                                         searchText = suggestion.name
-                                        Log.d("ApiTesting", "Clicked on: ${suggestion.name}")
+                                        Log.d("AddLocationSearchbar", "Clicked on: ${suggestion.name}")
                                     }
                                     homelessViewModel.fetchSuggestions(
                                         query = "",

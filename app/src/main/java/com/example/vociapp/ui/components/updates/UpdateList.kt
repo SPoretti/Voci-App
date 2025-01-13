@@ -2,7 +2,6 @@ package com.example.vociapp.ui.components.updates
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -23,7 +22,7 @@ fun UpdateList(updates: Resource<List<Update>>) {
         updates.data.orEmpty().sortedByDescending { it.timestamp } // Sort by timestamp descending
     }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         when (updates) {
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.components.requests
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -25,13 +21,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.ConfirmButton
+import com.example.vociapp.ui.components.core.DismissButton
 import com.example.vociapp.ui.components.homeless.HomelessDialogList
 
 @Composable
@@ -184,7 +181,7 @@ fun ModifyRequestDialog(
                 }
                 // Modify button
                 2 -> {
-                    Button(
+                    ConfirmButton(
                         onClick = {
                             // Update request in the database
 
@@ -207,9 +204,8 @@ fun ModifyRequestDialog(
                         !isAddingRequest and
                                 requestTitle.isNotEmpty() and
                                 requestDescription.isNotEmpty(),
-                    ) {
-                        Text("Modifica")
-                    }
+                        text = "Modifica"
+                    )
                 }
             }
 
@@ -219,29 +215,15 @@ fun ModifyRequestDialog(
             when(step) {
                 // On first step the dismiss button closes the dialog
                 1 -> {
-                    OutlinedButton(
-                        onClick = { onDismiss() },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.onBackground,
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                    ) {
-                        Text("Annulla")
-                    }
+                    DismissButton(
+                        onClick = { onDismiss() }
+                    )
                 }
                 // On second step the button sends back to first step
                 2 -> {
-                    OutlinedButton(
-                        onClick = { step = 1 },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.onBackground,
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                    ) {
-                        Text("Annulla")
-                    }
+                    DismissButton(
+                        onClick = { step-- }
+                    )
                 }
             }
         }

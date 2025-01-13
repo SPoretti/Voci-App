@@ -35,7 +35,7 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.DrawerContent
 import com.example.vociapp.ui.components.core.SearchBar
-import com.example.vociapp.ui.components.homeless.AddHomelessDialog
+import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
 import com.example.vociapp.ui.components.homeless.HomelessList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -167,12 +167,17 @@ fun HomeScreen(
             )
             // AddHomelessDialog to add a new homeless
             if (showAddHomelessDialog) {
-                AddHomelessDialog(
-                    onDismiss = { showAddHomelessDialog = false },
-                    onAdd = {
+                homelessViewModel.clearLocationVariables()
+                CustomHomelessDialog(
+                    onDismiss = {
+                        showAddHomelessDialog = false
+                        homelessViewModel.clearLocationVariables()
+                    },
+                    onConfirm = {
                         homelessViewModel.addHomeless(it)
                         showAddHomelessDialog = false
-                    }
+                    },
+                    actionText = "Aggiungi"
                 )
             }
         }

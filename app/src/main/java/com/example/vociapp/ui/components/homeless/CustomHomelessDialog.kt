@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.components.homeless
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -27,19 +23,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.ui.components.core.ConfirmButton
+import com.example.vociapp.ui.components.core.DismissButton
+import com.example.vociapp.ui.components.maps.SearchBox
 
 @Composable
-fun AddHomelessDialog(
-    onDismiss: () -> Unit,      // Callback to dismiss the dialog
-    onAdd: (Homeless) -> Unit   // Callback to add the homeless to the database
+fun CustomHomelessDialog(
+    onDismiss: () -> Unit,              // Callback to dismiss the dialog
+    onConfirm: (Homeless) -> Unit,      // Callback to add (or modify) the homeless to the database
+    homeless: Homeless = Homeless(),    // Homeless object to modify or add
+    actionText: String                  // Text to display on the confirm button e.g. "Aggiungi" or "Modifica"
 ) {
     //----- Region: Data Initialization -----
     // Error variables
     var nameError by remember { mutableStateOf<String?>(null) }
-    var locationError by remember { mutableStateOf<String?>(null) }
     // Step variables
     var currentStep by remember { mutableIntStateOf(1) }
-    val homeless = remember { Homeless() }
     // Action Variable
     var isAddingHomeless by remember { mutableStateOf(false) }
 
@@ -55,7 +54,7 @@ fun AddHomelessDialog(
         containerColor = MaterialTheme.colorScheme.background,
         textContentColor = MaterialTheme.colorScheme.onBackground,
         // Tile
-        title = { Text("Aggiungi Senzatetto") },
+        title = { Text("$actionText persona") },
         // Main Content
         text = {
             // Display based on step state
@@ -64,89 +63,83 @@ fun AddHomelessDialog(
             ) {
                 when (currentStep) {
                     // Step 1: Name and location (the only two required fields)
-                    1 -> Step1(homeless, nameError, locationError) { name, location ->
-                        nameError = if (name.isBlank()) "Inserire il nome" else null
-                        locationError = if (location.isBlank()) "Inserire il luogo" else null
-                    }
-                    // Step 2: Age, nationality
-                    2 -> Step2(homeless)
-                    // Step 3: Pets, gender
+                    1 -> Step1(
+                        homeless = homeless,
+                        nameError = nameError,
+                        onNameErrorChange = { nameError = it }
+                    )
+                    // Step 2: Location
+                    2 -> Step2(
+                        homeless = homeless,
+                        onConfirmLocation = {
+                            homeless.location = it
+                            currentStep++
+                        }
+                    )
+                    // Step 3: Age, nationality
                     3 -> Step3(homeless)
-                    // Step 4: Description
+                    // Step 4: Pets, gender
                     4 -> Step4(homeless)
+                    // Step 5: Description
+                    5 -> Step5(homeless)
                 }
             }
         },
         // Action Buttons
         confirmButton = {
             // Confirm button based on step state
-            if (currentStep < 4) {
-                // If the current step is not the last step, show the next button
-                Button(
-                    onClick = {
-                        if (currentStep == 1) {
-                            // Field validation for step 1
-                            var hasError = false
-                            if (homeless.name.isBlank()) {
-                                nameError = "Inserire il nome"
-                                hasError = true
+            when (currentStep) {
+                1 -> {
+                    // If the current step is the first step, next button works if name is not empty
+                    ConfirmButton(
+                        onClick = {
+                            if (homeless.name.isEmpty()){
+                                nameError = "Il nome è obbligatorio"
                             }
-                            if (homeless.location.isBlank()) {
-                                locationError = "Inserire il luogo"
-                                hasError = true
-                            }
-                            if (!hasError) {
+                            else{
                                 currentStep++
                             }
-                        } else {
-                            currentStep++
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor =MaterialTheme.colorScheme.onPrimary,
+                        },
+                        text = "Avanti",
                     )
-                ) {
-                    Text("Avanti")
                 }
-            } else {
-                // If the current step is the last step, show the add button
-                Button(
-                    onClick = {
-                        isAddingHomeless = true
-                        onAdd(homeless)
-                    },
-                ) {
-                    Text("Aggiungi")
+                2 -> {
+                    // No need for a confirm button in this step since it moves on the next step
+                    // by clicking on Confirm Location FAB
                 }
+                5 -> {
+                    // If the current step is the last step, show the final button
+                    ConfirmButton(
+                        onClick = {
+                            isAddingHomeless = true
+                            onConfirm(homeless)
+                        },
+                        text = actionText
+                    )
+                }
+                else -> {
+                    // If the current step is the third or fourth step, show the next button
+                    ConfirmButton(
+                        onClick = { currentStep++ },
+                        text = "Avanti"
+                    )
+                }
+
             }
         },
         dismissButton = {
             // Dismiss button based on step state
             if (currentStep > 1) {
                 // If the current step is not the first step, show the back button
-                OutlinedButton(
+                DismissButton(
                     onClick = { currentStep-- },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground)
-                ) {
-                    Text("Indietro")
-                }
+                    text = "Indietro"
+                )
             } else {
                 // If the current step is the first step, show the dismiss button
-                OutlinedButton(
+                DismissButton(
                     onClick = { onDismiss() },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground)
-                ) {
-                    Text("Annulla")
-                }
+                )
             }
         }
     )
@@ -154,18 +147,15 @@ fun AddHomelessDialog(
 
 //----------------------------------- Region: Step Functions -----------------------------------
 
-// Step 1: Name and location (the only two required fields)
+// Step 1: Name - required field
 @Composable
 fun Step1(
-    homeless: Homeless,                         // Homeless object to modify
-    nameError: String?,                         // Error message for the name field
-    locationError: String?,                     // Error message for the location field
-    onFieldsChanged: (String, String) -> Unit   // Callback to update the fields
+    homeless: Homeless,                     // Homeless object to modify
+    nameError: String? = null,              // Error message to display if name is empty
+    onNameErrorChange: (String?) -> Unit,   // Callback to change the name error
 ) {
     //----- Region: Data Initialization -----
-
     var name by remember { mutableStateOf(homeless.name) }
-    var location by remember { mutableStateOf(homeless.location) }
 
     //----- Region: View Composition -----
     // Name
@@ -174,7 +164,7 @@ fun Step1(
         onValueChange = {
             name = it
             homeless.name = it
-            onFieldsChanged(it, location)
+            onNameErrorChange(null)
         },
         label = { Text("Nome") },
         modifier = Modifier.fillMaxWidth(),
@@ -182,40 +172,32 @@ fun Step1(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
         ),
-        isError = nameError != null,    // Show error if not null
+        isError = (nameError != null)    // Show error if name is empty
     )
 
-    if (nameError != null) {            // Show error message if not null
+    if (nameError != null){              // Show error message if not null
         Text(nameError, color = Color.Red)
     }
-    else                                // Else add a spacer
-        Spacer(modifier = Modifier.height(20.dp))
-    // Location
-    OutlinedTextField(
-        value = location,
-        onValueChange = {
-            location = it
-            homeless.location = it
-            onFieldsChanged(name, it)
-        },
-        label = { Text("Luogo") },
-        modifier = Modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        isError = locationError != null,    // Show error if not null
-    )
-    if (locationError != null) {            // Show error message if not null
-        Text(locationError, color = Color.Red)
-    }
-    else                                    // Else add a spacer
+    else                                 // Else add a spacer
         Spacer(modifier = Modifier.height(20.dp))
 }
 
-// Step 2: Age, nationality
+// Step 2: Location - required field
 @Composable
-fun Step2(homeless: Homeless) {
+fun Step2(
+    homeless: Homeless,
+    onConfirmLocation: (String) -> Unit,
+) {
+    //----- Region: View Composition -----
+    SearchBox(
+        onConfirmLocation = { onConfirmLocation(it) },
+        homeless = homeless
+    )
+}
+
+// Step 3: Age, nationality
+@Composable
+fun Step3(homeless: Homeless) {
     //----- Region: Data Initialization -----
 
     var age by remember { mutableStateOf(homeless.age) }
@@ -255,9 +237,9 @@ fun Step2(homeless: Homeless) {
     )
 }
 
-// Step 3: Pets, gender
+// Step 4: Pets, gender
 @Composable
-fun Step3(homeless: Homeless) {
+fun Step4(homeless: Homeless) {
     //----- Region: Data Initialization -----
 
     var pets by remember { mutableStateOf(homeless.pets) }
@@ -289,9 +271,9 @@ fun Step3(homeless: Homeless) {
     )
 }
 
-// Step 4: Description
+// Step 5: Description
 @Composable
-fun Step4(homeless: Homeless) {
+fun Step5(homeless: Homeless) {
     //----- Region: Data Initialization -----
 
     var description by remember { mutableStateOf(homeless.description) }
