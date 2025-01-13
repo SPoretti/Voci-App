@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.SwipeDirection
+import com.example.vociapp.ui.components.core.SwipeableScreen
 import com.example.vociapp.ui.components.volunteers.ProfileInfoItem
 
 @Composable
@@ -79,160 +81,168 @@ fun UserProfileScreen(
         return
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+    SwipeableScreen(
+        navController = navController,
+        targetRoute = "home",
+        direction = SwipeDirection.LEFT
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)) {
-
-                    // Edit button
-                    IconButton(
-                        onClick = { navController.navigate("updateUserProfile") },
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .size(38.dp),
-                        colors = IconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Profile",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .clip(CircleShape)
-                                .size(40.dp),
-                        )
-                    }
-
-                    // Logout button
-                    IconButton(
-                        onClick = { authViewModel.signOut() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .size(38.dp),
-                        colors = IconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Logout",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(6.dp)
-                                .clip(CircleShape)
-                                .size(40.dp)
-                        )
-                    }
-
-                    Column(
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                ) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .background(Color.Transparent)
                     ) {
-                        if (currentUser == null){
-                            Text(
-                                text = "Errore: User not found",
-                                color = MaterialTheme.colorScheme.error
+
+                        // Edit button
+                        IconButton(
+                            onClick = { navController.navigate("updateUserProfile") },
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .size(38.dp),
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
                             )
-                        } else{
-                            if(currentUserProfile?.photoUrl != null) {
-                                AsyncImage(
-                                    model = currentUserProfile.photoUrl,
-                                    contentDescription = "Profile Picture",
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Profile",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .clip(CircleShape)
+                                    .size(40.dp),
+                            )
+                        }
+
+                        // Logout button
+                        IconButton(
+                            onClick = { authViewModel.signOut() },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(38.dp),
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary,
+                                disabledContainerColor = MaterialTheme.colorScheme.secondary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = "Logout",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(6.dp)
+                                    .clip(CircleShape)
+                                    .size(40.dp)
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            if (currentUser == null) {
+                                Text(
+                                    text = "Errore: User not found",
+                                    color = MaterialTheme.colorScheme.error
                                 )
                             } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
+                                if (currentUserProfile?.photoUrl != null) {
+                                    AsyncImage(
+                                        model = currentUserProfile.photoUrl,
                                         contentDescription = "Profile Picture",
-                                        modifier = Modifier.size(64.dp),
-                                        tint = MaterialTheme.colorScheme.primary
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
                                     )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Profile Picture",
+                                            modifier = Modifier.size(64.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 }
-                            }
-                            Text(
-                                text = currentUser?.nickname ?: "User",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
-                            )
+                                Text(
+                                    text = currentUser?.nickname ?: "User",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                            // name
-                            ProfileInfoItem(
-                                icon = Icons.Default.Person,
-                                label = "Name",
-                                value = currentUser?.name ?: "Unknown Volunteer"
-                            )
+                                // name
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Person,
+                                    label = "Name",
+                                    value = currentUser?.name ?: "Unknown Volunteer"
+                                )
 
-                            // surname
-                            ProfileInfoItem(
-                                icon = Icons.Default.Person,
-                                label = "Surname",
-                                value = currentUser?.surname ?: "Unknown Volunteer"
-                            )
+                                // surname
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Person,
+                                    label = "Surname",
+                                    value = currentUser?.surname ?: "Unknown Volunteer"
+                                )
 
-                            // email
-                            ProfileInfoItem(
-                                icon = Icons.Default.Email,
-                                label = "Email",
-                                value = currentUser?.email ?: "Unknown Volunteer"
-                            )
+                                // email
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Email,
+                                    label = "Email",
+                                    value = currentUser?.email ?: "Unknown Volunteer"
+                                )
 
-                            // phone number
-                            ProfileInfoItem(
-                                icon = Icons.Default.Phone,
-                                label = "Phone Number",
-                                value = currentUser?.phone_number ?: "Unknown Volunteer"
-                            )
+                                // phone number
+                                ProfileInfoItem(
+                                    icon = Icons.Default.Phone,
+                                    label = "Phone Number",
+                                    value = currentUser?.phone_number ?: "Unknown Volunteer"
+                                )
 
-                            // Edit Profile Section
-                            Button(
-                                onClick =
-                                { navController.navigate("updateUserProfile") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("Modifica profilo")
+                                // Edit Profile Section
+                                Button(
+                                    onClick =
+                                    { navController.navigate("updateUserProfile") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Modifica profilo")
+                                }
                             }
                         }
                     }

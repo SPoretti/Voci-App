@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.profiles.homeless
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,8 +46,10 @@ import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.core.StatusLED
 import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
+import com.example.vociapp.ui.components.homeless.AddAddressDialog
+import com.example.vociapp.ui.components.homeless.HomelessInfo
 import com.example.vociapp.ui.components.homeless.LocationHandler
-import com.example.vociapp.ui.components.maps.StaticMap
+import com.example.vociapp.ui.components.maps.LocationFrame
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -79,7 +80,7 @@ fun ProfileHomelessScreen(
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val locationHandler = remember {
-        LocationHandler(context, fusedLocationClient, homelessViewModel)
+        LocationHandler(context, fusedLocationClient)
     }
     // Init
     LaunchedEffect(homelessID) {
@@ -111,7 +112,7 @@ fun ProfileHomelessScreen(
                     val homeless = specificHomeless.data!!
 
                     //Info principali
-                    InfoList(homeless)
+                    HomelessInfo(homeless)
                     //Mappa
                     LocationFrame(locationState = locationState)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -183,139 +184,6 @@ fun ProfileHomelessScreen(
                 homeless = specificHomeless.data!!,
                 actionText = "Modifica"
             )
-        }
-    }
-}
-
-// INFO Principali del senzatetto
-@Composable
-fun InfoList(homeless: Homeless) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(top = 16.dp)
-    ) {
-        Row (
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = homeless.name,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            StatusLED(
-                // Map the status to the color
-                color = when (homeless.status){
-                    UpdateStatus.GREEN -> Color.Green
-                    UpdateStatus.YELLOW -> Color.Yellow
-                    UpdateStatus.RED -> Color.Red
-                    UpdateStatus.GRAY -> Color.Gray
-                },
-                // If color is gray don't pulsate
-                isPulsating = when(homeless.status){
-                    UpdateStatus.GREEN -> true
-                    UpdateStatus.YELLOW -> true
-                    UpdateStatus.RED -> true
-                    UpdateStatus.GRAY -> false
-                },
-            )
-        }
-        Row(
-            horizontalArrangement = Arrangement.Center
-        ) {
-            CustomChip(
-                text = if(homeless.age == "") "?" else ("${homeless.age} anni"),
-                onClick = {},
-                imageVector = Icons.Default.CalendarMonth
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            when(homeless.gender){
-                Gender.Female -> {
-                    CustomChip(
-                        text = "${homeless.gender}",
-                        onClick = {},
-                        imageVector = Icons.Default.Female,
-                    )
-                }
-                Gender.Male -> {
-                    CustomChip(
-                        text = "${homeless.gender}",
-                        onClick = {},
-                        imageVector = Icons.Default.Male
-                    )
-                }
-                Gender.Unspecified -> {
-                    CustomChip(
-                        text = "${homeless.gender}",
-                        onClick = {},
-                        imageVector = Icons.Default.Transgender
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(4.dp))
-            CustomChip(
-                text = if(homeless.nationality == "") "?" else (homeless.nationality),
-                onClick = {},
-                imageVector = Icons.Default.Public
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = homeless.description,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = homeless.location,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            ),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
-// MAPPA Ultima posizione del senzatetto
-@Composable
-fun LocationFrame(locationState: Resource<Pair<Double, Double>>) {
-    when (locationState) {
-        is Resource.Loading -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-        }
-
-        is Resource.Success -> {
-            val coordinates =
-                locationState.data
-            if (coordinates != null) {
-                StaticMap(
-                    latitude = coordinates.first,
-                    longitude = coordinates.second
-                )
-            } else {
-                Text(text = "Coordinate non disponibili")
-            }
-        }
-
-        is Resource.Error -> {
-            val errorMessage = locationState.message
-            Text(text = "Errore coordinate: ${errorMessage ?: "Errore sconosciuto"}")
         }
     }
 }
