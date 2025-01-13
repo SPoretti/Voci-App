@@ -162,8 +162,13 @@ fun ProfileHomelessScreen(
         )
         if (showModifyHomelessDialog) {
             CustomHomelessDialog(
-                onDismiss = { showModifyHomelessDialog = false },
-                onConfirm = { homelessViewModel.updateHomeless(it) },
+                onDismiss = {
+                    showModifyHomelessDialog = false
+                },
+                onConfirm = {
+                    homelessViewModel.updateHomeless(it)
+                    showModifyHomelessDialog = false
+                },
                 homeless = specificHomeless.data!!,
                 actionText = "Modifica"
             )

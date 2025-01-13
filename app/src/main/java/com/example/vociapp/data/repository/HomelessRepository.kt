@@ -87,12 +87,6 @@ class HomelessRepository @Inject constructor(
         }
     }
 
-    //get homeless locations from room
-    fun getLocations(): Flow<Resource<List<String>>> = flow {
-        emit(Resource.Loading())
-        roomDataSource.getHomelessesLocations().collect { emit(it) }
-    }
-
     // Method to sync pending actions when the device is online
     suspend fun syncPendingActions() {
         // Only attempt to sync if the device is online
