@@ -2,7 +2,6 @@ package com.example.vociapp.ui.screens.maps
 
 import android.util.Log
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
@@ -21,14 +19,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
-import kotlinx.coroutines.delay
 
 @Composable
-fun HomelessesMap(
-    navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
-    homelessId: String,
-) {
+fun HomelessesMap( homelessId: String) {
     val serviceLocator = LocalServiceLocator.current
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     var homeless by remember { mutableStateOf<Homeless?>(null) }

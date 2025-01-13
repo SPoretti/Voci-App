@@ -19,7 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.homeless.AddLocationSearchbar
@@ -32,7 +32,6 @@ import com.mapbox.maps.CameraOptions
 @Composable
 fun SearchBox(
     onConfirmLocation: (String) -> Unit,
-    homeless: Homeless? = null
 ){
     //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
@@ -54,27 +53,9 @@ fun SearchBox(
 
     var showLocationSelectionDialog by remember { mutableStateOf(false) }
 
-    if (homeless != null && homeless.location.isNotEmpty())
-        homelessViewModel.mapboxForwardGeocoding(homeless.location)
-
-    when (locationCoordinates.data) {
-        null -> {}
-        else -> {
-            val coordinates = locationCoordinates.data!!
-            val point = Point.fromLngLat(coordinates.second, coordinates.first)
-            cameraOptions = CameraOptions.Builder()
-                .center(point)
-                .pitch(45.0)
-                .zoom(15.5)
-                .bearing(-17.6)
-                .build()
-            points += point
-            Log.d("guuu", "points: $points")
     // Fetch location coordinates
     when (locationCoordinates) {
-        is Resource.Loading -> {
-            CircularProgressIndicator()
-        }
+        is Resource.Loading -> { }
         is Resource.Success -> {
             val coordinates = locationCoordinates.data
             if (coordinates != null) {
@@ -87,6 +68,8 @@ fun SearchBox(
                     .build()
             }
         }
+
+        is Resource.Error -> TODO()
     }
 
     LaunchedEffect(Unit) {
@@ -120,28 +103,9 @@ fun SearchBox(
             onClick = {
                 address = it
                 homelessViewModel.mapboxForwardGeocoding(it, proximity = "${currentLocation?.second},${currentLocation?.first}")
-                Log.d("ApiTesting", it)
-                homelessViewModel.mapboxForwardGeocoding(it)
                 Log.d("SearchBox-AddLocationSearchBar", it)
             }
         )
-        // Button to save current location - LEFT
-        CustomFAB(
-            text = "Current Location",
-            icon = Icons.Default.LocationOn,
-            onClick = {
-                Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
-                address = locationAddress.data ?: ""
-                homelessViewModel.mapboxForwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
-            },
-            modifier = Modifier.align(Alignment.BottomStart)
-        )
-        // Button to save the selected location - RIGHT
-        CustomFAB(
-            text = "Confirm Location",
-            icon = Icons.Default.Check,
-            onClick = { onConfirmLocation(address) },
-            modifier = Modifier.align(Alignment.BottomEnd)
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -156,14 +120,14 @@ fun SearchBox(
                 onClick = {
                     Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
                     address = locationAddress.data ?: ""
-                    homelessViewModel.mapboxForwardGeocoding(address)
+                    homelessViewModel.mapboxForwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 },
             )
             // Button to save the selected location - RIGHT
             CustomFAB(
                 text = "Confirm Location",
                 icon = Icons.Default.Check,
-                onClick = { showLocationSelectionDialog = true },
+                onClick = { onConfirmLocation(address) },
             )
         }
     }

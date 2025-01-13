@@ -70,7 +70,6 @@ fun CustomHomelessDialog(
                     )
                     // Step 2: Location
                     2 -> Step2(
-                        homeless = homeless,
                         onConfirmLocation = {
                             homeless.location = it
                             currentStep++
@@ -185,13 +184,11 @@ fun Step1(
 // Step 2: Location - required field
 @Composable
 fun Step2(
-    homeless: Homeless,
     onConfirmLocation: (String) -> Unit,
 ) {
     //----- Region: View Composition -----
     SearchBox(
         onConfirmLocation = { onConfirmLocation(it) },
-        homeless = homeless
     )
 }
 

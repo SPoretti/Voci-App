@@ -41,8 +41,6 @@ import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
-import com.example.vociapp.ui.components.core.SwipeDirection
-import com.example.vociapp.ui.components.core.SwipeableScreen
 import com.example.vociapp.ui.components.requests.AddRequestDialog
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.requests.SortButtons
