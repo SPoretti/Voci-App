@@ -1,5 +1,6 @@
 package com.example.vociapp.ui.components.homeless
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +31,10 @@ import com.example.vociapp.ui.components.core.StatusLED
 
 // INFO Principali del senzatetto
 @Composable
-fun HomelessInfo(homeless: Homeless) {
+fun HomelessInfo(
+    homeless: Homeless,
+    openDescription: () -> Unit = {}
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -105,7 +109,13 @@ fun HomelessInfo(homeless: Homeless) {
             style = MaterialTheme.typography.bodyLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    openDescription()
+                },
+            maxLines = 4,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(

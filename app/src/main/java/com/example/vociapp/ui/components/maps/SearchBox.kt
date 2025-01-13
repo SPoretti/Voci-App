@@ -125,7 +125,7 @@ fun SearchBox(
             )
             // Button to save the selected location - RIGHT
             CustomFAB(
-                text = "Confirm Location",
+                text = "Confirm",
                 icon = Icons.Default.Check,
                 onClick = { onConfirmLocation(address) },
             )

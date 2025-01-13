@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     //alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +21,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MAPBOX_ACCESS_TOKEN", "\"${project.properties["MAPBOX_ACCESS_TOKEN"] ?: ""}\"")
+
     }
 
     buildTypes {
@@ -39,12 +43,16 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+
+    val localProperties = Properties()
+    localProperties.load(project.rootProject.file("local.properties").inputStream())
 }
 
 dependencies {
     implementation (libs.gson)
-    implementation ("androidx.work:work-runtime-ktx:2.9.1")
+    implementation ("androidx.work:work-runtime-ktx:2.10.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -84,6 +92,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+    implementation(libs.play.services.base)
     //implementation(libs.converter.gson)
     implementation("com.mapbox.maps:android:11.9.0")
     implementation("com.mapbox.extension:maps-compose:11.9.0")
