@@ -3,6 +3,7 @@ package com.example.vociapp.ui.screens.profiles.homeless
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.util.Resource
@@ -30,6 +33,7 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
+import com.example.vociapp.ui.components.homeless.DescriptionDialog
 import com.example.vociapp.ui.components.homeless.HomelessInfo
 import com.example.vociapp.ui.components.homeless.LocationHandler
 import com.example.vociapp.ui.components.maps.LocationFrame
@@ -58,6 +62,7 @@ fun ProfileHomelessScreen(
     // Dialogs
     var showUpdateListDialog by remember { mutableStateOf(false) }
     var showModifyHomelessDialog by remember { mutableStateOf(false) }
+    var showDescriptionDialog by remember { mutableStateOf(false) }
     // Location
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
@@ -95,7 +100,15 @@ fun ProfileHomelessScreen(
                     val homeless = specificHomeless.data!!
 
                     //Info principali
-                    HomelessInfo(homeless)
+                    HomelessInfo(homeless, openDescription = {
+                        showDescriptionDialog = true
+                    })
+                    if (showDescriptionDialog) {
+                        DescriptionDialog(
+                            description = homeless.description,
+                            onDismiss = { showDescriptionDialog = false }
+                        )
+                    }
                     //Mappa
                     LocationFrame(locationState = locationState)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

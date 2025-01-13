@@ -27,6 +27,7 @@ navigationCompose = "2.8.5"
 firebaseCrashlyticsBuildtools = "3.0.2"
 firebaseFirestore = "25.1.1"
 okhttp = "4.11.0"
+playServicesBase = "18.5.0"
 roomCommon = "2.6.1"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
@@ -75,6 +76,7 @@ material3 = { module = "androidx.compose.material3:material3", version.ref = "ma
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "playServicesBase" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
