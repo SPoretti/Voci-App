@@ -7,12 +7,14 @@ import androidx.compose.ui.Modifier
 import com.example.vociapp.R
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.Style
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
+import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 
 @Composable
@@ -26,7 +28,8 @@ fun MultiPointMap(
     //----- Region: View Composition -----
     MapboxMap(
         modifier = Modifier.fillMaxSize(),
-        mapViewportState = mapViewportState
+        mapViewportState = mapViewportState,
+        style = { MapStyle(style = Style.TRAFFIC_NIGHT) }
     ) {
         // Load the icon image
         val marker = rememberIconImage(resourceId = R.drawable.marker_icon)

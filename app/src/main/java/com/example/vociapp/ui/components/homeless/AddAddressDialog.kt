@@ -35,13 +35,13 @@ fun AddAddressDialog(
     var addressText by remember { mutableStateOf("Loading address...") }
     val homelessState by homelessViewModel.homelesses.collectAsState() // Get the list of homelesses
 
-    LaunchedEffect(key1 = true) {
-        locationHandler.getCurrentLocationAddress().onSuccess { address ->
-            addressText = address
-        }.onFailure { exception ->
-            addressText = "Error: ${exception.message}"
-        }
-    }
+//    LaunchedEffect(key1 = true) {
+//        locationHandler.getCurrentLocationAddress().onSuccess { address ->
+//            addressText = address
+//        }.onFailure { exception ->
+//            addressText = "Error: ${exception.message}"
+//        }
+//    }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },

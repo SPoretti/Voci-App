@@ -5,10 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Home
@@ -27,37 +29,41 @@ fun DrawerContent(
     navController: NavHostController    // Navigation controller for navigating between screens
 ) {
     //----- Region: View Composition -----
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ){
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp)
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(3f)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            // Logo
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Image(
-                    painter = painterResource(id = R.drawable.voci_logo),
-                    contentDescription = "Logo VoCi",
-                    modifier = Modifier.size(128.dp)
-                )
-            }
-            HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
-            // Navigation links
-            NavigationLink(text = "Home", icon = Icons.Default.Home) {
-                navController.navigate("home")
-            }
-            NavigationLink(text = "Mappa Senzatetto", icon = Icons.Default.Map) {
-                navController.navigate("HomelessesMap/")
-            }
-            NavigationLink(text = "API TESTING", icon = Icons.Default.Api) {
-                navController.navigate("apiTesting")
+                    .fillMaxSize()
+                    .padding(32.dp)
+            ) {
+                // Logo
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.voci_logo),
+                        contentDescription = "Logo VoCi",
+                        modifier = Modifier.size(128.dp)
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+                // Navigation links
+                NavigationLink(text = "Home", icon = Icons.Default.Home) {
+                    navController.navigate("home")
+                }
+                NavigationLink(text = "Mappa Senzatetto", icon = Icons.Default.Map) {
+                    navController.navigate("HomelessesMap/")
+                }
+                NavigationLink(text = "API TESTING", icon = Icons.Default.Api) {
+                    navController.navigate("apiTesting")
+                }
             }
         }
+        Box(modifier = Modifier.weight(1f)) {}
     }
 }
