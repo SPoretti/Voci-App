@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AssignmentInd
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -272,6 +273,24 @@ fun RequestDetailsScreen(
             Icon(
                 imageVector = Icons.Filled.Edit,
                 contentDescription = "Modify"
+            )
+        }
+
+        // Bottom Right Floating Button to Complete Request
+        FloatingActionButton(
+            onClick = {
+                requestViewModel.requestDone(requestResource.data ?: return@FloatingActionButton)
+                navController.navigate("requests")
+            },
+            elevation = FloatingActionButtonDefaults.elevation(50.dp),
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = "Done"
             )
         }
     }

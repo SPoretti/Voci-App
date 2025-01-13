@@ -48,7 +48,7 @@ fun SearchBox(
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val locationHandler = remember {
-        LocationHandler(context, fusedLocationClient, homelessViewModel)
+        LocationHandler(context, fusedLocationClient)
     }
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
 
@@ -70,6 +70,22 @@ fun SearchBox(
                 .build()
             points += point
             Log.d("guuu", "points: $points")
+    // Fetch location coordinates
+    when (locationCoordinates) {
+        is Resource.Loading -> {
+            CircularProgressIndicator()
+        }
+        is Resource.Success -> {
+            val coordinates = locationCoordinates.data
+            if (coordinates != null) {
+                points = listOf(Point.fromLngLat(coordinates.second, coordinates.first))
+                cameraOptions = CameraOptions.Builder()
+                    .center(Point.fromLngLat(coordinates.second, coordinates.first))
+                    .pitch(45.0)
+                    .zoom(15.0)
+                    .bearing(-17.6)
+                    .build()
+            }
         }
     }
 
@@ -103,10 +119,29 @@ fun SearchBox(
             modifier = Modifier.align(Alignment.TopCenter),
             onClick = {
                 address = it
+                homelessViewModel.mapboxForwardGeocoding(it, proximity = "${currentLocation?.second},${currentLocation?.first}")
+                Log.d("ApiTesting", it)
                 homelessViewModel.mapboxForwardGeocoding(it)
                 Log.d("SearchBox-AddLocationSearchBar", it)
             }
         )
+        // Button to save current location - LEFT
+        CustomFAB(
+            text = "Current Location",
+            icon = Icons.Default.LocationOn,
+            onClick = {
+                Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
+                address = locationAddress.data ?: ""
+                homelessViewModel.mapboxForwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
+            },
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+        // Button to save the selected location - RIGHT
+        CustomFAB(
+            text = "Confirm Location",
+            icon = Icons.Default.Check,
+            onClick = { onConfirmLocation(address) },
+            modifier = Modifier.align(Alignment.BottomEnd)
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
