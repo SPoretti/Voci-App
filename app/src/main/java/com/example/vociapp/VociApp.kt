@@ -16,22 +16,12 @@ class VociApp : Application(){
             private set
     }
 
-//    private lateinit var networkConnectivityListener: NetworkConnectivityListener
-
-
     override fun onCreate() {
         super.onCreate()
+
         //clearDatabaseAndSyncQueue(context = applicationContext)
-
         ServiceLocator.initialize(this, FirebaseFirestore.getInstance())
-//        networkConnectivityListener = NetworkConnectivityListener(applicationContext)
-//        networkConnectivityListener.startMonitoring()
     }
-
-//    override fun onTerminate() {
-//        super.onTerminate()
-//        networkConnectivityListener.stopMonitoring()
-//    }
 
     //for debugging
     private fun clearDatabaseAndSyncQueue(context: Context) {

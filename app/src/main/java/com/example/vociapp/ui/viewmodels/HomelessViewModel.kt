@@ -216,7 +216,7 @@ class HomelessViewModel @Inject constructor(
         viewModelScope.launch {
             _locationCoordinates.value = Resource.Loading()
             try {
-                Log.d("ApiTesting", query.toString())
+                Log.d("HomelessViewModel-mapboxForwardGeocoding", query)
                 val response = MapboxGeocodingClient().geocodeAddress(
                     query = query,
                     accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g",
@@ -226,25 +226,25 @@ class HomelessViewModel @Inject constructor(
                     bbox = "9.0,45.3,9.3,45.6",
                     proximity = proximity,
                 )
-                Log.d("ApiTesting", response.toString())
+                Log.d("HomelessViewModel-mapboxForwardGeocoding", response.toString())
                 if (response.features.isNotEmpty()) {
                     val firstFeature = response.features[0]
                     val coordinates = firstFeature.geometry.coordinates
                     if (coordinates != null) { // Null check for coordinates
                         if (coordinates.size == 2) {
                             _locationCoordinates.value = Resource.Success(Pair(coordinates[1], coordinates[0]))
-                            Log.d("ApiTesting", coordinates.toString())
+                            Log.d("HomelessViewModel-mapboxForwardGeocoding", coordinates.toString())
                         } else {
                             _locationCoordinates.value = Resource.Error("Coordinates are not just 2")
-                            Log.d("ApiTesting", "Coordinates are not just 2")
+                            Log.d("HomelessViewModel-mapboxForwardGeocoding", "Coordinates are not just 2")
                         }
                     } else {
                         _locationCoordinates.value = Resource.Error("Coordinates are null")
-                        Log.d("ApiTesting", "Coordinates are null")
+                        Log.d("HomelessViewModel-mapboxForwardGeocoding", "Coordinates are null")
                     }
                 } else {
                     _locationCoordinates.value = Resource.Error("Features Are null")
-                    Log.d("ApiTesting", "Features Are null")
+                    Log.d("HomelessViewModel-mapboxForwardGeocoding", "Features Are null")
                 }
             } catch (e: Exception) {
                 _locationCoordinates.value = Resource.Error(e.message ?: "Errore di geocoding")

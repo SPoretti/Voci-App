@@ -57,19 +57,27 @@ fun SearchBox(
     when (locationCoordinates) {
         is Resource.Loading -> { }
         is Resource.Success -> {
-            val coordinates = locationCoordinates.data
-            if (coordinates != null) {
-                points = listOf(Point.fromLngLat(coordinates.second, coordinates.first))
-                cameraOptions = CameraOptions.Builder()
-                    .center(Point.fromLngLat(coordinates.second, coordinates.first))
-                    .pitch(45.0)
-                    .zoom(15.0)
-                    .bearing(-17.6)
-                    .build()
-            }
+            val coordinates = locationCoordinates.data!!
+            val point = Point.fromLngLat(coordinates.second, coordinates.first)
+            points = listOf(Point.fromLngLat(coordinates.second, coordinates.first))
+            cameraOptions = CameraOptions.Builder()
+                .center(Point.fromLngLat(coordinates.second, coordinates.first))
+                .pitch(45.0)
+                .zoom(15.0)
+                .bearing(-17.6)
+                .build()
+            homelessViewModel.mapboxReverseGeocoding(point.latitude(), point.longitude())
+
         }
 
         is Resource.Error -> TODO()
+    }
+
+    LaunchedEffect(locationAddress) {
+        if (locationAddress is Resource.Success) {
+            address = locationAddress.data ?: ""
+            Log.d("SearchBox", "Address: $address")
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -127,7 +135,9 @@ fun SearchBox(
             CustomFAB(
                 text = "Confirm Location",
                 icon = Icons.Default.Check,
-                onClick = { onConfirmLocation(address) },
+                onClick = {
+                    showLocationSelectionDialog = true
+                },
             )
         }
     }
