@@ -38,7 +38,6 @@ fun SearchBox(
     val locationCoordinates by homelessViewModel.locationCoordinates.collectAsState()
     val locationAddress by homelessViewModel.locationAddress.collectAsState()
     // Initialize camera location and points
-    var cameraLocation by remember { mutableStateOf<Point?>(null) }
     var points by remember { mutableStateOf<List<Point>>(emptyList()) }
     var address by remember { mutableStateOf("") }
     var cameraOptions by remember { mutableStateOf<CameraOptions?>(null) }
@@ -47,7 +46,7 @@ fun SearchBox(
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val locationHandler = remember {
-        LocationHandler(context, fusedLocationClient, homelessViewModel)
+        LocationHandler(context, fusedLocationClient)
     }
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     // Fetch location coordinates
@@ -58,7 +57,6 @@ fun SearchBox(
         is Resource.Success -> {
             val coordinates = locationCoordinates.data
             if (coordinates != null) {
-                cameraLocation = Point.fromLngLat(coordinates.second, coordinates.first)
                 points = listOf(Point.fromLngLat(coordinates.second, coordinates.first))
                 cameraOptions = CameraOptions.Builder()
                     .center(Point.fromLngLat(coordinates.second, coordinates.first))
@@ -102,7 +100,7 @@ fun SearchBox(
             modifier = Modifier.align(Alignment.TopCenter),
             onClick = {
                 address = it
-                homelessViewModel.mapboxForwardGeocoding(it)
+                homelessViewModel.mapboxForwardGeocoding(it, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 Log.d("ApiTesting", it)
             }
         )
@@ -113,7 +111,7 @@ fun SearchBox(
             onClick = {
                 Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
                 address = locationAddress.data ?: ""
-                homelessViewModel.mapboxForwardGeocoding(address)
+                homelessViewModel.mapboxForwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
             },
             modifier = Modifier.align(Alignment.BottomStart)
         )

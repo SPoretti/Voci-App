@@ -60,7 +60,7 @@ fun AddLocationSearchbar (
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
     val locationHandler = remember {
-        LocationHandler(context, fusedLocationClient, homelessViewModel)
+        LocationHandler(context, fusedLocationClient)
     }
 
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
