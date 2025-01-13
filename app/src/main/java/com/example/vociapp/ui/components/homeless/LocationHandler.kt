@@ -4,20 +4,11 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.vociapp.data.util.Resource
-import com.example.vociapp.ui.viewmodels.HomelessViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class LocationHandler @Inject constructor(
     private val context: Context,

@@ -1,13 +1,11 @@
 package com.example.vociapp.ui.screens
 
-import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.example.vociapp.ui.components.core.SwipeDirection
 import com.example.vociapp.ui.components.core.SwipeableScreen
-import com.example.vociapp.ui.components.maps.SearchBox
 
 @Composable
 fun ApiTesting(

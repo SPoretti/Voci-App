@@ -10,6 +10,7 @@ import com.example.vociapp.data.repository.HomelessRepository
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.data.util.Suggestion
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -20,8 +21,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlinx.coroutines.async
-import kotlin.collections.get
 
 class HomelessViewModel @Inject constructor(
     private val homelessRepository: HomelessRepository
@@ -363,4 +362,8 @@ class HomelessViewModel @Inject constructor(
         }
     }
 
+    fun clearLocationVariables(){
+        _locationCoordinates.value = Resource.Loading()
+        _locationAddress.value = Resource.Loading()
+    }
 }
