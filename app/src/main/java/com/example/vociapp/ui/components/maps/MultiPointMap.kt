@@ -1,9 +1,15 @@
 package com.example.vociapp.ui.components.maps
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.vociapp.R
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -23,12 +29,25 @@ fun MultiPointMap(
 ) {
     //----- Region: Data Initialization -----
     val mapViewportState = rememberMapViewportState()
+    val isDarkTheme = isSystemInDarkTheme()
 
     //----- Region: View Composition -----
     MapboxMap(
         modifier = Modifier.fillMaxSize(),
         mapViewportState = mapViewportState,
-        style = { MapStyle(style = Style.TRAFFIC_NIGHT) }
+        style = {
+            if(isDarkTheme){
+                MapStyle(style = Style.DARK)
+            } else {
+                MapStyle(style = Style.STANDARD)
+            }
+        },
+        compass = {
+            Spacer(modifier = Modifier.height(16.dp))
+        },
+        scaleBar = {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     ) {
         // Load the icon image
         val marker = rememberIconImage(resourceId = R.drawable.marker_icon)
