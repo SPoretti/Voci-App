@@ -14,16 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Female
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Male
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Transgender
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -50,8 +46,7 @@ import com.example.vociapp.ui.components.core.CustomChip
 import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.core.StatusLED
-import com.example.vociapp.ui.components.core.hapticFeedback
-import com.example.vociapp.ui.components.homeless.AddAddressDialog
+import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
 import com.example.vociapp.ui.components.homeless.LocationHandler
 import com.example.vociapp.ui.components.maps.StaticMap
 import com.example.vociapp.ui.components.updates.UpdateLastItem
@@ -78,7 +73,7 @@ fun ProfileHomelessScreen(
     val updates by updateViewModel.updatesByHomelessId.collectAsState()
     // Dialogs
     var showUpdateListDialog by remember { mutableStateOf(false) }
-    var showAddAddressDialog by remember { mutableStateOf(false) }
+    var showModifyHomelessDialog by remember { mutableStateOf(false) }
     // Location
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
@@ -174,22 +169,19 @@ fun ProfileHomelessScreen(
                 }
             }
         }
-        //Aggiorna posizione attuale
+        //Aggiorna senzatetto
         CustomFAB(
-            onClick = { showAddAddressDialog = true },
+            onClick = { showModifyHomelessDialog = true },
             modifier = Modifier.align(Alignment.BottomEnd),
-            icon = Icons.Filled.LocationOn,
-            text = "Posizione Attuale"
+            icon = Icons.Filled.Edit,
+            text = "Modifica"
         )
-        if (showAddAddressDialog) {
-            AddAddressDialog(
-                onDismiss = {
-                    showAddAddressDialog = false
-                    homelessViewModel.getHomelessDetailsById(homelessID)
-                },
-                homelessId = homelessID,
-                homelessViewModel = homelessViewModel,
-                locationHandler = locationHandler
+        if (showModifyHomelessDialog) {
+            CustomHomelessDialog(
+                onDismiss = { showModifyHomelessDialog = false },
+                onConfirm = { homelessViewModel.updateHomeless(it) },
+                homeless = specificHomeless.data!!,
+                actionText = "Modifica"
             )
         }
     }

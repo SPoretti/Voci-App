@@ -60,11 +60,12 @@ class HomelessViewModel @Inject constructor(
     private val _suggestedLocations = MutableStateFlow<Resource<List<Suggestion>>>(Resource.Loading())
     val suggestedLocations: StateFlow<Resource<List<Suggestion>>> = _suggestedLocations
 
+    private var debugCount = 0
+
     init {
         fetchHomelesses()
         getHomelesses()
         fetchHomelessNames()
-//        getLocations()
         updateSearchQuery("")
     }
 
@@ -200,6 +201,7 @@ class HomelessViewModel @Inject constructor(
     }
 
     fun getHomelessDetailsById(homelessId: String) {
+        Log.d("HomelessViewModel-getHomelessDetailsById", "getHomelessDetailsById: $homelessId")
         viewModelScope.launch {
             _specificHomeless.value = Resource.Loading()
             try {
@@ -292,10 +294,12 @@ class HomelessViewModel @Inject constructor(
     }
 
     fun mapboxForwardGeocoding(query: String) {
+        debugCount++
+        Log.d("HomelessViewModel-mapboxForwardGeocoding", "debugCount: $debugCount")
         viewModelScope.launch {
             _locationCoordinates.value = Resource.Loading()
             try {
-                Log.d("ApiTesting", query.toString())
+                Log.d("HomelessViewModel-mapboxForwardGeocoding", query)
                 val response = MapboxGeocodingClient().geocodeAddress(
                     query = query,
                     accessToken = "pk.eyJ1IjoibXNib3JyYSIsImEiOiJjbTUxZzVkaDgxcHAzMmpzZXIycWgyM2hhIn0.kQRnLhjtCyT8l6LRI-B32g",
@@ -303,29 +307,29 @@ class HomelessViewModel @Inject constructor(
                     country = "it",
                     types = "place,neighborhood,street,address"
                 )
-                Log.d("ApiTesting", response.toString())
+                Log.d("HomelessViewModel-mapboxForwardGeocoding", response.toString())
                 if (response.features.isNotEmpty()) {
                     val firstFeature = response.features[0]
                     val coordinates = firstFeature.geometry.coordinates
                     if (coordinates != null) { // Null check for coordinates
                         if (coordinates.size == 2) {
                             _locationCoordinates.value = Resource.Success(Pair(coordinates[1], coordinates[0]))
-                            Log.d("ApiTesting", coordinates.toString())
+                            Log.d("HomelessViewModel-mapboxForwardGeocoding", coordinates.toString())
                         } else {
                             _locationCoordinates.value = Resource.Error("Coordinates are not just 2")
-                            Log.d("ApiTesting", "Coordinates are not just 2")
+                            Log.d("HomelessViewModel-mapboxForwardGeocoding", "Coordinates are not just 2")
                         }
                     } else {
                         _locationCoordinates.value = Resource.Error("Coordinates are null")
-                        Log.d("ApiTesting", "Coordinates are null")
+                        Log.d("HomelessViewModel-mapboxForwardGeocoding", "Coordinates are null")
                     }
                 } else {
                     _locationCoordinates.value = Resource.Error("Features Are null")
-                    Log.d("ApiTesting", "Features Are null")
+                    Log.d("HomelessViewModel-mapboxForwardGeocoding", "Features Are null")
                 }
             } catch (e: Exception) {
                 _locationCoordinates.value = Resource.Error(e.message ?: "Errore di geocoding")
-                Log.d("ApiTesting", e.message.toString())
+                Log.d("HomelessViewModel-mapboxForwardGeocoding", e.message.toString())
             }
         }
     }
@@ -371,4 +375,8 @@ class HomelessViewModel @Inject constructor(
         }
     }
 
+    fun clearLocationVariables(){
+        _locationCoordinates.value = Resource.Loading()
+        _locationAddress.value = Resource.Loading()
+    }
 }

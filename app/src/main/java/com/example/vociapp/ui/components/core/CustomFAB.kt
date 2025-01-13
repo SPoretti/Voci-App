@@ -1,8 +1,10 @@
 package com.example.vociapp.ui.components.core
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -26,7 +28,7 @@ fun CustomFAB(
         onClick = onClick,
         elevation = FloatingActionButtonDefaults.elevation(50.dp),
         modifier = modifier
-            .padding(16.dp)
+            .padding(8.dp)
             .hapticFeedback(),
         containerColor = MaterialTheme.colorScheme.primary
     ) {
@@ -41,6 +43,7 @@ fun CustomFAB(
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(24.dp)
             )
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = text,
                 color = MaterialTheme.colorScheme.onPrimary,

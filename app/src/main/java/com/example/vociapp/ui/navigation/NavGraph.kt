@@ -245,15 +245,7 @@ fun NavGraph(
                     targetOffsetY = { it }
                 )
             }
-        ) {
-                backStackEntry ->
-            val homelessId = backStackEntry.arguments?.getString("homelessId")
-            HomelessesMap(
-                navController,
-                snackbarHostState,
-                homelessId.toString(),
-            )
-        }
+        ) {HomelessesMap()}
     }
 }
 
