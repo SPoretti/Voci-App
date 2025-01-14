@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,25 +27,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.vociapp.data.local.database.Volunteer
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.volunteers.ProfileInfoItem
 
 @Composable
-fun ProfileVolunteerScreen(creatorId: String?) {
+fun ProfileVolunteerScreen(creatorId: String) {
     val serviceLocator = LocalServiceLocator.current
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
-    LaunchedEffect(creatorId) {
-        creatorId?.let {
-            volunteerViewModel.getVolunteerByNickname(it)
-        }
+    LaunchedEffect(key1 = creatorId) {
+        volunteerViewModel.getVolunteerById(creatorId)
     }
 
-    val specificVolunteerState by volunteerViewModel.specificVolunteer.collectAsState()
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     Card(
         modifier = Modifier
@@ -66,28 +65,44 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                when (specificVolunteerState) {
+                when (volunteerResource) {
                     is Resource.Loading -> {
                         Text(text = "Caricamento...", style = MaterialTheme.typography.headlineMedium)
                     }
 
                     is Resource.Success -> {
-                        val volunteer = (specificVolunteerState as Resource.Success<Volunteer>).data
+                        val volunteer = volunteerResource.data
 
-                        // Profile picture placeholder
-                        Box(
-                            modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profile Picture",
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                        val initials =
+                            "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
+
+                        //Profile picture
+                        if (volunteer != null) {
+                            if (volunteer.photoUrl.isNotEmpty()) {
+                                AsyncImage(
+                                    model = volunteer.photoUrl,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(130.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Text(
+                                        text = initials,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 60.sp
+                                    )
+                                }
+                            }
                         }
 
                         Text(
@@ -135,7 +150,7 @@ fun ProfileVolunteerScreen(creatorId: String?) {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "${(specificVolunteerState as Resource.Error).message}",
+                                text = "${(volunteerResource as Resource.Error).message}",
                                 style = MaterialTheme.typography.headlineMedium
                             )
                         }

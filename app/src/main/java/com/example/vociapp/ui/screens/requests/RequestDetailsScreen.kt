@@ -72,22 +72,18 @@ fun RequestDetailsScreen(
     var requestForDialog: Request? by remember { mutableStateOf(null) }
     // Fetch request by ID
     val requestViewModel = serviceLocator.obtainRequestViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+
     LaunchedEffect(key1 = requestId) {
         requestViewModel.getRequestById(requestId)
     }
     val requestResource by requestViewModel.requestById.collectAsState()
-    // TODO: GetVolunteerById to display creator name
-//    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-//    volunteerViewModel.getVolunteerById(requestResource.data?.creatorId ?: "")
-//    val creatorName = volunteerViewModel.getCurrentVolunteer()
-    /*
-    Since we already have a list containing the names of the homelesses that is used in the main
-    requests screen, we'll use that instead of fetching for the specific homeless.
-     */
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
+
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
-
-    //----- Region: View Composition -----
+    var showDialog by remember { mutableStateOf(false) }
+    var requestForDialog: Request? by remember { mutableStateOf(null) }
 
     Box(
         modifier = Modifier
@@ -108,7 +104,13 @@ fun RequestDetailsScreen(
                 // Success state
                 is Resource.Success -> {
                     val request = requestResource.data
-                    // Access request fields (e.g., request.title, request.description)
+
+                    LaunchedEffect(key1 = request?.creatorId) {
+                        request?.creatorId?.let { volunteerViewModel.getVolunteerById(it) }
+                    }
+
+                    val volunteer = volunteerResource.data
+
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
@@ -210,12 +212,14 @@ fun RequestDetailsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Creata da:", style = MaterialTheme.typography.labelMedium)
-                            CustomChip(
-                                text = request?.creatorId ?: "",
-                                onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
-                                imageVector = Icons.Filled.Person
-                            )
+                            Text("Creata da:", fontSize = 14.sp)
+                            if (volunteer != null) {
+                                RequestChip(
+                                    text = volunteer.nickname,
+                                    onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
+                                    imageVector = Icons.Filled.Person
+                                )
+                            }
                         }
                         Row(
                             modifier = Modifier

@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.vociapp.ui.screens.auth.PasswordRecover
 import com.example.vociapp.ui.components.core.Screens
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.screens.ApiTesting
@@ -155,8 +156,43 @@ fun NavGraph(
             RequestDetailsScreen(requestId.toString(), navController)
         }
 
+        // Profile screens
+        composable(
+            route = Screens.UserProfile.route,
+            enterTransition = {
+                slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
+            },
+            exitTransition = {
+                slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
+            }
+        ) { UserProfileScreen(navController) }
 
-        //---------- Homeless screens ----------
+        composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
+
+        composable(
+            route = "ProfileVolontario/{creatorId}",
+            arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(600),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(600),
+                    targetOffsetX = { it }
+                )
+            }
+        ) { backStackEntry ->
+            val creatorId = backStackEntry.arguments?.getString("creatorId")
+            if (creatorId != null) {
+                ProfileVolunteerScreen(creatorId)
+            }
+        }
+
+        composable(route = Screens.ForgotPassword.route) {PasswordRecover(navController)}
+        
         composable(
             route = "ProfileHomeless/{homelessId}",
             arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),
