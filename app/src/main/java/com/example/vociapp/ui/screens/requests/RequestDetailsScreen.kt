@@ -63,6 +63,7 @@ fun RequestDetailsScreen(
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     val serviceLocator = LocalServiceLocator.current
     val requestViewModel = serviceLocator.obtainRequestViewModel()
+    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
 
     LaunchedEffect(key1 = requestId) {
         Log.d("RequestDetailsScreen", "Request ID: $requestId")
@@ -70,13 +71,12 @@ fun RequestDetailsScreen(
     }
 
     val requestResource by requestViewModel.requestById.collectAsState()
+    val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
 
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
     var showDialog by remember { mutableStateOf(false) }
     var requestForDialog: Request? by remember { mutableStateOf(null) }
-
-
 
     Box(
         modifier = Modifier
@@ -115,7 +115,13 @@ fun RequestDetailsScreen(
 
                 is Resource.Success -> {
                     val request = requestResource.data
-                    // Access request fields (e.g., request.title, request.description)
+
+                    LaunchedEffect(key1 = request?.creatorId) {
+                        request?.creatorId?.let { volunteerViewModel.getVolunteerById(it) }
+                    }
+
+                    val volunteer = volunteerResource.data
+
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
@@ -212,11 +218,13 @@ fun RequestDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Creata da:", fontSize = 14.sp)
-                            RequestChip(
-                                text = request?.creatorId.toString(),
-                                onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
-                                imageVector = Icons.Filled.Person
-                            )
+                            if (volunteer != null) {
+                                RequestChip(
+                                    text = volunteer.nickname,
+                                    onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
+                                    imageVector = Icons.Filled.Person
+                                )
+                            }
                         }
                         Row(
                             modifier = Modifier
