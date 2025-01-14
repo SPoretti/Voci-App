@@ -145,7 +145,7 @@ class RoomDataSource(
         volunteerDao.insert(volunteer)
     }
 
-    suspend fun getVolunteerById(id: String): Volunteer? {
+    suspend fun getVolunteerById(id: String): Volunteer {
         return volunteerDao.getVolunteerById(id)
     }
 
@@ -153,12 +153,8 @@ class RoomDataSource(
         return volunteerDao.getVolunteerByNickname(nickname)
     }
 
-    suspend fun getVolunteerByEmail(email: String): Volunteer? {
+    suspend fun getVolunteerByEmail(email: String): Volunteer {
         return volunteerDao.getVolunteerByEmail(email)
-    }
-
-    suspend fun getVolunteerIdByEmail(email: String): String? {
-        return volunteerDao.getVolunteerIdByEmail(email)
     }
 
     suspend fun updateVolunteer(volunteer: Volunteer){

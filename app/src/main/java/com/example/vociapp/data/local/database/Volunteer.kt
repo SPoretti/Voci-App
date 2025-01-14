@@ -16,6 +16,7 @@ data class Volunteer(
     var nickname: String = "",
     var phone_number: String = "",
     var email: String = "",
+    var photoUrl: String = "",
     var preferredHomelessIds: List<String> = emptyList(),
     var area: Area = Area.OVEST,
 )

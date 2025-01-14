@@ -2,6 +2,10 @@ package com.example.vociapp.data.repository
 
 import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
+import com.example.vociapp.data.local.dao.SyncQueueDao
+import com.example.vociapp.data.local.database.Converters
+import com.example.vociapp.data.local.database.Request
+import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager

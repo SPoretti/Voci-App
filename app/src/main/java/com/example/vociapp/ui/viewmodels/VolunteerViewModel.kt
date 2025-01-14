@@ -3,6 +3,7 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.util.Resource
@@ -18,116 +19,92 @@ class VolunteerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
-    val snackbarMessage: StateFlow<String> = _snackbarMessage
 
-    private val _volunteers = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
-    val volunteers: StateFlow<Resource<Volunteer>> = _volunteers.asStateFlow()
-
-    private val _specificVolunteer = MutableStateFlow<Resource<Volunteer?>>(Resource.Loading())
-    val specificVolunteer: StateFlow<Resource<Volunteer?>> = _specificVolunteer.asStateFlow()
+    private val _specificVolunteer = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
+    val specificVolunteer: StateFlow<Resource<Volunteer>> = _specificVolunteer.asStateFlow()
 
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    //current user logged in the app
-    private val _currentUser = MutableStateFlow<Volunteer?>(null) // Correct type
-    val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
+    private val _currentUser = MutableStateFlow<Resource<Volunteer>>(Resource.Loading())
+    val currentUser: StateFlow<Resource<Volunteer>> = _currentUser.asStateFlow()
+
+    private var _userPreferencesResource = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
+    val userPreferencesResource: StateFlow<Resource<List<String>>> = _userPreferencesResource.asStateFlow()
 
     init {
         fetchVolunteers()
 
         firebaseAuth.addAuthStateListener { auth ->
-            auth.currentUser?.email?.let { email ->
-                Log.d("AuthStateListener", "User is logged in: $email")
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
                 viewModelScope.launch {
-                    when (val volunteerIdResource = volunteerRepository.getVolunteerIdByEmail(email)) {
-                        is Resource.Success -> {
-                            val volunteerId = volunteerIdResource.data!!
-                            val volunteer = volunteerRepository.getVolunteerById(volunteerId)
-                            _currentUser.value =
-                                if (volunteer is Resource.Success)
-                                    volunteer.data
-                                else
-                                    null
-                        }
-                        is Resource.Error -> {
-                            // Handle error fetching volunteer ID
-                            Log.e("AuthStateListener", "Error fetching volunteer ID: ${volunteerIdResource.message}")
-                        }
-                        is Resource.Loading -> {
-                            // Handle loading state if needed
-                        }
+                    val volunteer = firebaseUser.email?.let {
+                        volunteerRepository.getVolunteerByEmail(it)
                     }
+                    Log.d("AuthStateListener", "volunteer: ${volunteer?.data}")
+                    if (volunteer?.data != null){
+                        _currentUser.value = Resource.Success(
+                            Volunteer(email = firebaseUser.email!!, id = volunteer.data?.id.toString()))
+                        Log.d("AuthStateListener", "Volunteer ID: ${volunteer.data?.id}, ${volunteer.data?.email}")
+                    } else {
+                        Log.d("AuthStateListener", "Volunteer is null")
+                    }
+                    fetchVolunteers()
                 }
-            } ?: run {
-                _currentUser.value = null
+            } else {
+                _currentUser.value = Resource.Error("Utente non loggato")
             }
         }
     }
 
-    fun setCurrentUser(volunteer: Volunteer) {
-        _currentUser.value = volunteer
+    //Ritorna il volontario connesso
+    fun getCurrentUser(): Volunteer? {
+        return _currentUser.value.data
     }
 
-    suspend fun setCurrentUserFromId(userId: String):Resource<Volunteer> {
-        return try {
-            val volunteer = volunteerRepository.getVolunteerById(userId)
-            if (volunteer is Resource.Success) {
-                _currentUser.value = volunteer.data
-                Resource.Success(volunteer.data!!)
-            }else
-                Resource.Error("Errore durante il recupero dei dati dell'utente")
-        } catch (e: Exception) {
-            Resource.Error("Errore durante il recupero dei dati dell'utente: ${e.message}")
-        }
-    }
-
-    fun getVolunteerById(id: String): StateFlow<Resource<Volunteer?>> {
-        _specificVolunteer.value = Resource.Loading()
+    fun getVolunteerById(volunteerId : String) {
         viewModelScope.launch {
-            _specificVolunteer.value = volunteerRepository.getVolunteerById(id)
+            _specificVolunteer.value = Resource.Loading() // Set loading state
+            val result = volunteerRepository.getVolunteerById(volunteerId) // Get data
+            _specificVolunteer.value = result // Update state with result
         }
-        return specificVolunteer
     }
 
-    //Ritorna un volontario tramite nickname
-    fun getVolunteerByNickname(nickname: String): StateFlow<Resource<Volunteer?>> {
-        _specificVolunteer.value = Resource.Loading()
-        viewModelScope.launch {
-            _specificVolunteer.value = volunteerRepository.getVolunteerByNickname(nickname)
-        }
-        return specificVolunteer
+    suspend fun checkIfNicknameExists(nickname: String): Boolean {
+        val result = volunteerRepository.getVolunteerByNickname(nickname)
+        return result is Resource.Success && result.data != null
     }
 
-    fun getVolunteerByEmail(email: String): StateFlow<Resource<Volunteer?>>{
-        _specificVolunteer.value = Resource.Loading()
-        viewModelScope.launch {
-            _specificVolunteer.value = volunteerRepository.getVolunteerByEmail(email)
-        }
-        return specificVolunteer
+    suspend fun checkIfEmailExists(email: String): Boolean {
+        return if(email.isEmpty()) false
+        else volunteerRepository.getVolunteerByEmail(email).data != null
     }
 
-    // ritorna il valore "name" del volontario corrente
-    fun getVolunteerName(): String? {
-        return _specificVolunteer.value.data?.name
-    }
-
-    // ritorna il valore "surname" del volontario corrente
-    fun getVolunteerSurname(): String? {
-        return _specificVolunteer.value.data?.surname
-    }
-
-    fun getCurrentVolunteer(): Volunteer? {
-        return _specificVolunteer.value.data
-    }
-
-    fun addVolunteer(volunteer: Volunteer) {
+    fun addVolunteer(volunteer: Volunteer, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             val result = volunteerRepository.addVolunteer(volunteer)
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Registrazione effettuata"
-                _currentUser.value = volunteer
+                _currentUser.value = Resource.Success(volunteer)
+                onComplete(true)
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante la registrazione: ${result.message}"
+                onComplete(false)
+            }
+        }
+    }
+
+
+    fun updateVolunteer(volunteer: Volunteer) {
+        viewModelScope.launch {
+            when (val result = volunteerRepository.updateVolunteer(volunteer)) {
+                is Resource.Success -> {
+                    getVolunteerById(volunteer.id)
+                }
+                is Resource.Error -> {
+                    println("Errore nella modifica dell'utente: ${result.message}")
+                }
+                is Resource.Loading -> TODO()
             }
         }
     }
@@ -138,7 +115,15 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
-    fun toggleHomelessPreference(homelessId: String) {
+    fun fetchUserPreferences(email: String) {
+        volunteerRepository.getUserPreferences(email)
+            .onEach { result ->
+                _userPreferencesResource.value = result
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun toggleHomelessPreference(userId: String, homelessId: String) {
         viewModelScope.launch {
             val currentVolunteer = currentUser.value
             if (currentVolunteer != null) {
@@ -153,9 +138,5 @@ class VolunteerViewModel @Inject constructor(
                 _currentUser.value = currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds)
             }
         }
-    }
-
-    fun clearSnackbarMessage() {
-        _snackbarMessage.value = ""
     }
 }

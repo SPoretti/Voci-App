@@ -1,7 +1,7 @@
 package com.example.vociapp.ui.screens.auth
 
-import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,17 +9,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,10 +34,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.vociapp.ui.components.SnackbarManager
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.AuthTextField
+import com.example.vociapp.ui.components.getTextFieldColors
+import com.example.vociapp.ui.navigation.Screens
 import com.example.vociapp.ui.components.core.Screens
 import com.example.vociapp.ui.components.volunteers.AuthTextField
 import com.example.vociapp.ui.viewmodels.AuthResult
@@ -42,168 +51,151 @@ import com.example.vociapp.ui.viewmodels.AuthResult
 fun SignInScreen(
     navController: NavHostController
 ) {
-    // var nickname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var isSigningIn by remember { mutableStateOf(false) }
-    val serviceLocator = LocalServiceLocator.current
-    val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
-    val authViewModel = serviceLocator.obtainAuthViewModel()
+    var passwordVisible by remember { mutableStateOf(false) }
+    var validCredentials by remember { mutableStateOf(true) }
 
-    fun checkPassword(firstCredential: String) {
-        if(password.isEmpty()){
-            showError = true
-            errorMessage = "La password non può essere vuota"
-            isSigningIn = false
-        }
-        else{
-            TODO("fare la verifica della password")
-        }
-    }
+    var isSigningIn by remember { mutableStateOf(false) }
+    var logging by remember { mutableStateOf(true) }
+    val serviceLocator = LocalServiceLocator.current
+    val authViewModel = serviceLocator.obtainAuthViewModel()
 
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
-            showError = false
-            errorMessage = ""
-
-            if (password.isEmpty()) {
-                showError = true
-                errorMessage = "La password non può essere vuota"
+            val result = authViewModel.signInWithEmailAndPassword(email, password)
+            if (result is AuthResult.Failure && authViewModel.areFieldsEmpty(email, password)) {
+                SnackbarManager.showSnackbar(result.message)
                 isSigningIn = false
                 return@LaunchedEffect
             }
 
-            if (email.isEmpty()) {
-                showError = true
-                errorMessage = "Inserisci l'email"
+            if (result is AuthResult.Failure) {
+                validCredentials = false
+                SnackbarManager.showSnackbar(result.message)
                 isSigningIn = false
                 return@LaunchedEffect
             }
 
-            try {
-                val result = authViewModel.signInWithEmailAndPassword(email, password)
-                if (result is AuthResult.Failure) {
-                    showError = true
-                    errorMessage = result.message
-                }else {
-                    //delay(3000)
-                    val volunteer = volunteerViewModel.getVolunteerByEmail(email).value.data
-                    if (volunteer != null) {
-                        volunteerViewModel.setCurrentUser(volunteer)
-                    }
-                    navController.navigate(Screens.Home.route) {
-                        popUpTo("signIn") { inclusive = true }
-                    }
-                    isSigningIn = false
+            if (result is AuthResult.Success) {
+                navController.navigate(Screens.Home.route) {
+                    popUpTo(Screens.SignIn.route) { inclusive = true }
                 }
-            } catch (e: Exception) {
-                Log.d("AuthFlow", "Errore imprevisto: ${e.localizedMessage}")
-                showError = true
-                errorMessage = "Errore imprevisto: ${e.localizedMessage}"
-                isSigningIn = false
             }
         }
+        validCredentials = true
+        logging = true
+        isSigningIn = false
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                "Accedi",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
+    Scaffold(
+        snackbarHost = { SnackbarManager.CustomSnackbarHost() },
+        content = { padding ->
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(16.dp)
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Inserisci l'email",
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        "Accedi",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
 
-//                    AuthTextField(
-//                        value = nickname,
-//                        onValueChange = { nickname = it },
-//                        label = "Nickname",
-//                        icon = Icons.Default.Person
-//                    )
-
-                    AuthTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        label = "Email",
-                        icon = Icons.Default.Email
-                    )
-
-                    AuthTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = "Password",
-                        icon = Icons.Default.Lock,
-                        isPassword = true
-                    )
-
-                    Button(
-                        onClick = { isSigningIn = true },
-                        enabled = !isSigningIn,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        if (isSigningIn) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            AuthTextField(
+                                value = email,
+                                onValueChange = { email = it },
+                                label = "Email",
+                                icon = Icons.Default.Email,
+                                isLoggingIn = logging,
+                                colors = getTextFieldColors(isValid = validCredentials)
                             )
-                        } else {
-                            Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
+
+                            AuthTextField(
+                                value = password,
+                                onValueChange = { password = it },
+                                label = "Password",
+                                icon = Icons.Default.Lock,
+                                isLoggingIn = logging,
+                                isPassword = !passwordVisible,
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        passwordVisible = !passwordVisible
+                                    }) {
+                                        Icon(
+                                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                            contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                                        )
+                                    }
+                                },
+                                colors = getTextFieldColors(isValid = validCredentials)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .offset(y = -(7).dp)
+                                    .background(Color.Transparent)
+                                    .clickable {
+                                        navController.navigate("forgotPassword")
+                                    }
+                            ) {
+                                Text(
+                                    "Password dimenticata?",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            Button(
+                                onClick = { isSigningIn = true; logging = false },
+                                enabled = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
+                            }
                         }
                     }
 
-                    if (showError) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextButton(
+                        onClick = { navController.navigate("signUp") }
+                    ) {
                         Text(
-                            errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally)
+                            "Non hai un account? Registrati!",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
                         )
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TextButton(
-                onClick = { navController.navigate("signUp") }
-            ) {
-                Text("Non hai un account? Registrati!", color = MaterialTheme.colorScheme.primary)
-            }
         }
-    }
+    )
 }
+
 

@@ -35,10 +35,10 @@ interface VolunteerDao {
     suspend fun getAllVolunteersSnapshot(): List<Volunteer>
 
     @Query("SELECT * FROM volunteers WHERE id = :id LIMIT 1")
-    suspend fun getVolunteerById(id: String): Volunteer?
+    suspend fun getVolunteerById(id: String): Volunteer
 
     @Query("SELECT * FROM volunteers WHERE email = :email LIMIT 1")
-    suspend fun getVolunteerByEmail(email: String): Volunteer?
+    suspend fun getVolunteerByEmail(email: String): Volunteer
 
     @Query("SELECT id FROM volunteers WHERE email = :email LIMIT 1")
     suspend fun getVolunteerIdByEmail(email: String): String?

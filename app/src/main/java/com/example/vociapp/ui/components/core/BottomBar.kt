@@ -62,10 +62,10 @@ fun BottomBar(
                     Text(screen.title,
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight =
-                                if (currentRoute == screen.route)
-                                    FontWeight.ExtraBold
-                                else
-                                    FontWeight.Normal,
+                            if (currentRoute == screen.route)
+                                FontWeight.ExtraBold
+                            else
+                                FontWeight.Normal,
                             fontSize = 16.sp
                         )
                     )
