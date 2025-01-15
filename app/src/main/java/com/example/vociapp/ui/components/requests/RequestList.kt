@@ -42,7 +42,6 @@ import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.state.SortOption
 
 @Composable
 fun RequestList(

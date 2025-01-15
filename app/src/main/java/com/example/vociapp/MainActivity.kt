@@ -132,7 +132,6 @@ class MainActivity : ComponentActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
-
         // Stop monitoring connectivity when the activity is destroyed
         networkConnectivityListener.stopMonitoring()
     }

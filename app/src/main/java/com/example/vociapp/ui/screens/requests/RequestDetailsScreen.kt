@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AssignmentInd
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -54,6 +56,7 @@ import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomChip
 import com.example.vociapp.ui.components.core.StatusLED
+import com.example.vociapp.ui.components.requests.DeleteRequestDialog
 import com.example.vociapp.ui.components.requests.ModifyRequestDialog
 import com.example.vociapp.ui.components.requests.iconCategoryMap
 
@@ -70,6 +73,7 @@ fun RequestDetailsScreen(
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     // Dialog Variables
     var showModifyDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     // Fetch request by ID
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
@@ -131,7 +135,7 @@ fun RequestDetailsScreen(
                                     id = iconCategoryMap[request?.iconCategory ?: ""]!!
                                 ),
                                 contentDescription = "Request icon",
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier
                                     .size(48.dp)
                                     .align(Alignment.Center)
@@ -258,43 +262,99 @@ fun RequestDetailsScreen(
                 }
             }
         }
-        // Bottom Right Floating Button to Modify Request
-        FloatingActionButton(
-            onClick = {
-                if (requestResource is Resource.Success) {
-                    requestForDialog = (requestResource as Resource.Success).data
-                    showModifyDialog = true
+        // Buttons at the bottom based on the status of the request
+        when(requestResource.data?.status) {
+            RequestStatus.TODO -> {
+                // If the request is not done yet, show the floating buttons to modify or complete it
+                // Bottom Right Floating Button to Modify Request
+                FloatingActionButton(
+                    onClick = {
+                        if (requestResource is Resource.Success) {
+                            requestForDialog = (requestResource as Resource.Success).data
+                            showModifyDialog = true
+                        }
+                    },
+                    elevation = FloatingActionButtonDefaults.elevation(50.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "Modify"
+                    )
                 }
-            },
-            elevation = FloatingActionButtonDefaults.elevation(50.dp),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
 
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = "Modify"
-            )
-        }
+                // Bottom Right Floating Button to Complete Request
+                FloatingActionButton(
+                    onClick = {
+                        requestViewModel.requestDone(
+                            requestResource.data ?: return@FloatingActionButton
+                        )
+                        navController.navigate("requests")
+                    },
+                    elevation = FloatingActionButtonDefaults.elevation(50.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Done"
+                    )
+                }
+            }
 
-        // Bottom Right Floating Button to Complete Request
-        FloatingActionButton(
-            onClick = {
-                requestViewModel.requestDone(requestResource.data ?: return@FloatingActionButton)
-                navController.navigate("requests")
-            },
-            elevation = FloatingActionButtonDefaults.elevation(50.dp),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = "Done"
-            )
+            RequestStatus.DONE -> {
+                // If the request is already done, show the floating buttons to delete it or change it to uncompleted
+                // Bottom Right Floating Button to Delete Request
+                FloatingActionButton(
+                    onClick = {
+                        if (requestResource is Resource.Success) {
+                            requestForDialog = (requestResource as Resource.Success).data
+                            showDeleteDialog = true
+                        }
+                    },
+                    elevation = FloatingActionButtonDefaults.elevation(50.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.error
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.DeleteForever,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        contentDescription = "Delete"
+                    )
+                }
+
+                // Bottom Right Floating Button to not Complete Request
+                FloatingActionButton(
+                    onClick = {
+                        requestViewModel.requestTodo(
+                            requestResource.data ?: return@FloatingActionButton
+                        )
+                        navController.navigate("requests")
+                    },
+                    elevation = FloatingActionButtonDefaults.elevation(50.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Undo,
+                        contentDescription = "Undo"
+                    )
+                }
+            }
+
+            null -> {
+
+            }
         }
     }
 
@@ -303,6 +363,17 @@ fun RequestDetailsScreen(
         ModifyRequestDialog(
             request = requestForDialog!!,
             onDismiss = { showModifyDialog = false },
+            navController = navController
+        )
+    }
+
+    // Logic to show dialog when the floating button to modify is pressed
+    if (showDeleteDialog && requestForDialog != null) {
+        DeleteRequestDialog(
+            request = requestForDialog!!,
+            onDismiss = {
+                showDeleteDialog = false
+            },
             navController = navController
         )
     }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.HorizontalDivider
@@ -58,9 +57,9 @@ fun DrawerContent(
                 NavigationLink(text = "Mappa Senzatetto", icon = Icons.Default.Map) {
                     navController.navigate("HomelessesMap/")
                 }
-                NavigationLink(text = "API TESTING", icon = Icons.Default.Api) {
-                    navController.navigate("apiTesting")
-                }
+//                NavigationLink(text = "API TESTING", icon = Icons.Default.Api) {
+//                    navController.navigate("apiTesting")
+//                }
             }
         }
         Box(modifier = Modifier.weight(1f)) {}

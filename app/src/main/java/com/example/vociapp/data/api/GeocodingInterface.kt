@@ -1,9 +1,9 @@
-package com.example.vociapp.data.util
+package com.example.vociapp.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface MapboxGeocodingApi {
+interface GeocodingInterface {
     @GET("search/geocode/v6/forward")
     suspend fun geocodeAddress(
         @Query("q") query: String,

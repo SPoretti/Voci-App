@@ -44,7 +44,7 @@ import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.requests.AddRequestDialog
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.requests.SortButtons
-import com.example.vociapp.ui.state.SortOption
+import com.example.vociapp.ui.components.requests.SortOption
 import kotlinx.coroutines.launch
 
 @Composable
@@ -60,9 +60,9 @@ fun RequestsScreen(
     // Viewmodels
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     // Requests get and sort
-    val requests by requestViewModel.requests.collectAsState()
+    val activeRequests by requestViewModel.activeRequests.collectAsState()
     LaunchedEffect(Unit) {
-        requestViewModel.getRequests()
+        requestViewModel.getActiveRequests()
     }
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
@@ -95,7 +95,7 @@ fun RequestsScreen(
             .padding(horizontal = 16.dp)
     ) {
         // Display based on Resource state
-        when (requests) {
+        when (activeRequests) {
             // Loading State
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -141,7 +141,7 @@ fun RequestsScreen(
                     }
                     // Main Component : Requests list
                     RequestList(
-                        requests = requests,
+                        requests = activeRequests,
                         filterOption = RequestStatus.TODO,
                         sortOption = selectedSortOption,
                         navController = navController
@@ -160,7 +160,7 @@ fun RequestsScreen(
             is Resource.Error -> {
                 Column {
                     Text("Something went wrong. Please try again later.")
-                    Log.e("RequestDetailsScreen", "Error: ${requests.message}")
+                    Log.e("RequestDetailsScreen", "Error: ${activeRequests.message}")
                     Button(onClick = {
                         navController.popBackStack()
                     }) {

@@ -7,7 +7,7 @@ object ColorPalette {
     // Light Theme
     val PrimaryLight = Color(0xFF035DFB)
     val OnPrimaryLight = Color(0xFFFFFFFF)
-    val PrimaryContainerLight = Color(0xFFA7C1FF)
+    val PrimaryContainerLight = Color(0xFF6A97FF)
     val SecondaryLight = Color(0xFFFF5700)
     val OnSecondaryLight = Color(0xFF000000)
     val SecondaryContainerLight = Color(0xFFCC7A00)

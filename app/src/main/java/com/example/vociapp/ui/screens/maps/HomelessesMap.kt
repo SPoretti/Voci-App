@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.homeless.LocationHandler
+import com.example.vociapp.ui.components.core.LocationHandler
 import com.example.vociapp.ui.components.maps.MultiPointMap
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,13 +21,20 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 
 @Composable
-fun HomelessesMap( homelessId: String) {
+fun HomelessesMap(
+    homelessId: String
+) {
+    //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
+    // Homeless Data
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     var homeless by remember { mutableStateOf<Homeless?>(null) }
-    val locationCoordinates = homelessViewModel.locationCoordinates.collectAsState().value
+    // Mapbox Data
+    val mapboxViewModel = serviceLocator.obtainMapboxViewModel()
+    val locationCoordinates = mapboxViewModel.locationCoordinates.collectAsState().value
     val locations by homelessViewModel.locations.collectAsState()
     var points by remember { mutableStateOf<List<Point>>(emptyList()) }
+    // Location Data
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
@@ -35,8 +42,9 @@ fun HomelessesMap( homelessId: String) {
         LocationHandler(context, fusedLocationClient)
     }
     var currentLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
-    Log.d("HomelessesMap", "1 - Locations: ${locations.data.toString()}")
 
+    Log.d("HomelessesMap", "1 LocationCoordinates: ${locationCoordinates.data.toString()}")
+    // Initial Setup
     LaunchedEffect(Unit) {
         locationHandler.getCurrentLocation(
             callback = { location ->
@@ -44,19 +52,20 @@ fun HomelessesMap( homelessId: String) {
             }
         )
         homelessViewModel.getHomelessById(homelessId).let {
+            Log.d("HomelessesMap", "1.1 LocationCoordinates: ${locationCoordinates.data.toString()}")
             homeless = it
             if(homeless != null){
-                homelessViewModel.mapboxForwardGeocoding(
+                Log.d("HomelessesMap", "1.2 LocationCoordinates: ${locationCoordinates.data.toString()}")
+                mapboxViewModel.forwardGeocoding(
                     homeless!!.location,
                     proximity = "${currentLocation?.second},${currentLocation?.first}"
                 )
+                Log.d("HomelessesMap", "1.3 LocationCoordinates: ${locationCoordinates.data.toString()}")
             }
         }
         homelessViewModel.getAllCoordinates()
     }
-
-    Log.d("HomelessesMap", "2 - Locations: ${locations.data.toString()}")
-
+    // Update the points based on the locations
     when (locations) {
         is Resource.Success -> {
             points = locations.data?.map { coordinate ->
@@ -73,7 +82,7 @@ fun HomelessesMap( homelessId: String) {
             CircularProgressIndicator()
         }
     }
-
+    // Map View
     MultiPointMap(
         points = points,
         cameraOptions = if(homeless == null){
@@ -88,6 +97,7 @@ fun HomelessesMap( homelessId: String) {
                 ))
                 .zoom(15.0)
                 .build()
-        }
+        },
+        homeless = homeless
     )
 }

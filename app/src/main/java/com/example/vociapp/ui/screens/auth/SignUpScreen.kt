@@ -59,6 +59,8 @@ fun SignUpScreen(
     val authViewModel = serviceLocator.obtainAuthViewModel()
     val user = authViewModel.getCurrentUser()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
+    val networkManager = serviceLocator.obtainNetworkManager()
+    val isConnected = networkManager.isNetworkConnected()
 
     //Step 1
     var email by remember { mutableStateOf("") }
@@ -87,6 +89,11 @@ fun SignUpScreen(
     var step by remember { mutableIntStateOf(1) }
 
     LaunchedEffect(isSigningUp) {
+        if (!isConnected) {
+            SnackbarManager.showSnackbar("Nessuna connessione ad internet")
+            isSigningUp = false
+            return@LaunchedEffect
+        }
         if (isSigningUp) {
             when (step) {
                 1 -> {

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.core.LocationHandler
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.util.UUID
@@ -45,11 +46,11 @@ fun AddLocationSearchbar (
     modifier: Modifier = Modifier
 ) {
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val mapboxViewModel = serviceLocator.obtainMapboxViewModel()
     val sessionToken = UUID.randomUUID().toString()
 
     var searchText by remember { mutableStateOf("") }
-    val suggestedLocations by homelessViewModel.suggestedLocations.collectAsState()
+    val suggestedLocations by mapboxViewModel.suggestedLocations.collectAsState()
 
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
@@ -73,7 +74,7 @@ fun AddLocationSearchbar (
             value = searchText,
             onValueChange = { newText ->
                 searchText = newText
-                homelessViewModel.fetchSuggestions(
+                mapboxViewModel.fetchSuggestions(
                     query = newText,
                     sessionToken = sessionToken,
                     proximity = "${currentLocation?.second},${currentLocation?.first}"
@@ -117,7 +118,7 @@ fun AddLocationSearchbar (
                         IconButton(
                             onClick = {
                                 searchText = ""
-                                homelessViewModel.fetchSuggestions(
+                                mapboxViewModel.fetchSuggestions(
                                     query = searchText,
                                     sessionToken = sessionToken,
                                     proximity = "${currentLocation?.second},${currentLocation?.first}"
@@ -170,7 +171,7 @@ fun AddLocationSearchbar (
                                         searchText = suggestion.name
                                         Log.d("AddLocationSearchbar", "Clicked on: ${suggestion.name}")
                                     }
-                                    homelessViewModel.fetchSuggestions(
+                                    mapboxViewModel.fetchSuggestions(
                                         query = "",
                                         sessionToken = sessionToken,
                                         proximity = "${currentLocation?.second},${currentLocation?.first}"

@@ -79,7 +79,7 @@ navController.navigate("UpdateAddFormScreen/${buttonData.route}/$homelessId")
 
 ## Navigation Flow Diagram
 
-![](navGraph.png)
+![](NavGraph.png)
 
 ---
 

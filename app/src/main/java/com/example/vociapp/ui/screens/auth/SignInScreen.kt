@@ -58,8 +58,15 @@ fun SignInScreen(
     var logging by remember { mutableStateOf(true) }
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
+    val networkManager = serviceLocator.obtainNetworkManager()
+    val isConnected = networkManager.isNetworkConnected()
 
     LaunchedEffect(isSigningIn) {
+        if (!isConnected) {
+            SnackbarManager.showSnackbar("Nessuna connessione ad internet")
+            isSigningIn = false
+            return@LaunchedEffect
+        }
         if (isSigningIn) {
             val result = authViewModel.signInWithEmailAndPassword(email, password)
             if (result is AuthResult.Failure && authViewModel.areFieldsEmpty(email, password)) {
@@ -169,7 +176,9 @@ fun SignInScreen(
                             }
 
                             Button(
-                                onClick = { isSigningIn = true; logging = false },
+                                onClick = {
+                                    isSigningIn = true; logging = false
+                                },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(8.dp)

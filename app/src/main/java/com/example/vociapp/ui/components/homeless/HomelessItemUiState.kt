@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.state
+package com.example.vociapp.ui.components.homeless
 
 import com.example.vociapp.data.local.database.Homeless
 

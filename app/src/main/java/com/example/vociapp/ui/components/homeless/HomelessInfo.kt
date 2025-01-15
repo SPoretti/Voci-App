@@ -40,28 +40,32 @@ fun HomelessInfo(
         modifier = Modifier
             .padding(top = 16.dp)
     ) {
-        Row (
+        Row(
             horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 text = homeless.name,
-                style = MaterialTheme.typography.headlineLarge
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.weight(1f, fill = false)
             )
             StatusLED(
                 // Map the status to the color
-                color = when (homeless.status){
+                color = when (homeless.status) {
                     UpdateStatus.GREEN -> Color.Green
                     UpdateStatus.YELLOW -> Color.Yellow
                     UpdateStatus.RED -> Color.Red
                     UpdateStatus.GRAY -> Color.Gray
                 },
                 // If color is gray don't pulsate
-                isPulsating = when(homeless.status){
+                isPulsating = when (homeless.status) {
                     UpdateStatus.GREEN -> true
                     UpdateStatus.YELLOW -> true
                     UpdateStatus.RED -> true
                     UpdateStatus.GRAY -> false
-                },
+                }
             )
         }
         Row(

@@ -82,6 +82,36 @@ class RequestRepository @Inject constructor(
         }
     }
 
+    //get requests from room and wrap the result in a resource
+    fun getActiveRequests(): Flow<Resource<List<Request>>> = flow {
+        try {
+            // Indicate loading state
+            emit(Resource.Loading())
+            roomDataSource.getActiveRequests().collect { requestList ->
+                // Emit success with the fetched list
+                emit(Resource.Success(requestList))
+            }
+        } catch (e: Exception) {
+            //Emit error if there's an issue
+            emit(Resource.Error("Error fetching active requests from local data: ${e.localizedMessage}"))
+        }
+    }
+
+    //get requests from room and wrap the result in a resource
+    fun getCompletedRequests(): Flow<Resource<List<Request>>> = flow {
+        try {
+            // Indicate loading state
+            emit(Resource.Loading())
+            roomDataSource.getCompletedRequests().collect { requestList ->
+                // Emit success with the fetched list
+                emit(Resource.Success(requestList))
+            }
+        } catch (e: Exception) {
+            //Emit error if there's an issue
+            emit(Resource.Error("Error fetching completed requests from local data: ${e.localizedMessage}"))
+        }
+    }
+
     //delete request from room and wrap the result in a resource
     suspend fun deleteRequest(request: Request): Resource<Unit> {
         return try {

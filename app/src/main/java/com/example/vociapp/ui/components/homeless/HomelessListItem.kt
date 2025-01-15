@@ -33,7 +33,6 @@ import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomChip
 import com.example.vociapp.ui.components.core.StatusLED
 import com.example.vociapp.ui.components.core.hapticFeedback
-import com.example.vociapp.ui.state.HomelessItemUiState
 
 @Composable
 fun HomelessListItem(

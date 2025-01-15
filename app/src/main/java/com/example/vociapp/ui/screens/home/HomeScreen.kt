@@ -51,6 +51,7 @@ fun HomeScreen(
     val serviceLocator = LocalServiceLocator.current
     // Viewmodels
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val mapboxViewModel = serviceLocator.obtainMapboxViewModel()
     // Homeless Data
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
@@ -116,9 +117,9 @@ fun HomeScreen(
                 // Leading text displaying the number of homelesses in the database
                 Text(
                     text = if (listToDisplay.data?.size == 1) {
-                        "1 Persona"
+                        "1 Senzatetto"
                     } else {
-                        "${listToDisplay.data?.size ?: 0} Persone"
+                        "${listToDisplay.data?.size ?: 0} Senzatetto"
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -167,11 +168,11 @@ fun HomeScreen(
             )
             // AddHomelessDialog to add a new homeless
             if (showAddHomelessDialog) {
-                homelessViewModel.clearLocationVariables()
+                mapboxViewModel.clearLocationVariables()
                 CustomHomelessDialog(
                     onDismiss = {
                         showAddHomelessDialog = false
-                        homelessViewModel.clearLocationVariables()
+                        mapboxViewModel.clearLocationVariables()
                     },
                     onConfirm = {
                         homelessViewModel.addHomeless(it)

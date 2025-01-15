@@ -1,4 +1,4 @@
-package com.example.vociapp.data.util
+package com.example.vociapp.data.api
 
 data class SuggestionResponse(
     val suggestions: List<Suggestion>,

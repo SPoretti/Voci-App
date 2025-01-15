@@ -29,7 +29,7 @@ import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.requests.RequestList
 import com.example.vociapp.ui.components.requests.SortButtons
-import com.example.vociapp.ui.state.SortOption
+import com.example.vociapp.ui.components.requests.SortOption
 
 @Composable
 fun RequestsHistoryScreen(
@@ -41,15 +41,15 @@ fun RequestsHistoryScreen(
     // Viewmodels
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     // Requests get and sort
-    val requests by requestViewModel.requests.collectAsState()
+    val completedRequests by requestViewModel.completedRequests.collectAsState()
+    LaunchedEffect(Unit) {
+        requestViewModel.getCompletedRequests()
+    }
     val sortOptions = listOf(
         SortOption("Latest") { r1, r2 -> r2.timestamp.compareTo(r1.timestamp) },
         SortOption("Oldest") { r1, r2 -> r1.timestamp.compareTo(r2.timestamp) }
     )
     var selectedSortOption by remember { mutableStateOf(sortOptions[0]) }
-    LaunchedEffect(Unit) {
-        requestViewModel.getRequests()
-    }
 
     Box(
         modifier = Modifier
@@ -58,7 +58,7 @@ fun RequestsHistoryScreen(
 
     ) {
         // Display based on Resource state
-        when(requests){
+        when(completedRequests){
             // Loading State
             is Resource.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -86,7 +86,7 @@ fun RequestsHistoryScreen(
                     }
                     // Main Component : Requests list
                     RequestList(
-                        requests = requests,
+                        requests = completedRequests,
                         filterOption = RequestStatus.DONE,
                         sortOption = selectedSortOption,
                         navController = navController
@@ -98,7 +98,7 @@ fun RequestsHistoryScreen(
             is Resource.Error -> {
                 Column {
                     Text("Something went wrong. Please try again later.")
-                    Log.e("RequestDetailsScreen", "Error: ${requests.message}")
+                    Log.e("RequestDetailsScreen", "Error: ${completedRequests.message}")
                     Button(onClick = {
                         navController.popBackStack()
                     }) {
