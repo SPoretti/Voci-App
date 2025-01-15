@@ -41,15 +41,27 @@ class UpdatesRepository @Inject constructor(
         }
     }
 
-    //gets updates from room
+    //gets updates from room and wrap the result in a resource
     fun getUpdates(): Flow<Resource<List<Update>>> = flow {
-        emit(Resource.Loading())
-        roomDataSource.getUpdates().collect { emit(it) }
+        try {
+            emit(Resource.Loading()) // Indicate loading state
+            roomDataSource.getUpdates().collect { updates ->
+                emit(Resource.Success(updates)) // Emit success with the fetched list
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
+        }
     }
 
     fun getUpdatesByHomelessId(homelessId: String): Flow<Resource<List<Update>>> = flow {
-        emit(Resource.Loading())
-        roomDataSource.getUpdatesByHomelessId(homelessId).collect { emit(it) }
+        try {
+            emit(Resource.Loading()) // Indicate loading state
+            roomDataSource.getUpdatesByHomelessId(homelessId).collect { updates ->
+                emit(Resource.Success(updates)) // Emit success with the fetched list
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
+        }
     }
 
     suspend fun syncPendingActions() {

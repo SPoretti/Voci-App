@@ -1,20 +1,20 @@
 package com.example.vociapp.data.local
 
 import com.example.vociapp.data.local.dao.HomelessDao
+import com.example.vociapp.data.local.dao.PreferenceDao
 import com.example.vociapp.data.local.dao.RequestDao
 import com.example.vociapp.data.local.dao.SyncQueueDao
 import com.example.vociapp.data.local.dao.UpdateDao
 import com.example.vociapp.data.local.dao.VolunteerDao
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Preference
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
-import com.example.vociapp.data.util.Resource
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 
 //Offline data source
@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 class RoomDataSource(
     private val homelessDao: HomelessDao,
     private val volunteerDao: VolunteerDao,
+    private val preferenceDao: PreferenceDao,
     private val requestDao: RequestDao,
     private val updateDao: UpdateDao,
     private val syncQueueDao: SyncQueueDao
@@ -32,18 +33,8 @@ class RoomDataSource(
         requestDao.insert(request)
     }
 
-    fun getRequests(): Flow<Resource<List<Request>>>  = flow {
-        try {
-            // Indicate loading state
-            emit(Resource.Loading())
-            requestDao.getAllRequests().collect { requestList ->
-                // Emit success with the fetched list
-                emit(Resource.Success(requestList))
-            }
-        } catch (e: Exception) {
-            //Emit error if there's an issue
-            emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
-        }
+    fun getRequests(): Flow<List<Request>> {
+        return requestDao.getAllRequests()
     }
 
     //get all requests from room (not a flow)
@@ -71,15 +62,8 @@ class RoomDataSource(
         return requestDao.getRequestById(requestId)
     }
 
-    fun getRequestsByHomelessId(homelessId: String): Flow<Resource<List<Request>>> = flow {
-        try {
-            emit(Resource.Loading()) // Indicate loading state
-            requestDao.getActiveRequestsByHomelessId(homelessId).collect { requestList ->
-                emit(Resource.Success(requestList)) // Emit success with the fetched list
-            }
-        } catch (e: Exception) {
-            emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
-        }
+    fun getRequestsByHomelessId(homelessId: String): Flow<List<Request>> {
+        return requestDao.getActiveRequestsByHomelessId(homelessId)
     }
 
     // ------------------------------- Homeless Functions ----------------------------------
@@ -90,18 +74,8 @@ class RoomDataSource(
     }
 
     // Collecting Flow from Room DAO and emitting Resource
-    fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
-        try {
-            // Indicate loading state
-            emit(Resource.Loading())
-            homelessDao.getAllHomeless().collect { homelessList ->
-                // Emit success with the fetched list
-                emit(Resource.Success(homelessList))
-            }
-        } catch (e: Exception) {
-            //Emit error if there's an issue
-            emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
-        }
+    fun getHomelesses(): Flow<List<Homeless>> {
+        return homelessDao.getAllHomelesses()
     }
 
     //get all homelesses from room (not a flow)
@@ -113,18 +87,8 @@ class RoomDataSource(
         return homelessDao.getHomelessById(homelessID)
     }
 
-    fun getHomelessesLocations():Flow<Resource<List<String>>> = flow {
-        try {
-            // Indicate loading state
-            emit(Resource.Loading())
-            homelessDao.getAllLocations().collect { locationsList ->
-                // Emit success with the fetched list
-                emit(Resource.Success(locationsList))
-            }
-        } catch (e: Exception) {
-            //Emit error if there's an issue
-            emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
-        }
+    fun getHomelessesLocations():Flow<List<String>> {
+        return homelessDao.getAllLocations()
     }
 
     suspend fun updateHomeless(homeless: Homeless){
@@ -145,7 +109,7 @@ class RoomDataSource(
         volunteerDao.insert(volunteer)
     }
 
-    suspend fun getVolunteerById(id: String): Volunteer {
+    suspend fun getVolunteerById(id: String): Volunteer? {
         return volunteerDao.getVolunteerById(id)
     }
 
@@ -153,7 +117,7 @@ class RoomDataSource(
         return volunteerDao.getVolunteerByNickname(nickname)
     }
 
-    suspend fun getVolunteerByEmail(email: String): Volunteer {
+    suspend fun getVolunteerByEmail(email: String): Volunteer? {
         return volunteerDao.getVolunteerByEmail(email)
     }
 
@@ -183,26 +147,12 @@ class RoomDataSource(
         updateDao.insert(update)
     }
 
-    fun getUpdates(): Flow<Resource<List<Update>>> = flow {
-        try {
-            emit(Resource.Loading()) // Indicate loading state
-            updateDao.getAllUpdates().collect { updates ->
-                emit(Resource.Success(updates)) // Emit success with the fetched list
-            }
-        } catch (e: Exception) {
-            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
-        }
+    fun getUpdates(): Flow<List<Update>> {
+        return updateDao.getAllUpdates()
     }
 
-    fun getUpdatesByHomelessId(homelessId: String): Flow<Resource<List<Update>>> = flow {
-        try {
-            emit(Resource.Loading()) // Indicate loading state
-            updateDao.getUpdatesByHomelessId(homelessId).collect { updates ->
-                emit(Resource.Success(updates)) // Emit success with the fetched list
-            }
-        } catch (e: Exception) {
-            emit(Resource.Error("Error fetching updates: ${e.message}")) // Emit error if there's an issue
-        }
+    fun getUpdatesByHomelessId(homelessId: String): Flow<List<Update>> {
+        return updateDao.getUpdatesByHomelessId(homelessId)
     }
 
     suspend fun getUpdatesSnapshot(): List<Update> = withContext(Dispatchers.IO) {
@@ -245,5 +195,21 @@ class RoomDataSource(
 
     fun getPendingSyncActions(timestamp: Long): Flow<List<SyncAction>> {
         return syncQueueDao.getPendingSyncActions(timestamp)
+    }
+    // ------------------------------- Preferences Functions ----------------------------------
+    suspend fun insertPreference(preference: Preference) {
+        preferenceDao.insertPreference(preference)
+    }
+
+    suspend fun deletePreference(preference: Preference) {
+        preferenceDao.deletePreference(preference)
+    }
+
+    fun getPreferencesForVolunteer(volunteerId: String): Flow<List<Preference>> {
+        return preferenceDao.getPreferencesForVolunteer(volunteerId)
+    }
+
+    suspend fun getPreferencesForVolunteerSnapshot(volunteerId: String): List<Preference> = withContext(Dispatchers.IO) {
+        preferenceDao.getPreferencesForVolunteerSnapshot(volunteerId)
     }
 }

@@ -67,14 +67,22 @@ class RequestRepository @Inject constructor(
         }
     }
 
-    //get requests from room
+    //get requests from room and wrap the result in a resource
     fun getRequests(): Flow<Resource<List<Request>>> = flow {
-        emit(Resource.Loading())
-        roomDataSource.getRequests().collect { emit(it) }
+        try {
+            // Indicate loading state
+            emit(Resource.Loading())
+            roomDataSource.getRequests().collect { requestList ->
+                // Emit success with the fetched list
+                emit(Resource.Success(requestList))
+            }
+        } catch (e: Exception) {
+            //Emit error if there's an issue
+            emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
+        }
     }
 
-
-
+    //delete request from room and wrap the result in a resource
     suspend fun deleteRequest(request: Request): Resource<Unit> {
         return try {
             // 1. Delete from room
@@ -112,10 +120,12 @@ class RequestRepository @Inject constructor(
 
     fun getRequestsByHomelessId(homelessId: String): Flow<Resource<List<Request>>> = flow {
         try {
-            emit(Resource.Loading())
-            roomDataSource.getRequestsByHomelessId(homelessId).collect { emit(it) }
+            emit(Resource.Loading()) // Indicate loading state
+            roomDataSource.getRequestsByHomelessId(homelessId).collect { requestList ->
+                emit(Resource.Success(requestList)) // Emit success with the fetched list
+            }
         } catch (e: Exception) {
-            emit(Resource.Error("Errore durante il recupero delle richieste: ${e.message}"))
+            emit(Resource.Error("Error fetching requests from local data: ${e.localizedMessage}"))
         }
     }
 

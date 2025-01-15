@@ -3,13 +3,18 @@ package com.example.vociapp.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vociapp.data.local.database.Preference
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.util.Resource
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +32,9 @@ class VolunteerViewModel @Inject constructor(
     private val _currentUser = MutableStateFlow<Volunteer?>(null)
     val currentUser: StateFlow<Volunteer?> = _currentUser.asStateFlow()
 
+    private val _preferences = MutableStateFlow<Resource<List<Preference>>>(Resource.Loading())
+    val preferences: StateFlow<Resource<List<Preference>>> = _preferences
+
     init {
         fetchVolunteers()
 
@@ -37,6 +45,8 @@ class VolunteerViewModel @Inject constructor(
                     when (val volunteerIdResource = volunteerRepository.getVolunteerByEmail(email)) {
                         is Resource.Success -> {
                             val volunteerId = volunteerIdResource.data!!.id
+                            fetchPreferences(volunteerId)
+                            getPreferences(volunteerId)
                             val volunteer = volunteerRepository.getVolunteerById(volunteerId)
                             _currentUser.value =
                                 if (volunteer is Resource.Success)
@@ -57,6 +67,14 @@ class VolunteerViewModel @Inject constructor(
                 _currentUser.value = null
             }
         }
+        // Observe currentUser and call getPreferences when it's available
+//        viewModelScope.launch {
+//            currentUser.collect { volunteer ->
+//                volunteer?.let {
+//                    getPreferences(it.id)
+//                }
+//            }
+//        }
     }
 
     //Ritorna il volontario connesso
@@ -114,19 +132,60 @@ class VolunteerViewModel @Inject constructor(
         }
     }
 
+    fun fetchPreferences(volunteerId: String) {
+        viewModelScope.launch {
+            volunteerRepository.fetchPreferencesFromFirestoreToRoom(volunteerId)
+        }
+    }
+
+    fun getPreferences(volunteerId: String) {
+        volunteerRepository.getPreferredHomelessForVolunteer(volunteerId)
+            .onEach { result ->
+                _preferences.value = result
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun isHomelessPreferred(homelessId: String): Flow<Boolean> = flow {
+        preferences.collect { resource ->
+            if (resource is Resource.Success) {
+                val isPreferred = resource.data?.any { it.homelessId == homelessId } ?: false
+                emit(isPreferred)
+            } else {
+                emit(false)
+            }
+        }
+    }
+
     fun toggleHomelessPreference(homelessId: String) {
         viewModelScope.launch {
             val currentVolunteer = currentUser.value
             if (currentVolunteer != null) {
-                val updatedPreferredIds =
-                    if (homelessId in currentVolunteer.preferredHomelessIds) {
-                        currentVolunteer.preferredHomelessIds - homelessId
+                // 1. Check if the preference already exists
+                val preferenceExists = preferences.value.let { resource ->
+                    if (resource is Resource.Success) {
+                        resource.data?.any { it.homelessId == homelessId } ?: false
                     } else {
-                        currentVolunteer.preferredHomelessIds + homelessId
+                        false
                     }
-                volunteerRepository.updateVolunteer(currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds))
-                // Update _currentUser state to reflect the change
-                _currentUser.value = currentVolunteer.copy(preferredHomelessIds = updatedPreferredIds)
+                }
+
+                // 2. Add or delete the preference
+                if (preferenceExists) {
+                    // Delete the preference
+                    val preferenceToDelete = Preference(
+                        volunteerId = currentVolunteer.id,
+                        homelessId = homelessId
+                    )
+                    volunteerRepository.deletePreference(preferenceToDelete)
+                } else {
+                    // Add the preference
+                    val newPreference = Preference(
+                        volunteerId = currentVolunteer.id,
+                        homelessId = homelessId
+                    )
+                    volunteerRepository.addPreference(newPreference)
+                }
             }
         }
     }

@@ -69,8 +69,17 @@ class HomelessRepository @Inject constructor(
 
     //get homeless from room
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
-        emit(Resource.Loading())
-        roomDataSource.getHomelesses().collect { emit(it) }
+        try {
+            // Indicate loading state
+            emit(Resource.Loading())
+            roomDataSource.getHomelesses().collect { homelessList ->
+                // Emit success with the fetched list
+                emit(Resource.Success(homelessList))
+            }
+        } catch (e: Exception) {
+            //Emit error if there's an issue
+            emit(Resource.Error("Error fetching homeless data: ${e.localizedMessage}")) // Emit error if there's an issue
+        }
     }
 
     // get homeless by id from room

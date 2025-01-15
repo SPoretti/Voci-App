@@ -22,9 +22,6 @@ interface VolunteerDao {
     @Update
     suspend fun update(volunteer: Volunteer)
 
-    @Query("UPDATE volunteers SET preferredHomelessIds = :preferredHomelessIds WHERE id = :userId")
-    suspend fun updateUserPreferences(userId: String, preferredHomelessIds: List<String>)
-
     @Query("DELETE FROM volunteers WHERE id = :volunteerId")
     suspend fun deleteById(volunteerId: String)
 
@@ -35,10 +32,10 @@ interface VolunteerDao {
     suspend fun getAllVolunteersSnapshot(): List<Volunteer>
 
     @Query("SELECT * FROM volunteers WHERE id = :id LIMIT 1")
-    suspend fun getVolunteerById(id: String): Volunteer
+    suspend fun getVolunteerById(id: String): Volunteer?
 
     @Query("SELECT * FROM volunteers WHERE email = :email LIMIT 1")
-    suspend fun getVolunteerByEmail(email: String): Volunteer
+    suspend fun getVolunteerByEmail(email: String): Volunteer?
 
     @Query("SELECT id FROM volunteers WHERE email = :email LIMIT 1")
     suspend fun getVolunteerIdByEmail(email: String): String?
@@ -48,9 +45,6 @@ interface VolunteerDao {
 
     @Query("SELECT * FROM volunteers WHERE area = :area")
     fun getVolunteersByArea(area: Area): Flow<List<Volunteer>>
-
-    @Query("SELECT preferredHomelessIds FROM volunteers WHERE id = :userId")
-    suspend fun getUserPreferences(userId: String): String?
 
     @Transaction
     suspend fun insertOrUpdate(volunteer: Volunteer) {
