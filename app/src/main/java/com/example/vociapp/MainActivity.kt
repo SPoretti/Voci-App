@@ -36,18 +36,18 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var networkConnectivityListener: NetworkConnectivityListener
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                // Permission granted, proceed with notification setup
-                Log.d("NotificationPermission", "Permission granted")
-            } else {
-                // Permission denied, handle accordingly (e.g., show a message)
-                Log.d("NotificationPermission", "Permission denied")
-            }
-        }
+//    private val requestPermissionLauncher =
+//        registerForActivityResult(
+//            ActivityResultContracts.RequestPermission()
+//        ) { isGranted: Boolean ->
+//            if (isGranted) {
+//                // Permission granted, proceed with notification setup
+//                Log.d("NotificationPermission", "Permission granted")
+//            } else {
+//                // Permission denied, handle accordingly (e.g., show a message)
+//                Log.d("NotificationPermission", "Permission denied")
+//            }
+//        }
 
     private val locationPermissionLauncher =
         registerForActivityResult(
@@ -67,17 +67,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         networkConnectivityListener = NetworkConnectivityListener(applicationContext)
         networkConnectivityListener.startMonitoring()
-        Handler(Looper.getMainLooper()).postDelayed({
-            // Check and request notification permission
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                // Permission already granted
-                Log.d("NotificationPermission", "Permission already granted")
-            }
-        }, 1000) // Delay for 1 second
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            // Check and request notification permission
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+//                PackageManager.PERMISSION_GRANTED
+//            ) {
+//                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+//            } else {
+//                // Permission already granted
+//                Log.d("NotificationPermission", "Permission already granted")
+//            }
+//        }, 1000) // Delay for 1 second
 
         Handler(Looper.getMainLooper()).postDelayed({
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=

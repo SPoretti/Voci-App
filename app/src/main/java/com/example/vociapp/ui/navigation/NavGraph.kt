@@ -18,10 +18,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.vociapp.ui.screens.auth.PasswordRecover
 import com.example.vociapp.ui.components.core.Screens
 import com.example.vociapp.ui.components.updates.ButtonOption
 import com.example.vociapp.ui.screens.ApiTesting
+import com.example.vociapp.ui.screens.auth.PasswordRecover
 import com.example.vociapp.ui.screens.auth.SignInScreen
 import com.example.vociapp.ui.screens.auth.SignUpScreen
 import com.example.vociapp.ui.screens.home.HomeScreen
@@ -103,7 +103,7 @@ fun NavGraph(
             }
         ) { backStackEntry ->
             val creatorId = backStackEntry.arguments?.getString("creatorId")
-            ProfileVolunteerScreen(creatorId)
+            ProfileVolunteerScreen(creatorId.toString())
         }
         composable(route = "updateUserProfile") { UpdateUserProfileScreen(navController) }
 
@@ -158,7 +158,7 @@ fun NavGraph(
 
         // Profile screens
         composable(
-            route = Screens.UserProfile.route,
+            route = "UserProfile",
             enterTransition = {
                 slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
             },
@@ -167,7 +167,7 @@ fun NavGraph(
             }
         ) { UserProfileScreen(navController) }
 
-        composable(route = Screens.UpdateUserProfile.route) { UpdateUserProfileScreen(navController) }
+        composable(route = "UpdateUserProfile") { UpdateUserProfileScreen(navController) }
 
         composable(
             route = "ProfileVolontario/{creatorId}",
@@ -191,7 +191,7 @@ fun NavGraph(
             }
         }
 
-        composable(route = Screens.ForgotPassword.route) {PasswordRecover(navController)}
+        composable(route = "ForgotPassword") {PasswordRecover(navController)}
         
         composable(
             route = "ProfileHomeless/{homelessId}",

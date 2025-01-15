@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.volunteers
 
 import android.util.Patterns
 import androidx.compose.foundation.Image

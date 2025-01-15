@@ -1,6 +1,5 @@
 package com.example.vociapp.ui.screens.auth
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,11 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.AuthTextField
-import com.example.vociapp.ui.components.PasswordPopup
-import com.example.vociapp.ui.components.SnackbarManager
-import com.example.vociapp.ui.components.getTextFieldColors
-import com.example.vociapp.ui.navigation.Screens
+import com.example.vociapp.ui.components.volunteers.PasswordPopup
+import com.example.vociapp.ui.components.volunteers.SnackbarManager
+import com.example.vociapp.ui.components.volunteers.getTextFieldColors
 import com.example.vociapp.ui.components.volunteers.AuthTextField
 import com.example.vociapp.ui.viewmodels.AuthResult
 import java.util.UUID
@@ -158,15 +155,8 @@ fun SignUpScreen(
                             phoneNumber,
                             user?.email ?: ""
                         )
-                        volunteerViewModel.addVolunteer(volunteer) { success ->
-                            if (success) {
-                                Log.d("SignUpScreen", "Volunteer added successfully")
-                                volunteerViewModel.fetchUserPreferences(volunteer.id)
-                                navController.navigate(Screens.Home.route)
-                            } else {
-                                Log.d("SignUpScreen", "Error adding volunteer")
-                            }
-                        }
+                        volunteerViewModel.addVolunteer(volunteer)
+                        navController.navigate("home")
                     }
                 }
             }
