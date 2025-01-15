@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.volunteers
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost

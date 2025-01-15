@@ -2,10 +2,6 @@ package com.example.vociapp.data.repository
 
 import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
-import com.example.vociapp.data.local.dao.SyncQueueDao
-import com.example.vociapp.data.local.database.Converters
-import com.example.vociapp.data.local.database.Request
-import com.example.vociapp.data.local.database.SyncAction
 import com.example.vociapp.data.local.database.Volunteer
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.util.NetworkManager
@@ -94,17 +90,17 @@ class VolunteerRepository @Inject constructor(
         }
     }
 
-    suspend fun getVolunteerIdByEmail(email: String): Resource<String?> {
-        return try {
-            val volunteerId = roomDataSource.getVolunteerIdByEmail(email)
-            if (volunteerId != null)
-                Resource.Success(volunteerId)
-            else
-                Resource.Error("Volontario non trovato, provare a refreshare")
-        } catch (e: Exception) {
-            Resource.Error("Errore, operazione fallita: ${e.message}")
-        }
-    }
+//    suspend fun getVolunteerIdByEmail(email: String): Resource<String?> {
+//        return try {
+//            val volunteerId = roomDataSource.getVolunteerByEmail(email)
+//            if (volunteerId != null)
+//                Resource.Success(volunteerId)
+//            else
+//                Resource.Error("Volontario non trovato, provare a refreshare")
+//        } catch (e: Exception) {
+//            Resource.Error("Errore, operazione fallita: ${e.message}")
+//        }
+//    }
 
     suspend fun getVolunteerByNickname(nickname: String): Resource<Volunteer?> {
         return try{

@@ -1,10 +1,8 @@
-package com.example.vociapp.ui.components
+package com.example.vociapp.ui.components.volunteers
 
+import android.graphics.Rect
 import android.view.ViewTreeObserver
 import androidx.compose.foundation.background
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -12,7 +10,9 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun CustomSnackbar(snackbarData: SnackbarData, isBottomBarVisible: Boolean = false) {
@@ -29,7 +30,7 @@ fun CustomSnackbar(snackbarData: SnackbarData, isBottomBarVisible: Boolean = fal
 
     DisposableEffect(context) {
         val callback = ViewTreeObserver.OnGlobalLayoutListener {
-            val rect = android.graphics.Rect()
+            val rect = Rect()
             rootView.getWindowVisibleDisplayFrame(rect)
         }
 

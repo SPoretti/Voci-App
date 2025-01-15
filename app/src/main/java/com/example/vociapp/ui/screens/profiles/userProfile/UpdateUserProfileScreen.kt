@@ -50,10 +50,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.ProfilePictureDialog
-import com.example.vociapp.ui.components.ProfileTextField
-import com.example.vociapp.ui.components.SnackbarManager
-import com.example.vociapp.ui.components.getTextFieldColors
+import com.example.vociapp.ui.components.volunteers.ProfilePictureDialog
+import com.example.vociapp.ui.components.volunteers.ProfileTextField
+import com.example.vociapp.ui.components.volunteers.SnackbarManager
+import com.example.vociapp.ui.components.volunteers.getTextFieldColors
 import com.example.vociapp.ui.viewmodels.AuthResult
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await

@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.RequestStatus
@@ -69,7 +70,6 @@ fun RequestDetailsScreen(
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatterImpl()
     // Dialog Variables
     var showModifyDialog by remember { mutableStateOf(false) }
-    var requestForDialog: Request? by remember { mutableStateOf(null) }
     // Fetch request by ID
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val volunteerViewModel = serviceLocator.obtainVolunteerViewModel()
@@ -82,7 +82,6 @@ fun RequestDetailsScreen(
 
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
-    var showDialog by remember { mutableStateOf(false) }
     var requestForDialog: Request? by remember { mutableStateOf(null) }
 
     Box(
@@ -214,7 +213,7 @@ fun RequestDetailsScreen(
                         ) {
                             Text("Creata da:", fontSize = 14.sp)
                             if (volunteer != null) {
-                                RequestChip(
+                                CustomChip(
                                     text = volunteer.nickname,
                                     onClick = { navController.navigate("profileVolontario/${request?.creatorId}") },
                                     imageVector = Icons.Filled.Person
