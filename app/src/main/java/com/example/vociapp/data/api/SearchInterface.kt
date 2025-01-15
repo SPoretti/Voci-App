@@ -1,9 +1,9 @@
-package com.example.vociapp.data.util
+package com.example.vociapp.data.api
 
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface MapboxSearchApi {
+interface SearchInterface {
     @GET("search/searchbox/v1/suggest")
     suspend fun getSuggestions(
         @Query("q") query: String,

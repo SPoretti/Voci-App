@@ -44,8 +44,9 @@ fun ProfileHomelessScreen(
     val serviceLocator = LocalServiceLocator.current
     // Homeless
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
+    val mapboxViewModel = serviceLocator.obtainMapboxViewModel()
     val specificHomeless by homelessViewModel.specificHomeless.collectAsState()
-    val locationState by homelessViewModel.locationCoordinates.collectAsState()
+    val locationState by mapboxViewModel.locationCoordinates.collectAsState()
     // Requests
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requestsByHomelessId.collectAsState()
@@ -66,8 +67,7 @@ fun ProfileHomelessScreen(
     }
     //----- Region: View Composition -----
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier

@@ -33,8 +33,8 @@ import com.example.vociapp.ui.components.core.ConfirmButton
 import com.example.vociapp.ui.components.core.DismissButton
 import com.example.vociapp.ui.components.core.hapticFeedback
 import com.example.vociapp.ui.components.homeless.HomelessDialogList
+import com.example.vociapp.ui.components.homeless.HomelessItemUiState
 import com.example.vociapp.ui.components.homeless.HomelessListItem
-import com.example.vociapp.ui.state.HomelessItemUiState
 
 @Composable
 fun AddRequestDialog(

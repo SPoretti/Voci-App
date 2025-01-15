@@ -16,10 +16,10 @@ The `MultiPointMap` component is a Mapbox-based map view that displays multiple 
 
 ## Parameters
 
-| Parameter        | Type          | Description                                        |
-|------------------|---------------|----------------------------------------------------|
-| `points`         | `List<Point>` | List of geographical points to display as markers. |
-| `cameraLocation` | `Point`       | Initial camera position on the map.                |
+| Parameter       | Type            | Description                                        |
+|-----------------|-----------------|----------------------------------------------------|
+| `points`        | `List<Point>`   | List of geographical points to display as markers. |
+| `cameraOptions` | `CameraOptions` | Defines the initial camera position and settings.  |
 
 ---
 
@@ -28,7 +28,10 @@ The `MultiPointMap` component is a Mapbox-based map view that displays multiple 
 ```kotlin
 MultiPointMap(
     points = listOf(Point.fromLngLat(-77.0369, 38.9072)),
-    cameraLocation = Point.fromLngLat(-77.0369, 38.9072)
+    cameraOptions = CameraOptions.Builder()
+        .center(Point.fromLngLat(-77.0369, 38.9072))
+        .zoom(12.0)
+        .build()
 )
 ```
 
@@ -51,12 +54,19 @@ MultiPointMap(
     - Flexible camera settings to define the map’s initial view.
     - Custom marker icons using drawable resources.
 
+5. **Theme Support**:
+    - Dynamically switches between dark and light themes based on system settings.
+
+6. **Offline Handling**:
+    - Displays a placeholder message when the device is offline.
+
 ---
 
 ## Known Limitations
 
 - **Static Marker Icons**: Currently, all points use the same marker icon (`R.drawable.marker_icon`).
 - **Animation Dependency**: Transitions rely on `MapAnimationOptions`, which may not suit all scenarios.
+- **Offline Behavior**: Limited functionality when the network is unavailable.
 
 ---
 

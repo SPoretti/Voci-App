@@ -1,4 +1,4 @@
-package com.example.vociapp.ui.components.homeless
+package com.example.vociapp.ui.components.core
 
 import android.Manifest
 import android.content.Context

@@ -22,8 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
 import com.example.vociapp.ui.components.core.CustomFAB
+import com.example.vociapp.ui.components.core.LocationHandler
 import com.example.vociapp.ui.components.homeless.AddLocationSearchbar
-import com.example.vociapp.ui.components.homeless.LocationHandler
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.mapbox.geojson.Point
@@ -35,9 +35,9 @@ fun SearchBox(
 ){
     //----- Region: Data Initialization -----
     val serviceLocator = LocalServiceLocator.current
-    val homelessViewModel = serviceLocator.obtainHomelessViewModel()
-    val locationCoordinates by homelessViewModel.locationCoordinates.collectAsState()
-    val locationAddress by homelessViewModel.locationAddress.collectAsState()
+    val mapboxViewmodel = serviceLocator.obtainMapboxViewModel()
+    val locationCoordinates by mapboxViewmodel.locationCoordinates.collectAsState()
+    val locationAddress by mapboxViewmodel.locationAddress.collectAsState()
     // Initialize camera location and points
     var points by remember { mutableStateOf<List<Point>>(emptyList()) }
     var address by remember { mutableStateOf("") }
@@ -55,7 +55,7 @@ fun SearchBox(
 
     // Fetch location coordinates
     when (locationCoordinates) {
-        is Resource.Loading -> { }
+        is Resource.Loading -> {  }
         is Resource.Success -> {
             val coordinates = locationCoordinates.data!!
             val point = Point.fromLngLat(coordinates.second, coordinates.first)
@@ -66,11 +66,11 @@ fun SearchBox(
                 .zoom(15.0)
                 .bearing(-17.6)
                 .build()
-            homelessViewModel.mapboxReverseGeocoding(point.latitude(), point.longitude())
-
+            mapboxViewmodel.reverseGeocoding(point.latitude(), point.longitude())
         }
-
-        is Resource.Error -> TODO()
+        is Resource.Error -> {
+            Log.e("SearchBox", "Error loading location coordinates: ${locationCoordinates.message}")
+        }
     }
 
     LaunchedEffect(locationAddress) {
@@ -86,7 +86,7 @@ fun SearchBox(
                 currentLocation = location
             }
         )
-        homelessViewModel.mapboxReverseGeocoding(
+        mapboxViewmodel.reverseGeocoding(
             currentLocation?.first ?: 0.0,
             currentLocation?.second ?: 0.0
         )
@@ -110,7 +110,7 @@ fun SearchBox(
             modifier = Modifier.align(Alignment.TopCenter),
             onClick = {
                 address = it
-                homelessViewModel.mapboxForwardGeocoding(it, proximity = "${currentLocation?.second},${currentLocation?.first}")
+                mapboxViewmodel.forwardGeocoding(it, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 Log.d("SearchBox-AddLocationSearchBar", it)
             }
         )
@@ -128,7 +128,7 @@ fun SearchBox(
                 onClick = {
                     Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
                     address = locationAddress.data ?: ""
-                    homelessViewModel.mapboxForwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
+                    mapboxViewmodel.forwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 },
             )
             // Button to save the selected location - RIGHT

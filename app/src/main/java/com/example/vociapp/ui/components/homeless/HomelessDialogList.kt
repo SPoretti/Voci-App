@@ -21,7 +21,6 @@ import androidx.navigation.NavController
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.state.HomelessItemUiState
 
 @Composable
 fun HomelessDialogList(

@@ -168,4 +168,12 @@
         <description>Created after removal of "ThemeUtils" from Voci App Documentation</description>
         <accepts>ThemeUtils.html</accepts>
     </rule>
+    <rule id="f8af9d0">
+        <description>Created after removal of "Composition Locals" from Voci App Documentation</description>
+        <accepts>Composition-Locals.html</accepts>
+    </rule>
+    <rule id="16702a81">
+        <description>Created after removal of "WayPoint [Class]" from Voci App Documentation</description>
+        <accepts>WayPoint-Class.html</accepts>
+    </rule>
 </rules>

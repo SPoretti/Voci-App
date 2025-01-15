@@ -66,6 +66,14 @@ class RoomDataSource(
         return requestDao.getActiveRequestsByHomelessId(homelessId)
     }
 
+    fun getActiveRequests() : Flow<List<Request>> {
+        return requestDao.getActiveRequests()
+    }
+
+    fun getCompletedRequests() : Flow<List<Request>> {
+        return requestDao.getCompletedRequests()
+    }
+
     // ------------------------------- Homeless Functions ----------------------------------
 
 

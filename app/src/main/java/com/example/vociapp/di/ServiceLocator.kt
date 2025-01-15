@@ -5,12 +5,14 @@ import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.database.VociAppRoomDatabase
 import com.example.vociapp.data.remote.FirestoreDataSource
 import com.example.vociapp.data.repository.HomelessRepository
+import com.example.vociapp.data.repository.MapboxRepository
 import com.example.vociapp.data.repository.RequestRepository
 import com.example.vociapp.data.repository.UpdatesRepository
 import com.example.vociapp.data.repository.VolunteerRepository
 import com.example.vociapp.data.util.NetworkManager
 import com.example.vociapp.ui.viewmodels.AuthViewModel
 import com.example.vociapp.ui.viewmodels.HomelessViewModel
+import com.example.vociapp.ui.viewmodels.MapboxViewModel
 import com.example.vociapp.ui.viewmodels.RequestViewModel
 import com.example.vociapp.ui.viewmodels.UpdatesViewModel
 import com.example.vociapp.ui.viewmodels.VolunteerViewModel
@@ -53,8 +55,13 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
 
     // Repositories and ViewModels
 
+    private val mapboxRepository: MapboxRepository = MapboxRepository()
+    private val mapboxViewModel: MapboxViewModel by lazy {
+        MapboxViewModel(mapboxRepository)
+    }
+
     private val homelessRepository: HomelessRepository = HomelessRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
-    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository)
+    private val homelessViewModel: HomelessViewModel = HomelessViewModel(homelessRepository, mapboxViewModel)
 
     private val volunteerRepository: VolunteerRepository = VolunteerRepository(FirestoreDataSource(firestore), roomDataSource, networkManager)
     private val volunteerViewModel: VolunteerViewModel = VolunteerViewModel(volunteerRepository)
@@ -68,8 +75,10 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
         UpdatesViewModel(updatesRepository)
     }
 
-
     // Getters for repositories and view models
+    fun obtainMapboxRepository(): MapboxRepository = instance.mapboxRepository
+    fun obtainMapboxViewModel(): MapboxViewModel = instance.mapboxViewModel
+
     fun obtainRequestRepository(): RequestRepository = instance.requestRepository
     fun obtainRequestViewModel(): RequestViewModel = instance.requestViewModel
 
@@ -83,6 +92,9 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     fun obtainVolunteerViewModel(): VolunteerViewModel = instance.volunteerViewModel
 
     fun obtainAuthViewModel(): AuthViewModel = authViewModel
+
+    // Network manager
+    fun obtainNetworkManager(): NetworkManager = instance.networkManager
 
     fun fetchAllData(){
         homelessViewModel.fetchHomelesses()

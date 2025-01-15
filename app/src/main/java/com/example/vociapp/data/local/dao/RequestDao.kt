@@ -39,6 +39,12 @@ interface RequestDao {
     @Query("SELECT * FROM requests WHERE homelessId = :homelessId AND status = 'TODO'")
     fun getActiveRequestsByHomelessId(homelessId: String): Flow<List<Request>>
 
+    @Query("SELECT * FROM requests WHERE status = 'TODO'")
+    fun getActiveRequests(): Flow<List<Request>>
+
+    @Query("SELECT * FROM requests WHERE status = 'DONE'")
+    fun getCompletedRequests(): Flow<List<Request>>
+
     @Query("SELECT * FROM requests WHERE area = :area")
     fun getRequestsByArea(area: Area): Flow<List<Request>>
 
