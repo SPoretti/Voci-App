@@ -1,6 +1,7 @@
 package com.example.vociapp.data.remote
 
 import com.example.vociapp.data.local.database.Homeless
+import com.example.vociapp.data.local.database.Preference
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.local.database.Update
 import com.example.vociapp.data.local.database.Volunteer
@@ -311,5 +312,49 @@ class FirestoreDataSource @Inject constructor(
 
     fun deleteUpdate(id: String) {
         TODO() //if needed
+    }
+
+    // ------------------------------- Updates Functions ----------------------------------
+
+    suspend fun addPreference(preference: Preference): Resource<String> {
+        return try {
+            val preferenceMap = mapOf(
+                "volunteerId" to preference.volunteerId,
+                "homelessId" to preference.homelessId
+            )
+            firestore.collection("preferences")
+                .document("${preference.volunteerId}_${preference.homelessId}")
+                .set(preferenceMap)
+                .await()
+            Resource.Success("${preference.volunteerId}_${preference.homelessId}")
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun deletePreference(preference: Preference): Resource<Unit> {
+        return try {
+            firestore.collection("preferences")
+                .document("${preference.volunteerId}_${preference.homelessId}") // Use composite key as document ID
+                .delete()
+                .await()
+            Resource.Success(Unit) // Return Unit on success
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred while deleting preference")
+        }
+    }
+
+    suspend fun getPreferencesForVolunteer(volunteerId: String): Resource<List<Preference>> {
+        return try {
+            val querySnapshot = firestore.collection("preferences")
+                .whereEqualTo("volunteerId", volunteerId)
+                .get()
+                .await()
+
+            val preferences = querySnapshot.toObjects(Preference::class.java)
+            Resource.Success(preferences)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "Error fetching preferences for volunteer")
+        }
     }
 }

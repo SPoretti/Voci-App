@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.data.util.Resource
@@ -32,12 +31,9 @@ import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
 import com.example.vociapp.ui.components.homeless.DescriptionDialog
 import com.example.vociapp.ui.components.homeless.HomelessInfo
-import com.example.vociapp.ui.components.homeless.LocationHandler
 import com.example.vociapp.ui.components.maps.LocationFrame
 import com.example.vociapp.ui.components.updates.UpdateLastItem
 import com.example.vociapp.ui.components.updates.UpdateListDialog
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 
 @Composable
 fun ProfileHomelessScreen(

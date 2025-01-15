@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +55,8 @@ fun HomelessList(
     val homelesses by homelessViewModel.homelesses.collectAsState()
     val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
     val searchQuery by homelessViewModel.searchQuery.collectAsState()
+    // Preferences
+    val preferences by volunteerViewModel.preferences.collectAsState()
     // Display the list of homelesses based on the search query
     val listToDisplay =
         if (searchQuery.isBlank()) {
@@ -63,8 +64,6 @@ fun HomelessList(
         } else {
             filteredHomelesses
         }
-    // Get logged user to get preferences
-    val user by remember { mutableStateOf(volunteerViewModel.currentUser) }
 
     //----- Region: View Composition -----
     Box(
@@ -82,8 +81,17 @@ fun HomelessList(
             // Success State
             is Resource.Success -> {
                 // Display favorites on top
-                val sortedHomelessList = listToDisplay.data.orEmpty()
-                    .sortedByDescending { user.value?.preferredHomelessIds?.contains(it.id) }
+                val sortedHomelessList = listToDisplay.data.orEmpty().sortedByDescending { homeless ->
+                    // Check if the current user has a preference for this homeless person
+                    val isPreferred = preferences.let { resource ->
+                        if (resource is Resource.Success) {
+                            resource.data?.any { it.homelessId == homeless.id } ?: false
+                        } else {
+                            false
+                        }
+                    }
+                    isPreferred
+                }
                 // Display List Wrapper
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),

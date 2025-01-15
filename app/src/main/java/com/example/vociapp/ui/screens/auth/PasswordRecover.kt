@@ -34,9 +34,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.vociapp.di.LocalServiceLocator
+import com.example.vociapp.ui.components.volunteers.AuthTextField
 import com.example.vociapp.ui.components.volunteers.SnackbarManager
 import com.example.vociapp.ui.components.volunteers.getTextFieldColors
-import com.example.vociapp.ui.components.volunteers.AuthTextField
 import com.example.vociapp.ui.viewmodels.AuthResult
 import kotlinx.coroutines.delay
 

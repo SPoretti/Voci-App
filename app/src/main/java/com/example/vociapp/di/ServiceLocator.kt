@@ -41,6 +41,7 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     private val roomDataSource: RoomDataSource = RoomDataSource(
         homelessDao = roomDatabase.homelessDao(),
         volunteerDao = roomDatabase.volunteerDao(),
+        preferenceDao = roomDatabase.PreferenceDao(),
         requestDao = roomDatabase.requestDao(),
         updateDao = roomDatabase.updateDao(),
         syncQueueDao = roomDatabase.syncQueueDao()

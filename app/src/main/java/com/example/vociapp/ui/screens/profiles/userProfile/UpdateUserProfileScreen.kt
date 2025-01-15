@@ -155,9 +155,9 @@ fun UpdateUserProfileScreen(
                                                         val initials =
                                                             "${volunteer?.name?.firstOrNull() ?: ""}${volunteer?.surname?.firstOrNull() ?: ""}".uppercase()
                                                         //Profile picture
-                                                        if (currentProfile.photoUrl != null) {
+                                                        if (photoUrl != null) {
                                                             AsyncImage(
-                                                                model = currentProfile.photoUrl,
+                                                                model = photoUrl,
                                                                 contentDescription = "Profile Picture",
                                                                 modifier = Modifier
                                                                     .size(120.dp)

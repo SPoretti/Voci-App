@@ -41,10 +41,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.vociapp.data.util.Resource
 import com.example.vociapp.di.LocalServiceLocator
-import com.example.vociapp.ui.components.volunteers.SnackbarManager
 import com.example.vociapp.ui.components.core.SwipeDirection
 import com.example.vociapp.ui.components.core.SwipeableScreen
 import com.example.vociapp.ui.components.volunteers.ProfileInfoItem
+import com.example.vociapp.ui.components.volunteers.SnackbarManager
 
 @Composable
 fun UserProfileScreen(

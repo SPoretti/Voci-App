@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 @TypeConverters
 interface HomelessDao {
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(homeless: Homeless)
 
@@ -29,7 +28,7 @@ interface HomelessDao {
     suspend fun deleteById(homelessID: String)
 
     @Query("SELECT * FROM homelesses")
-    fun getAllHomeless(): Flow<List<Homeless>>
+    fun getAllHomelesses(): Flow<List<Homeless>>
 
     @Query("SELECT * FROM homelesses")
     suspend fun getAllHomelessesSnapshot(): List<Homeless>
