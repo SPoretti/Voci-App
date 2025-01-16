@@ -1,10 +1,8 @@
 [versions]
 agp = "8.8.0"
 coilCompose = "2.4.0"
-converterGson = "2.9.0"
 coreSplashscreen = "1.0.1"
 firebaseBom = "33.7.0"
-firebaseBomVersion = "33.7.0"
 firebaseFirestoreKtx = "25.1.1"
 gson = "2.10.1"
 kotlin = "2.0.0"
@@ -15,13 +13,21 @@ espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.7.3"
 kotlinxCoroutinesPlayServices = "1.7.3"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2024.12.01"
+activityCompose = "1.10.0"
+composeBom = "2025.01.00"
 lifecycleViewmodelKtx = "2.8.7"
 loggingInterceptor = "4.11.0"
+mapboxSdkServices = "5.7.0"
+mapboxSearchAndroid = "2.7.0"
+mapboxSearchAndroidUi = "2.7.0"
+mapboxOffline = "2.7.0"
+mapboxPlaceAutocomplete = "2.7.0"
+mapboxDiscover = "2.7.0"
+mapboxAutofill = "2.7.0"
+mapboxMapsCompose = "11.9.0"
+mapboxAndroid = "11.9.0"
 material = "1.12.0"
 material3 = "1.3.1"
-materialIconsExtended = "35"
 materialIconsExtendedVersion = "1.7.6"
 navigationCompose = "2.8.5"
 firebaseCrashlyticsBuildtools = "3.0.2"
@@ -34,12 +40,13 @@ roomKtx = "2.6.1"
 roomRuntime = "2.6.1"
 retrofit = "2.9.0"
 playServicesLocation = "21.3.0"
+workRuntimeKtx = "2.10.0"
 
 [libraries]
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+mapbox-android = { module = "com.mapbox.maps:android", version.ref = "mapboxAndroid" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-material-icons-extended-v175 = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtendedVersion" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
@@ -48,7 +55,6 @@ firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx"
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-bom-v3223 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 firebase-messaging-ktx = { module = "com.google.firebase:firebase-messaging-ktx" }
@@ -71,6 +77,14 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+mapbox-sdk-services = { module = "com.mapbox.mapboxsdk:mapbox-sdk-services", version.ref = "mapboxSdkServices" }
+mapbox-search-android = { module = "com.mapbox.search:mapbox-search-android", version.ref = "mapboxSearchAndroid" }
+mapbox-search-android-ui = { module = "com.mapbox.search:mapbox-search-android-ui", version.ref = "mapboxSearchAndroidUi" }
+mapbox-offline = { module = "com.mapbox.search:offline", version.ref = "mapboxOffline" }
+mapbox-place-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.ref = "mapboxPlaceAutocomplete" }
+mapbox-discover = { module = "com.mapbox.search:discover", version.ref = "mapboxDiscover" }
+mapbox-autofill = { module = "com.mapbox.search:autofill", version.ref = "mapboxAutofill" }
+mapbox-maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapboxMapsCompose" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
