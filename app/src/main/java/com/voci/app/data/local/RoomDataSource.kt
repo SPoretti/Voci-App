@@ -1,5 +1,6 @@
 package com.voci.app.data.local
 
+import com.google.gson.Gson
 import com.voci.app.data.local.dao.HomelessDao
 import com.voci.app.data.local.dao.PreferenceDao
 import com.voci.app.data.local.dao.RequestDao
@@ -12,7 +13,6 @@ import com.voci.app.data.local.database.Request
 import com.voci.app.data.local.database.SyncAction
 import com.voci.app.data.local.database.Update
 import com.voci.app.data.local.database.Volunteer
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

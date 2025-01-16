@@ -176,4 +176,9 @@
         <description>Created after removal of "WayPoint [Class]" from Voci App Documentation</description>
         <accepts>WayPoint-Class.html</accepts>
     </rule>
+    <rule id="6ac30f65">
+        <description>Created after removal of "Voci Firebase Messaging [Service]" from Voci App Documentation
+        </description>
+        <accepts>Voci-Firebase-Messaging-Service.html</accepts>
+    </rule>
 </rules>

@@ -1,7 +1,7 @@
 package com.voci.app.data.util
 
-import com.voci.app.ui.viewmodels.AuthResult
 import com.google.firebase.auth.FirebaseAuthException
+import com.voci.app.ui.viewmodels.AuthResult
 
 class ExceptionHandler {
     fun handleAuthException(e: FirebaseAuthException): AuthResult {

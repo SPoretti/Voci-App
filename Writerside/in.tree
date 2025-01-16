@@ -9,7 +9,6 @@
     <toc-element topic="App.md">
         <toc-element topic="Main-Activity.md"/>
         <toc-element topic="Voci-App-Application.md"/>
-        <toc-element topic="Voci-Firebase-Messaging-Service.md"/>
         <toc-element topic="Data-Package.md">
             <toc-element topic="Api-Package.md">
                 <toc-element topic="Suggestion-Response.md"/>

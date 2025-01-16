@@ -1,6 +1,7 @@
 package com.voci.app.di
 
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
 import com.voci.app.data.local.RoomDataSource
 import com.voci.app.data.local.database.VociAppRoomDatabase
 import com.voci.app.data.remote.FirestoreDataSource
@@ -16,7 +17,6 @@ import com.voci.app.ui.viewmodels.MapboxViewModel
 import com.voci.app.ui.viewmodels.RequestViewModel
 import com.voci.app.ui.viewmodels.UpdatesViewModel
 import com.voci.app.ui.viewmodels.VolunteerViewModel
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     companion object {

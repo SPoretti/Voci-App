@@ -10,15 +10,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
 import com.voci.app.data.local.database.Homeless
 import com.voci.app.data.util.Resource
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.LocationHandler
 import com.voci.app.ui.components.maps.MultiPointMap
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.mapbox.geojson.Point
-import com.mapbox.maps.CameraOptions
 
 @Composable
 fun HomelessesMap(

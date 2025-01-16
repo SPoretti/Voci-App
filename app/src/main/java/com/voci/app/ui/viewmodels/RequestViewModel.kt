@@ -2,11 +2,11 @@ package com.voci.app.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.voci.app.data.local.database.Request
 import com.voci.app.data.local.database.RequestStatus
 import com.voci.app.data.repository.RequestRepository
 import com.voci.app.data.util.Resource
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

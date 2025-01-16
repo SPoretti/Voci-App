@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.voci.app.ui.components.core.CustomFAB
 import com.mapbox.geojson.Point
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
@@ -20,6 +19,7 @@ import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportS
 import com.mapbox.maps.plugin.PuckBearing
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
+import com.voci.app.ui.components.core.CustomFAB
 
 @Composable
 fun MapOnDevice(
