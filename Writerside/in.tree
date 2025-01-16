@@ -68,6 +68,9 @@
             <toc-element topic="Components.md">
                 <toc-element topic="Volunteers-Components-Package.md"/>
                 <toc-element topic="Core-Components-Package.md">
+                    <toc-element topic="DrawerContent.md"/>
+                    <toc-element topic="DismissButton.md"/>
+                    <toc-element topic="ConfirmButton.md"/>
                     <toc-element topic="Location-Handler-Utility-Class.md"/>
                     <toc-element topic="Bottom-Bar-Component.md"/>
                     <toc-element topic="Screens.md"/>
