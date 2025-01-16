@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +31,7 @@ import com.example.vociapp.ui.components.core.CustomFAB
 import com.example.vociapp.ui.components.core.ProfileRequestList
 import com.example.vociapp.ui.components.homeless.CustomHomelessDialog
 import com.example.vociapp.ui.components.homeless.DescriptionDialog
+import com.example.vociapp.ui.components.homeless.HomelessDeletionDialog
 import com.example.vociapp.ui.components.homeless.HomelessInfo
 import com.example.vociapp.ui.components.maps.LocationFrame
 import com.example.vociapp.ui.components.updates.UpdateLastItem
@@ -47,6 +49,7 @@ fun ProfileHomelessScreen(
     val mapboxViewModel = serviceLocator.obtainMapboxViewModel()
     val specificHomeless by homelessViewModel.specificHomeless.collectAsState()
     val locationState by mapboxViewModel.locationCoordinates.collectAsState()
+
     // Requests
     val requestViewModel = serviceLocator.obtainRequestViewModel()
     val requests by requestViewModel.requestsByHomelessId.collectAsState()
@@ -57,6 +60,7 @@ fun ProfileHomelessScreen(
     var showUpdateListDialog by remember { mutableStateOf(false) }
     var showModifyHomelessDialog by remember { mutableStateOf(false) }
     var showDescriptionDialog by remember { mutableStateOf(false) }
+    var showDeletionDialog by remember { mutableStateOf(false) }
     // Init
     LaunchedEffect(homelessID) {
         homelessID.let {
@@ -152,7 +156,17 @@ fun ProfileHomelessScreen(
                 }
             }
         }
-        //Aggiorna senzatetto
+        // Elimina senzatetto - LEFT
+        CustomFAB(
+            onClick = {
+                showDeletionDialog = true
+                homelessViewModel.deleteHomeless(specificHomeless.data!!)
+            },
+            modifier = Modifier.align(Alignment.BottomStart),
+            icon = Icons.Filled.Delete,
+            text = "Elimina"
+        )
+        // Aggiorna senzatetto - RIGHT
         CustomFAB(
             onClick = { showModifyHomelessDialog = true },
             modifier = Modifier.align(Alignment.BottomEnd),
@@ -170,6 +184,16 @@ fun ProfileHomelessScreen(
                 },
                 homeless = specificHomeless.data!!,
                 actionText = "Modifica"
+            )
+        }
+
+        if (showDeletionDialog) {
+            HomelessDeletionDialog(
+                homelessViewModel = homelessViewModel,
+                onDismiss = {
+                    showDeletionDialog = false
+                    navController.navigate("home")
+                }
             )
         }
     }

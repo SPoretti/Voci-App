@@ -1,5 +1,6 @@
 package com.example.vociapp.data.repository
 
+import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.database.Request
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -171,13 +172,23 @@ class RequestRepository @Inject constructor(
                         // Deserialize the data
                         val data = Gson().fromJson(action.data, Request::class.java)
 
+                        var result : Resource<*> = Resource.Loading<Unit>()
+
                         when (action.operation) {
-                            "add" -> firestoreDataSource.addRequest(data)
-                            "update" -> firestoreDataSource.updateRequest(data)
-                            "delete" -> firestoreDataSource.deleteRequest(data)
+                            "add" -> result = firestoreDataSource.addRequest(data)
+                            "update" -> result = firestoreDataSource.updateRequest(data)
+                            "delete" -> result = firestoreDataSource.deleteRequest(data)
+                            else -> {
+                                Log.d(
+                                    "SyncPendingActions",
+                                    "Unknown operation: ${action.operation}"
+                                )
+                            }
                         }
-                        // Once synced, remove the action from the queue
-                        roomDataSource.deleteSyncAction(action)
+                        if (result is Resource.Success){
+                            // Once synced, remove the action from the queue
+                            roomDataSource.deleteSyncAction(action)
+                        }
                     }
                 }
             }

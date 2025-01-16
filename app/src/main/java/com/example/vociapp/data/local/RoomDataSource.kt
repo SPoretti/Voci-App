@@ -206,11 +206,11 @@ class RoomDataSource(
     }
     // ------------------------------- Preferences Functions ----------------------------------
     suspend fun insertPreference(preference: Preference) {
-        preferenceDao.insertPreference(preference)
+        preferenceDao.insert(preference)
     }
 
     suspend fun deletePreference(preference: Preference) {
-        preferenceDao.deletePreference(preference)
+        preferenceDao.delete(preference)
     }
 
     fun getPreferencesForVolunteer(volunteerId: String): Flow<List<Preference>> {

@@ -117,6 +117,32 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
+    suspend fun deleteRequestsByHomelessId(homelessId: String): Resource<Unit> {
+        return try {
+            // Query by "homelessId" field
+            val querySnapshot = firestore.collection("requests")
+                .whereEqualTo("homelessID", homelessId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                // Iterate through all documents and delete them
+                val deleteResults = querySnapshot.documents.map { document ->
+                    firestore.collection("requests")
+                        .document(document.id) // Use the document ID for deletion
+                        .delete()
+                }
+                // Wait for all delete operations to complete
+                deleteResults.forEach { it.await() }
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Requests not found") // Handle case where requests are not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
     // ------------------------------- Homeless Functions ----------------------------------
 
     suspend fun addHomeless(homeless: Homeless): Resource<String> {
@@ -183,8 +209,36 @@ class FirestoreDataSource @Inject constructor(
         }
     }
 
-    fun deleteHomelessById(id: Any) {
-        TODO()//if needed
+    // Delete a homeless person and its related requests etc from firestore
+    suspend fun deleteHomelessById(homelessId: String): Resource<Unit> {
+        return try {
+            // Delete the Homeless document
+            val querySnapshot = firestore.collection("homelesses")
+                .whereEqualTo("id", homelessId) // Query by "id" field
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id // Get the document ID
+                firestore.collection("homelesses")
+                    .document(documentId) // Use the document ID for deletion
+                    .delete()
+                    .await()
+
+                // Delete related preferences
+                deletePreferencesByHomelessId(homelessId)
+
+                // Delete related requests
+                deleteRequestsByHomelessId(homelessId)
+
+                // Delete related updates
+                deleteUpdatesByHomelessId(homelessId)
+            }
+
+            Resource.Success(Unit)
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
     }
 
     // ------------------------------- Volunteer Functions ----------------------------------
@@ -310,21 +364,66 @@ class FirestoreDataSource @Inject constructor(
         TODO() //if needed
     }
 
-    fun deleteUpdate(id: String) {
-        TODO() //if needed
+    suspend fun deleteUpdateById(id: String): Resource<Unit> {
+        return try {
+            // Query by "id" field
+            val querySnapshot = firestore.collection("updates")
+                .whereEqualTo("id", id)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                val documentId = querySnapshot.documents[0].id // Get the document ID
+                firestore.collection("updates")
+                    .document(documentId) // Use the document ID for deletion
+                    .delete()
+                    .await()
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Update not found") // Handle case where request is not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
+    }
+
+    suspend fun deleteUpdatesByHomelessId(homelessId: String): Resource<Unit> {
+        return try {
+            // Query by "homelessId" field
+            val querySnapshot = firestore.collection("updates")
+                .whereEqualTo("homelessID", homelessId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                // Iterate through all documents and delete them
+                val deleteResults = querySnapshot.documents.map { document ->
+                    firestore.collection("updates")
+                        .document(document.id) // Use the document ID for deletion
+                        .delete()
+                }
+                // Wait for all delete operations to complete
+                deleteResults.forEach { it.await() }
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Update not found") // Handle case where request is not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
+        }
     }
 
     // ------------------------------- Updates Functions ----------------------------------
 
     suspend fun addPreference(preference: Preference): Resource<String> {
         return try {
-            val preferenceMap = mapOf(
-                "volunteerId" to preference.volunteerId,
-                "homelessId" to preference.homelessId
-            )
+//            val preferenceMap = mapOf(
+//                "volunteerId" to preference.volunteerId,
+//                "homelessId" to preference.homelessId
+//            )
             firestore.collection("preferences")
                 .document("${preference.volunteerId}_${preference.homelessId}")
-                .set(preferenceMap)
+                .set(preference)
                 .await()
             Resource.Success("${preference.volunteerId}_${preference.homelessId}")
         } catch (e: Exception) {
@@ -355,6 +454,32 @@ class FirestoreDataSource @Inject constructor(
             Resource.Success(preferences)
         } catch (e: Exception) {
             Resource.Error(e.message ?: "Error fetching preferences for volunteer")
+        }
+    }
+
+    suspend fun deletePreferencesByHomelessId(homelessId: String): Resource<Unit> {
+        return try {
+            // Query by "homelessId" field
+            val querySnapshot = firestore.collection("preferences")
+                .whereEqualTo("homelessId", homelessId)
+                .get()
+                .await()
+
+            if (querySnapshot.documents.isNotEmpty()) {
+                // Iterate through all documents and delete them
+                val deleteResults = querySnapshot.documents.map { document ->
+                    firestore.collection("preferences")
+                        .document(document.id) // Use the document ID for deletion
+                        .delete()
+                }
+                // Wait for all delete operations to complete
+                deleteResults.forEach { it.await() }
+                Resource.Success(Unit)
+            } else {
+                Resource.Error("Preferences not found") // Handle case where preferences are not found
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.message ?: "An unknown error occurred")
         }
     }
 }

@@ -128,7 +128,7 @@ class RequestViewModel @Inject constructor(
         }
         getRequests()
     }
-    // Delete a request from the local database
+    // Delete a request both locally and remotely
     fun deleteRequest(request: Request) {
         viewModelScope.launch {
             val result = requestRepository.deleteRequest(request)
