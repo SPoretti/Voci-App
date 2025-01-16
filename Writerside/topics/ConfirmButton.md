@@ -17,13 +17,13 @@ The `ConfirmButton` component is a customizable button designed for confirmation
 
 ## Parameters
 
-| Parameter      | Type                     | Description                                      |
-|----------------|--------------------------|--------------------------------------------------|
-| `onClick`      | `() -> Unit`             | Action to perform when the button is clicked.    |
-| `modifier`     | `Modifier`               | Optional modifier for styling and positioning.   |
-| `colors`       | `ButtonColors`           | Optional colors for the button. Defaults to primary color scheme. |
-| `enabled`      | `Boolean`                | Whether the button is enabled or disabled. Defaults to true. |
-| `text`         | `String`                 | Text to display on the button. Defaults to "Conferma". |
+| Parameter  | Type           | Description                                                       |
+|------------|----------------|-------------------------------------------------------------------|
+| `onClick`  | `() -> Unit`   | Action to perform when the button is clicked.                     |
+| `modifier` | `Modifier`     | Optional modifier for styling and positioning.                    |
+| `colors`   | `ButtonColors` | Optional colors for the button. Defaults to primary color scheme. |
+| `enabled`  | `Boolean`      | Whether the button is enabled or disabled. Defaults to true.      |
+| `text`     | `String`       | Text to display on the button. Defaults to "Conferma".            |
 
 ---
 
