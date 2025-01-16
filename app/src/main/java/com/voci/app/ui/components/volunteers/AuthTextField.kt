@@ -24,9 +24,10 @@ fun AuthTextField(
     label: String,
     icon: ImageVector,
     isPassword: Boolean = false,
+    isPasswordVisible: Boolean = false,
     placeholder: String = "",
     modifier: Modifier = Modifier,
-    trailingIcon: @Composable () -> Unit = {},
+    trailingIcon: @Composable (() -> Unit)? = {},
     colors: TextFieldColors =
         OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -64,7 +65,15 @@ fun AuthTextField(
             )
         },
         trailingIcon = if (isPassword) trailingIcon else null,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation =
+            if (isPassword) {
+                if (!isPasswordVisible)
+                    PasswordVisualTransformation()
+                else
+                    VisualTransformation.None
+            }
+            else
+                VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
         singleLine = true
     )
