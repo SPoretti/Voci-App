@@ -1,5 +1,7 @@
 # README
 
+**Nome Gruppo**: Pepe Imperium
+
 - Gabriel Pesce – 899638 (referente)
 - Samuele Poretti - 904280
 - Matthias Muia - 894374
