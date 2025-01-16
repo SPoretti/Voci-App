@@ -1,0 +1,59 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html lang="en-US" data-preset="contrast" data-primary-color="#3F56CE"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="UTF-8"><meta name="built-on" content="2025-01-16T12:29:51.6243699"><title>Components [Package] | Voci App Documentation</title><script type="application/json" id="virtual-toc-data">[{"id":"structure","level":0,"title":"Structure","anchor":"#structure"},{"id":"sub-packages","level":0,"title":"Sub-Packages","anchor":"#sub-packages"},{"id":"usage","level":0,"title":"Usage","anchor":"#usage"}]</script><script type="application/json" id="topic-shortcuts"></script><link href="https://resources.jetbrains.com/writerside/apidoc/6.10.0-b575/app.css" rel="stylesheet"><link rel="icon" type="image/png" sizes="16x16" href="images/voci-logo.png"><meta name="image" content=""><!-- Open Graph --><meta property="og:title" content="Components [Package] | Voci App Documentation"><meta property="og:description" content=""><meta property="og:image" content=""><meta property="og:site_name" content="Voci App Documentation Help"><meta property="og:type" content="website"><meta property="og:locale" content="en_US"><meta property="og:url" content="writerside-documentation/components.html"><!-- End Open Graph --><!-- Twitter Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content=""><meta name="twitter:title" content="Components [Package] | Voci App Documentation"><meta name="twitter:description" content=""><meta name="twitter:creator" content=""><meta name="twitter:image:src" content=""><!-- End Twitter Card --><!-- Schema.org WebPage --><script type="application/ld+json">{
+    "@context": "http://schema.org",
+    "@type": "WebPage",
+    "@id": "writerside-documentation/components.html#webpage",
+    "url": "writerside-documentation/components.html",
+    "name": "Components [Package] | Voci App Documentation",
+    "description": "",
+    "image": "",
+    "inLanguage":"en-US"
+}</script><!-- End Schema.org --><!-- Schema.org WebSite --><script type="application/ld+json">{
+    "@type": "WebSite",
+    "@id": "writerside-documentation/#website",
+    "url": "writerside-documentation/",
+    "name": "Voci App Documentation Help"
+}</script><!-- End Schema.org --></head><body data-id="Components" data-main-title="Components [Package]" data-article-props="{&quot;seeAlsoStyle&quot;:&quot;links&quot;}" data-template="article" data-breadcrumbs="App.md|App///Ui-Package.md|User Interface (UI) [Package]"><div class="wrapper"><main class="panel _main"><header class="panel__header"><div class="container"><h3>Voci App Documentation  Help</h3><div class="panel-trigger"></div></div></header><section class="panel__content"><div class="container"><article class="article" data-shortcut-switcher="inactive"><h1 data-toc="Components" id="Components.md">Components [Package]</h1><p id="z5etil8_3">The <code class="code" id="z5etil8_7">Components</code> package contains all the building blocks required for the various screens of the application. It is organized into multiple sub-packages, each focusing on a specific feature or functionality. These components are designed to promote reusability, modularity, and consistency throughout the application.</p><section class="chapter"><h2 id="structure" data-toc="structure">Structure</h2><p id="z5etil8_8">Below is the general structure of the <code class="code" id="z5etil8_10">Components</code> package. Each sub-package corresponds to a particular feature or domain, encapsulating all related components.</p><div class="code-block" data-lang="none">
+VOCIAPP\APP\SRC\MAIN\JAVA\COM\EXAMPLE\VOCIAPP\UI\COMPONENTS
+├───core
+│       BottomBar.kt
+│       CustomChip.kt
+│       CustomFAB.kt
+│       DrawerContent.kt
+│       HapticModifier.kt
+│       NavigationLink.kt
+│       Screens.kt
+│       SearchBar.kt
+│       StatusLED.kt
+│
+├───homeless
+│       AddHomelessDialog.kt
+│       GenderSelector.kt
+│       HomelessDialogList.kt
+│       HomelessList.kt
+│       HomelessListItem.kt
+│
+├───maps
+│       MapOnDevice.kt
+│       MultiPointMap.kt
+│
+├───requests
+│       AddRequestDialog.kt
+│       DialogSearchBar.kt
+│       IconMapping.kt
+│       IconSelector.kt
+│       ModifyRequestDialog.kt
+│       RequestList.kt
+│       RequestListItem.kt
+│       SortButtons.kt
+│
+├───updates
+│       ButtonOption.kt
+│       FormText.kt
+│       StatusButtonData.kt
+│       UpdateButton.kt
+│
+└───volunteers
+        AuthTextField.kt
+        ProfileInfoItem.kt
+</div></section><section class="chapter"><h2 id="sub-packages" data-toc="sub-packages">Sub-Packages</h2><section class="chapter"><h3 id="volunteers" data-toc="volunteers">Volunteers</h3><p id="z5etil8_16">This package contains components related to managing and displaying volunteers.</p></section><section class="chapter"><h3 id="core" data-toc="core">Core</h3><p id="z5etil8_17">The <code class="code" id="z5etil8_19">Core</code> package includes fundamental components and utilities used across the application. Examples include:</p><ul class="list _bullet" id="z5etil8_18"><li class="list__item" id="z5etil8_20"><p><span class="control" id="z5etil8_26">Bottom Bar</span>: Navigation component for switching between primary screens.</p></li><li class="list__item" id="z5etil8_21"><p><span class="control" id="z5etil8_27">Custom FAB</span>: A floating action button tailored to the app's design.</p></li><li class="list__item" id="z5etil8_22"><p><span class="control" id="z5etil8_28">Custom Chip</span>: A reusable chip component for tags and filters.</p></li><li class="list__item" id="z5etil8_23"><p><span class="control" id="z5etil8_29">Search Bar</span>: A search input bar used across multiple screens.</p></li><li class="list__item" id="z5etil8_24"><p><span class="control" id="z5etil8_30">Status LED</span>: A visual indicator for statuses.</p></li><li class="list__item" id="z5etil8_25"><p><span class="control" id="z5etil8_31">Screens</span>: Base templates or utilities for screen layouts.</p></li></ul></section><section class="chapter"><h3 id="homeless" data-toc="homeless">Homeless</h3><p id="z5etil8_32">The <code class="code" id="z5etil8_34">Homeless</code> package focuses on components for managing and displaying homeless individuals. It includes:</p><ul class="list _bullet" id="z5etil8_33"><li class="list__item" id="z5etil8_35"><p>Dialogs for adding and listing homeless individuals.</p></li><li class="list__item" id="z5etil8_36"><p>List and item components for displaying information.</p></li></ul></section><section class="chapter"><h3 id="maps" data-toc="maps">Maps</h3><p id="z5etil8_37">This package provides map-related components, such as:</p><ul class="list _bullet" id="z5etil8_38"><li class="list__item" id="z5etil8_39"><p><span class="control" id="z5etil8_41">Map On Device</span>: Display a single point on the map.</p></li><li class="list__item" id="z5etil8_40"><p><span class="control" id="z5etil8_42">Multi Point Map</span>: Show multiple points for mapping data.</p></li></ul></section><section class="chapter"><h3 id="requests" data-toc="requests">Requests</h3><p id="z5etil8_43">The <code class="code" id="z5etil8_45">Requests</code> package encapsulates components for handling user requests. Examples include:</p><ul class="list _bullet" id="z5etil8_44"><li class="list__item" id="z5etil8_46"><p>Dialogs for adding and modifying requests.</p></li><li class="list__item" id="z5etil8_47"><p>List and item components for displaying request data.</p></li><li class="list__item" id="z5etil8_48"><p>Sorting buttons and icon selectors for enhanced functionality.</p></li></ul></section></section><section class="chapter"><h2 id="usage" data-toc="usage">Usage</h2><p id="z5etil8_49">These components are designed to be imported and used in the various screens of the application. They ensure that UI and functionality remain consistent and easy to maintain.</p></section><div class="last-modified">Last modified: 16 January 2025</div><div data-feedback-placeholder="true"></div><div class="navigation-links _bottom"><a href="ui-package.html" class="navigation-links__prev">User Interface (UI) [Package]</a><a href="volunteers-components-package.html" class="navigation-links__next">Volunteers [Components Package]</a></div></article><div id="disqus_thread"></div></div></section></main></div><script src="https://resources.jetbrains.com/writerside/apidoc/6.10.0-b575/app.js"></script></body></html>
