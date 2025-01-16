@@ -22,7 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.voci.app.data.util.AuthState
 import com.voci.app.data.util.NetworkConnectivityListener
 import com.voci.app.di.LocalServiceLocator
@@ -31,7 +31,6 @@ import com.voci.app.ui.components.core.BottomBar
 import com.voci.app.ui.navigation.NavGraph
 import com.voci.app.ui.navigation.currentRoute
 import com.voci.app.ui.theme.VociAppTheme
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : ComponentActivity() {
     // Declare the network connectivity listener

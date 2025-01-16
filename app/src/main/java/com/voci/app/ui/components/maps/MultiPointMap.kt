@@ -21,9 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.voci.app.R
-import com.voci.app.data.local.database.Homeless
-import com.voci.app.di.LocalServiceLocator
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
@@ -34,6 +31,9 @@ import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
+import com.voci.app.R
+import com.voci.app.data.local.database.Homeless
+import com.voci.app.di.LocalServiceLocator
 
 @Composable
 fun MultiPointMap(

@@ -33,11 +33,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.voci.app.data.util.Resource
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.LocationHandler
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import java.util.UUID
 
 @Composable

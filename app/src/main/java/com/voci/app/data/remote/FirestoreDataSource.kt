@@ -1,13 +1,13 @@
 package com.voci.app.data.remote
 
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.voci.app.data.local.database.Homeless
 import com.voci.app.data.local.database.Preference
 import com.voci.app.data.local.database.Request
 import com.voci.app.data.local.database.Update
 import com.voci.app.data.local.database.Volunteer
 import com.voci.app.data.util.Resource
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 

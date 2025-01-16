@@ -2,8 +2,6 @@ package com.voci.app.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.voci.app.data.util.AuthState
-import com.voci.app.data.util.ExceptionHandler
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthEmailException
@@ -12,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.voci.app.data.util.AuthState
+import com.voci.app.data.util.ExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

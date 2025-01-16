@@ -3,10 +3,9 @@ package com.voci.app
 import android.app.Application
 import android.content.Context
 import androidx.work.WorkManager
-import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.voci.app.data.local.database.VociAppRoomDatabase
 import com.voci.app.di.ServiceLocator
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
