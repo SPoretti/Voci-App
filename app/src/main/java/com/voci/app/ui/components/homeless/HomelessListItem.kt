@@ -72,17 +72,6 @@ fun HomelessListItem(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                 ){
-                    Text(
-                        text = homelessState.homeless.name,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, false)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // StatusLED with style based on homeless status
                     StatusLED(
                         // Map the status to the color
                         color = when (homelessState.homeless.status){
@@ -98,6 +87,17 @@ fun HomelessListItem(
                             UpdateStatus.RED -> true
                             UpdateStatus.GRAY -> false
                         },
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    // StatusLED with style based on homeless status
+                    Text(
+                        text = homelessState.homeless.name,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, false)
                     )
                 }
                 // Age, Gender, Nationality dim color
