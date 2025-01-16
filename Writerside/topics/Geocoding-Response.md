@@ -6,12 +6,12 @@ The `GeocodingResponse` class and its related data classes represent the structu
 
 The `GeocodingResponse` class encapsulates the overall response from the geocoding API, including metadata, query terms, and the list of geocoded features.
 
-| Field       | Type                   | Description                                       |
-|-------------|------------------------|---------------------------------------------------|
-| type        | String                 | Type of the response (e.g., "FeatureCollection"). |
-| query       | List<String>?          | Query terms provided for geocoding (nullable).    |
-| features    | List<GeocodingFeature> | List of features returned from the API.           |
-| attribution | String                 | Attribution text for the response.                |
+| Field       | Type                     | Description                                       |
+|-------------|--------------------------|---------------------------------------------------|
+| type        | String                   | Type of the response (e.g., "FeatureCollection"). |
+| query       | List<String()>?          | Query terms provided for geocoding (nullable).    |
+| features    | List<GeocodingFeature()> | List of features returned from the API.           |
+| attribution | String                   | Attribution text for the response.                |
 
 ---
 
@@ -19,18 +19,18 @@ The `GeocodingResponse` class encapsulates the overall response from the geocodi
 
 The `GeocodingFeature` class represents an individual geocoded feature. Each feature contains information such as its type, relevance, bounding box, geometry, and additional context.
 
-| Field      | Type                    | Description                                          |
-|------------|-------------------------|------------------------------------------------------|
-| id         | String                  | Unique identifier of the feature.                    |
-| type       | String                  | Type of the feature (e.g., "Feature").               |
-| place_type | List<String>?           | Categories of the feature (nullable).                |
-| relevance  | Double                  | Relevance score of the feature.                      |
-| properties | GeocodingProperties     | Properties of the feature, such as accuracy.         |
-| text       | String?                 | Short display text for the feature (nullable).       |
-| place_name | String?                 | Full name of the place (nullable).                   |
-| bbox       | List<Double>?           | Bounding box for the feature (nullable).             |
-| geometry   | GeocodingGeometry       | Geometry details, including coordinates.             |
-| context    | List<GeocodingContext>? | Contextual information about the feature (nullable). |
+| Field      | Type                      | Description                                          |
+|------------|---------------------------|------------------------------------------------------|
+| id         | String                    | Unique identifier of the feature.                    |
+| type       | String                    | Type of the feature (e.g., "Feature").               |
+| place_type | List<String()>?           | Categories of the feature (nullable).                |
+| relevance  | Double                    | Relevance score of the feature.                      |
+| properties | GeocodingProperties       | Properties of the feature, such as accuracy.         |
+| text       | String?                   | Short display text for the feature (nullable).       |
+| place_name | String?                   | Full name of the place (nullable).                   |
+| bbox       | List<Double()>?           | Bounding box for the feature (nullable).             |
+| geometry   | GeocodingGeometry         | Geometry details, including coordinates.             |
+| context    | List<GeocodingContext()>? | Contextual information about the feature (nullable). |
 
 ---
 
@@ -55,10 +55,10 @@ The `GeocodingProperties` class provides additional metadata and properties asso
 
 The `GeocodingGeometry` class defines the spatial characteristics of a geocoded feature, including its type and coordinates.
 
-| Field       | Type         | Description                                        |
-|-------------|--------------|----------------------------------------------------|
-| type        | String       | Type of geometry (e.g., "Point").                  |
-| coordinates | List<Double> | Coordinates of the geometry (longitude, latitude). |
+| Field       | Type           | Description                                        |
+|-------------|----------------|----------------------------------------------------|
+| type        | String         | Type of geometry (e.g., "Point").                  |
+| coordinates | List<Double()> | Coordinates of the geometry (longitude, latitude). |
 
 ---
 
