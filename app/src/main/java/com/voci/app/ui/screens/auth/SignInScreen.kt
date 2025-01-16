@@ -40,13 +40,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.voci.app.R
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.Screens
 import com.voci.app.ui.components.volunteers.AuthTextField
 import com.voci.app.ui.components.volunteers.SnackbarManager
 import com.voci.app.ui.components.volunteers.getTextFieldColors
 import com.voci.app.ui.viewmodels.AuthResult
-import com.voci.app.R
 
 @Composable
 fun SignInScreen(

@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -193,7 +191,6 @@ fun ProfileHomelessScreen(
         CustomFAB(
             onClick = {
                 showDeletionDialog = true
-                homelessViewModel.deleteHomeless(specificHomeless.data!!)
             },
             modifier = Modifier.align(Alignment.BottomStart),
             icon = Icons.Filled.Delete,
@@ -224,6 +221,12 @@ fun ProfileHomelessScreen(
             HomelessDeletionDialog(
                 homelessViewModel = homelessViewModel,
                 onDismiss = {
+                    showDeletionDialog = false
+                },
+                onConfirm = {
+                    homelessViewModel.deleteHomeless(specificHomeless.data!!)
+                },
+                onClose = {
                     showDeletionDialog = false
                     navController.navigate("home")
                 }
