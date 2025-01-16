@@ -3,6 +3,7 @@ package com.voci.app.ui.components.maps
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,14 +115,12 @@ fun SearchBox(
                 Log.d("SearchBox-AddLocationSearchBar", it)
             }
         )
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.align(Alignment.BottomEnd)
         ){
-            // Button to save current location - LEFT
+            // Button to save current location - TOP
             CustomFAB(
                 icon = Icons.Default.LocationOn,
                 onClick = {
@@ -130,7 +129,7 @@ fun SearchBox(
                     mapboxViewmodel.forwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 },
             )
-            // Button to save the selected location - RIGHT
+            // Button to save the selected location - BOTTOM
             CustomFAB(
                 text = "Conferma",
                 icon = Icons.Default.Check,
