@@ -14,7 +14,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +29,8 @@ import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.ConfirmButton
 import com.voci.app.ui.components.core.DismissButton
 import com.voci.app.ui.components.homeless.HomelessDialogList
+import com.voci.app.ui.components.homeless.HomelessItemUiState
+import com.voci.app.ui.components.homeless.HomelessListItem
 
 @Composable
 fun ModifyRequestDialog(
@@ -46,12 +47,9 @@ fun ModifyRequestDialog(
     // Request Data
     var requestTitle by remember { mutableStateOf(request.title) }
     var requestDescription by remember { mutableStateOf(request.description) }
-    var homelessID by remember { mutableStateOf(request.homelessID) }
+    val homelessID by remember { mutableStateOf(request.homelessID) }
     var selectedIconCategory by remember { mutableStateOf(request.iconCategory) }
     // Homeless Selection Data
-    val homelesses by homelessViewModel.homelesses.collectAsState()
-    val filteredHomelesses by homelessViewModel.filteredHomelesses.collectAsState()
-    val searchQuery by homelessViewModel.searchQuery.collectAsState()
     var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
     // Variable used to disable the confirm button during add to database
     var isAddingRequest by remember { mutableStateOf(false) }
@@ -111,11 +109,6 @@ fun ModifyRequestDialog(
 
                         // List of homelesses to select, updates based on search query
                         // Goes to next step on selection
-                        val listToDisplay =
-                            if (searchQuery.isBlank())
-                                homelesses
-                            else
-                                filteredHomelesses
                         HomelessDialogList(
                             onListItemClick = { homeless ->
                                 selectedHomeless = homeless
@@ -132,6 +125,16 @@ fun ModifyRequestDialog(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
+                        // Display selected homeless
+                        HomelessListItem(
+                            homelessState = HomelessItemUiState(homeless = selectedHomeless!!),
+                            showPreferredIcon = false,
+                            onClick = { step-- },
+                            onChipClick = {  },
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
                         // Modify title starts with the current title
                         OutlinedTextField(
                             value = requestTitle,

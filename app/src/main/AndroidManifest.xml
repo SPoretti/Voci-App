@@ -24,7 +24,7 @@
         android:windowSoftInputMode="adjustResize">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.voci.app.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.VociApp">
             <intent-filter>

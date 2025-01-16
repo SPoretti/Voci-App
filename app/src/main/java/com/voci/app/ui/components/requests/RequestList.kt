@@ -72,7 +72,7 @@ fun RequestList(
                 // If there are no requests, display a message
                 if (filteredRequests.isEmpty()) {
                     Text(
-                        "Non ci sono richieste attive.",
+                        "Non ci sono richieste.",
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else { // Display the list of requests
