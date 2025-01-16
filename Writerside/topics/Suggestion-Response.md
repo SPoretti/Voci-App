@@ -6,10 +6,10 @@ The `SuggestionResponse` class and its related data classes represent the struct
 
 The `SuggestionResponse` class encapsulates the overall response from the suggestions API, including a list of suggestions and attribution information.
 
-| Field       | Type             | Description                                |
-|-------------|------------------|--------------------------------------------|
-| suggestions | List<Suggestion> | List of suggestions returned from the API. |
-| attribution | String           | Attribution text for the response.         |
+| Field       | Type               | Description                                |
+|-------------|--------------------|--------------------------------------------|
+| suggestions | List<Suggestion()> | List of suggestions returned from the API. |
+| attribution | String             | Attribution text for the response.         |
 
 ---
 
@@ -28,10 +28,10 @@ The `Suggestion` class represents an individual suggestion. It contains various 
 | context          | Context              | Contextual information about the suggestion.         |
 | language         | String               | Language associated with the suggestion.             |
 | maki             | String?              | Maki icon identifier (nullable).                     |
-| poi_category     | List<String>?        | Categories of the point of interest (nullable).      |
-| poi_category_ids | List<String>?        | IDs of the point of interest categories (nullable).  |
-| brand            | List<String>?        | Brands associated with the suggestion (nullable).    |
-| brand_id         | List<String>?        | IDs for the brands (nullable).                       |
+| poi_category     | List<String()>?      | Categories of the point of interest (nullable).      |
+| poi_category_ids | List<String()>?      | IDs of the point of interest categories (nullable).  |
+| brand            | List<String()>?      | Brands associated with the suggestion (nullable).    |
+| brand_id         | List<String()>?      | IDs for the brands (nullable).                       |
 | external_ids     | Map<String, String>? | External identifiers for the suggestion (nullable).  |
 | metadata         | Map<String, Any>?    | Additional metadata about the suggestion (nullable). |
 | distance         | Double?              | Distance associated with the suggestion (nullable).  |
