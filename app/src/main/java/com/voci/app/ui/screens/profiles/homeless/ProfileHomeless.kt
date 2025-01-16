@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -89,64 +92,94 @@ fun ProfileHomelessScreen(
                     //Success implies homeless is not null
                     val homeless = specificHomeless.data!!
 
-                    //Info principali
-                    HomelessInfo(homeless, openDescription = {
-                        showDescriptionDialog = true
-                    })
-                    if (showDescriptionDialog) {
-                        DescriptionDialog(
-                            description = homeless.description,
-                            onDismiss = { showDescriptionDialog = false }
-                        )
-                    }
-                    //Mappa
-                    LocationFrame(locationState = locationState)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    //Richieste attive
-                    Text(text = "Richieste Attive")
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(180.dp)
+                    LazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        Column {
-                            ProfileRequestList(
-                                requests = requests,
-                                navController = navController,
-                                homelessId = homelessID,
-                            )
+                        item {
+                            //Info principali
+                            HomelessInfo(homeless, openDescription = {
+                                showDescriptionDialog = true
+                            })
+                            if (showDescriptionDialog) {
+                                DescriptionDialog(
+                                    description = homeless.description,
+                                    onDismiss = { showDescriptionDialog = false }
+                                )
+                            }
                         }
-                    }
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    //Aggiornamenti
-                    Text(text = "Aggiornamenti")
-                    Box(
-                        modifier = Modifier
-                            .clickable { showUpdateListDialog = true },
-                    ) {
-                        if (showUpdateListDialog) {
-                            UpdateListDialog(
-                                onDismiss = { showUpdateListDialog = false },
-                                updates = updates,
-                                onConfirm = {
-                                    navController.navigate("UpdatesAddScreen/${homeless.id}")
-                                }
-                            )
+                        item {
+                            //Mappa
+                            LocationFrame(locationState = locationState)
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                        if (updates.data?.isNotEmpty() == true){
-                            UpdateLastItem(
-                                updates = updates,
-                                navController = navController,
-                                homelessViewModel = homelessViewModel
-                            )
-                        } else {
+                        item {
+                            //Richieste attive
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Non ci sono aggiornamenti",
-                                modifier = Modifier.align(Alignment.Center)
+                                text = "Richieste Attive",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(30.dp)
                             )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                            ) {
+                                Column {
+                                    ProfileRequestList(
+                                        requests = requests,
+                                        navController = navController,
+                                        homelessId = homelessID,
+                                    )
+                                }
+                            }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        }
+                        item {
+                            //Aggiornamenti
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Aggiornamenti",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(30.dp)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp)
+                                    .clickable { showUpdateListDialog = true },
+                            ) {
+                                if (showUpdateListDialog) {
+                                    UpdateListDialog(
+                                        onDismiss = { showUpdateListDialog = false },
+                                        updates = updates,
+                                        onConfirm = {
+                                            navController.navigate("UpdatesAddScreen/${homeless.id}")
+                                        }
+                                    )
+                                }
+                                if (updates.data?.isNotEmpty() == true) {
+                                    UpdateLastItem(
+                                        updates = updates,
+                                        navController = navController,
+                                        homelessViewModel = homelessViewModel
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Non ci sono aggiornamenti",
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(32.dp))
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 is Resource.Error -> {
