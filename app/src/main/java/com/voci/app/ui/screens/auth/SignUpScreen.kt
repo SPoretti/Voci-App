@@ -226,7 +226,7 @@ fun SignUpScreen(
                             Image(
                                 painter = painterResource(id = R.drawable.voci_logo),
                                 contentDescription = "Logo",
-                                modifier = Modifier.height(128.dp)
+                                modifier = Modifier.height(64.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
@@ -267,7 +267,8 @@ fun SignUpScreen(
                                         label = "Password",
                                         icon = Icons.Default.Lock,
                                         isLoggingIn = logging,
-                                        isPassword = !passwordVisible,
+                                        isPassword = true,
+                                        isPasswordVisible = passwordVisible,
                                         trailingIcon = {
                                             IconButton(onClick = {
                                                 passwordVisible = !passwordVisible
@@ -300,7 +301,9 @@ fun SignUpScreen(
                                         icon = Icons.Default.Lock,
                                         isLoggingIn = logging,
                                         isPassword = true,
-                                        colors = getTextFieldColors(isValid = isPasswordValid)
+                                        isPasswordVisible = passwordVisible,
+                                        colors = getTextFieldColors(isValid = isPasswordValid),
+                                        trailingIcon = null
                                     )
 
                                     Button(

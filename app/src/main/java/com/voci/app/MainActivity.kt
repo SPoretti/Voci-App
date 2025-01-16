@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         bottomBar = {
                             // Check if the current route is not in the list of routes that should not show the BottomBar
-                            if (currentRoute(navController) !in listOf("signIn", "signUp", "emailVerification", "completeSignUp", "forgotPassword")) {
+                            if (currentRoute(navController) !in listOf("signIn", "signUp", "ForgotPassword")) {
                                 BottomBar(navController)
                             }
                         },
