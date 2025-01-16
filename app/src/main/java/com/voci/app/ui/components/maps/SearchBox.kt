@@ -123,14 +123,12 @@ fun SearchBox(
         ){
             // Button to save current location - LEFT
             CustomFAB(
-                text = "La tua posizione",
                 icon = Icons.Default.LocationOn,
                 onClick = {
                     Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
                     address = locationAddress.data ?: ""
                     mapboxViewmodel.forwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
                 },
-                modifier = Modifier.weight(1f)
             )
             // Button to save the selected location - RIGHT
             CustomFAB(
@@ -139,7 +137,6 @@ fun SearchBox(
                 onClick = {
                     showLocationSelectionDialog = true
                 },
-                modifier = Modifier.weight(1f)
             )
         }
     }

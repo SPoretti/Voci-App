@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CustomFAB(
-    text: String,                   // Text to display on the button
+    text: String = "",              // Text to display on the button
     icon: ImageVector,              // Icon to display on the button
     onClick: () -> Unit,            // Action to perform when the button is clicked
     modifier: Modifier = Modifier   // Modifier for styling and positioning
