@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.voci.app.R
 import com.voci.app.data.local.database.Volunteer
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.volunteers.AuthTextField
@@ -52,7 +53,6 @@ import com.voci.app.ui.components.volunteers.SnackbarManager
 import com.voci.app.ui.components.volunteers.getTextFieldColors
 import com.voci.app.ui.viewmodels.AuthResult
 import java.util.UUID
-import com.voci.app.R
 
 @Composable
 fun SignUpScreen(
