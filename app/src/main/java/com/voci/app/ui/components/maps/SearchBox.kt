@@ -123,7 +123,7 @@ fun SearchBox(
         ){
             // Button to save current location - LEFT
             CustomFAB(
-                text = "Current Location",
+                text = "Posizione attuale",
                 icon = Icons.Default.LocationOn,
                 onClick = {
                     Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
@@ -133,7 +133,7 @@ fun SearchBox(
             )
             // Button to save the selected location - RIGHT
             CustomFAB(
-                text = "Confirm",
+                text = "Conferma",
                 icon = Icons.Default.Check,
                 onClick = {
                     showLocationSelectionDialog = true

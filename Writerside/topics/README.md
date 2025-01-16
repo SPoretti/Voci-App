@@ -2,6 +2,8 @@
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
 
+For the full documentation please refer to: [Voci App Documentation](https://sporetti.github.io/Voci-App/readme.html)
+
 ## Introduction
 
 ### Overview
@@ -11,14 +13,8 @@ This project was created as an assignment for the University of Milano Bicocca c
 The idea is to create an app that would help catalog and manage requests and updates about homeless people in Milan. It was born because of a member of the team who is also a member of the VoCi ONLUS, an organization that aims to aid the homeless people of their city.
 Website: [VoCi ONLUS](https://www.volontaricittadini.it)
 
-
 ### Team
 We are students of the University of [Milano Bicocca](https://www.unimib.it/), and we are interested in making an app that not only will get us a good mark but that can be used and can be helpful to a good cause.
-- Samuele "DreoX" - 904280
-- Matthias "Inutiliax" - 894374
-- Oltion "Olcio" - 902221
-- Enrico "Enz" - 899376
-- Gabriele "Fish" - 899638
 
 ## Technologies
 
