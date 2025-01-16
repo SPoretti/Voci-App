@@ -1,3 +1,0 @@
-# Model
-
-Start typing here...
