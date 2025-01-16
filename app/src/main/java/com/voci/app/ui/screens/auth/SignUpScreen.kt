@@ -1,6 +1,7 @@
 package com.voci.app.ui.screens.auth
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,7 @@ import com.voci.app.ui.components.volunteers.SnackbarManager
 import com.voci.app.ui.components.volunteers.getTextFieldColors
 import com.voci.app.ui.viewmodels.AuthResult
 import java.util.UUID
+import com.voci.app.R
 
 @Composable
 fun SignUpScreen(
@@ -220,6 +223,12 @@ fun SignUpScreen(
                     when (step) {
                         // 1 -> Sign Up Screen
                         1 -> {
+                            Image(
+                                painter = painterResource(id = R.drawable.voci_logo),
+                                contentDescription = "Logo",
+                                modifier = Modifier.height(128.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 "Registrati",
                                 style = MaterialTheme.typography.headlineLarge,
