@@ -1,6 +1,7 @@
 package com.example.vociapp.ui.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vociapp.data.local.database.Homeless
@@ -33,6 +34,9 @@ class HomelessViewModel @Inject constructor(
     private val _specificHomeless = MutableStateFlow<Resource<Homeless>>(Resource.Loading())
     val specificHomeless: StateFlow<Resource<Homeless>> = _specificHomeless
 
+    private val _deleteHomelessState = MutableStateFlow<Resource<Unit>?>(null)
+    val deleteHomelessState: StateFlow<Resource<Unit>?> = _deleteHomelessState.asStateFlow()
+
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
@@ -45,7 +49,9 @@ class HomelessViewModel @Inject constructor(
     private val _locations = MutableStateFlow<Resource<List<Pair<Double, Double>>>>(Resource.Loading())
     val locations: StateFlow<Resource<List<Pair<Double, Double>>>> = _locations
 
-    var coordinatesLoaded = false
+    private var modifiedSinceLastGeoCoding = mutableStateOf(false)
+
+    private var coordinatesLoaded = false
 
     init {
         fetchHomelesses()
@@ -119,6 +125,7 @@ class HomelessViewModel @Inject constructor(
 
             if (result is Resource.Success) {
                 _snackbarMessage.value = "Senzatetto aggiunto con successo!"
+                modifiedSinceLastGeoCoding.value = true
             } else if (result is Resource.Error) {
                 _snackbarMessage.value = "Errore durante l'aggiunta del senzatetto: ${result.message}"
             }
@@ -131,6 +138,7 @@ class HomelessViewModel @Inject constructor(
             when(val result = homelessRepository.updateHomeless(homeless)) {
                 is Resource.Success -> {
                     _snackbarMessage.value = "Senzatetto aggiornato con successo!"
+                    modifiedSinceLastGeoCoding.value = true
                 }
                 is Resource.Error -> {
                     _snackbarMessage.value = "Errore durante l'aggiornamento del senzatetto: ${result.message}"
@@ -139,6 +147,26 @@ class HomelessViewModel @Inject constructor(
             }
         }
         getHomelesses()
+    }
+
+    fun deleteHomeless(homeless: Homeless) {
+        viewModelScope.launch {
+            // Indicate loading state
+            _deleteHomelessState.value = Resource.Loading()
+            // Perform deletion
+            val result = homelessRepository.deleteHomeless(homeless)
+            // Update state with result
+            _deleteHomelessState.value = result
+
+            if (result is Resource.Success) {
+                _snackbarMessage.value = "Senzatetto eliminato con successo!"
+                _specificHomeless.value = Resource.Loading()
+                modifiedSinceLastGeoCoding.value = true
+            }
+            else if (result is Resource.Error) {
+                _snackbarMessage.value = "Errore durante l'eliminazione del senzatetto: ${result.message}"
+            }
+        }
     }
 
     private fun fetchHomelessNames() {
@@ -171,7 +199,7 @@ class HomelessViewModel @Inject constructor(
     }
 
     fun getAllCoordinates() {
-        if (coordinatesLoaded) {
+        if (!modifiedSinceLastGeoCoding.value && coordinatesLoaded) {
             Log.d("GetAllCoordinates", "Coordinates already loaded, skipping geocoding")
             return
         }
@@ -193,6 +221,7 @@ class HomelessViewModel @Inject constructor(
                 Log.d("GetAllCoordinates", "Geocoding completed, coordinates size: ${coordinates.size}")
                 _locations.value = Resource.Success(coordinates)
                 coordinatesLoaded = true
+                modifiedSinceLastGeoCoding.value = false
             } catch (e: Exception) {
                 Log.e("GetAllCoordinates", "Error during getAllCoordinates: ${e.message}")
                 _locations.value = Resource.Error(e.message ?: "Errore durante il geocoding")

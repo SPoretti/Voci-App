@@ -288,6 +288,7 @@ class VolunteerRepository @Inject constructor(
                 firestorePreferencesList.forEach { remotePreference ->
                     roomDataSource.insertPreference(remotePreference)
                 }
+
                 // Only delete if the synchronization from room to firestore has already happened
                 if (roomDataSource.isSyncQueueEmpty()) {
                     // 1. Get local preferences from Room

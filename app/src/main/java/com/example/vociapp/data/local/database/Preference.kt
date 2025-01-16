@@ -22,6 +22,6 @@ import androidx.room.ForeignKey
     ]
 )
 data class Preference(
-    val volunteerId: String,
-    val homelessId: String
+    val volunteerId: String = "",
+    val homelessId: String = ""
 )

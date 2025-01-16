@@ -1,5 +1,6 @@
 package com.example.vociapp.data.repository
 
+import android.util.Log
 import com.example.vociapp.data.local.RoomDataSource
 import com.example.vociapp.data.local.database.Homeless
 import com.example.vociapp.data.remote.FirestoreDataSource
@@ -67,6 +68,31 @@ class HomelessRepository @Inject constructor(
         }
     }
 
+    suspend fun deleteHomeless(homeless: Homeless): Resource<Unit> {
+        return try {
+            // 1. Delete from room
+            roomDataSource.deleteHomelessById(homeless.id)
+
+            // 2. If online, sync with Firestore
+            if (networkManager.isNetworkConnected()) {
+                val resource = firestoreDataSource.deleteHomelessById(homeless.id)
+                if (resource is Resource.Success) {
+                    resource // Return success if Firestore deletion succeeds
+                } else {
+                    // 3. If firestore deletion failed, queue for sync
+                    roomDataSource.addSyncAction("Homeless", "delete", homeless)
+                    Resource.Error("Errore imprevisto. Dati eliminati localmente in attesa di sincronizzazione")
+                }
+            } else {
+                // 4. if offline, queue for sync
+                roomDataSource.addSyncAction("Homeless", "delete", homeless)
+                Resource.Error("Nessuna connessione di rete. Dati eliminati localmente in attesa di sincronizzazione")
+            }
+        } catch (e: Exception) {
+            Resource.Error("Errore, dati NON eliminati localmente: ${e.message}")
+        }
+    }
+
     //get homeless from room
     fun getHomelesses(): Flow<Resource<List<Homeless>>> = flow {
         try {
@@ -108,13 +134,23 @@ class HomelessRepository @Inject constructor(
                         // Deserialize the data
                         val data = Gson().fromJson(action.data, Homeless::class.java)
 
+                        var result : Resource<*> = Resource.Loading<Unit>()
+
                         when (action.operation) {
-                            "add" -> firestoreDataSource.addHomeless(data)
-                            "update" -> firestoreDataSource.updateHomeless(data)
-                            "delete" -> firestoreDataSource.deleteHomelessById(data.id)
+                            "add" -> result = firestoreDataSource.addHomeless(data)
+                            "update" -> result = firestoreDataSource.updateHomeless(data)
+                            "delete" -> result = firestoreDataSource.deleteHomelessById(data.id)
+                            else -> {
+                                Log.d(
+                                    "SyncPendingActions",
+                                    "Unknown operation: ${action.operation}"
+                                )
+                            }
                         }
-                        // Once synced, remove the action from the queue
-                        roomDataSource.deleteSyncAction(action)
+                        if (result is Resource.Success){
+                            // Once synced, remove the action from the queue
+                            roomDataSource.deleteSyncAction(action)
+                        }
                     }
                 }
             }

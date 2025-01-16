@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PreferenceDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertPreference(preference: Preference)
+    suspend fun insert(preference: Preference)
 
     @Delete
-    suspend fun deletePreference(preference: Preference)
+    suspend fun delete(preference: Preference)
 
     @Query("SELECT * FROM preferences WHERE volunteerId = :volunteerId")
     fun getPreferencesForVolunteer(volunteerId: String): Flow<List<Preference>>

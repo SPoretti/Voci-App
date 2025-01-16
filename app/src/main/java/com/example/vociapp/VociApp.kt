@@ -23,7 +23,7 @@ class VociApp : Application(){
         ServiceLocator.initialize(this, FirebaseFirestore.getInstance())
     }
 
-    //for debugging
+    //for debugging purposes
     private fun clearDatabaseAndSyncQueue(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             val db = VociAppRoomDatabase.getDatabase(context)
