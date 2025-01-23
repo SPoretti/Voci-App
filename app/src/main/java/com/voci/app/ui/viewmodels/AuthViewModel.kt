@@ -12,12 +12,16 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.voci.app.data.util.AuthState
 import com.voci.app.data.util.ExceptionHandler
+import com.voci.app.data.util.NetworkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val networkManager: NetworkManager
+): ViewModel() {
     //---------- State variables for authentication ----------
     private val _authState = MutableStateFlow<AuthState>(AuthState.Uninitialized)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -50,29 +54,37 @@ class AuthViewModel : ViewModel() {
     }
     // Sign in with email and password
     suspend fun signInWithEmailAndPassword(email: String, password: String): AuthResult {
-        return try {
-            auth.signInWithEmailAndPassword(email, password).await()
-            AuthResult.Success
-        } catch (e: FirebaseAuthInvalidCredentialsException) {
-            Log.e("AuthViewModel", "signInWithEmailAndPassword: ${e.message}")
-            AuthResult.Failure("Credenziali non valide")
-        } catch (e: FirebaseAuthException) {
-            exceptionHandler.handleAuthException(e)
-        } catch (e: IllegalArgumentException) {
-            Log.e("AuthViewModel", "signInWithEmailAndPassword: ${e.message}")
-            AuthResult.Failure("Uno o più campi sono vuoti")
+        return if (networkManager.isNetworkConnected()){
+            try {
+                auth.signInWithEmailAndPassword(email, password).await()
+                AuthResult.Success
+            } catch (e: FirebaseAuthInvalidCredentialsException) {
+                Log.e("AuthViewModel", "signInWithEmailAndPassword: ${e.message}")
+                AuthResult.Failure("Credenziali non valide")
+            } catch (e: FirebaseAuthException) {
+                exceptionHandler.handleAuthException(e)
+            } catch (e: IllegalArgumentException) {
+                Log.e("AuthViewModel", "signInWithEmailAndPassword: ${e.message}")
+                AuthResult.Failure("Uno o più campi sono vuoti")
+            }
+        } else {
+            AuthResult.Failure("Nessuna connessione ad internet")
         }
     }
     // Sign up with email and password
     suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthResult {
-        return try {
-            auth.createUserWithEmailAndPassword(email, password).await()
-            AuthResult.Success
-        } catch (e: FirebaseAuthUserCollisionException) {
-            Log.e("AuthViewModel", "createUserWithEmailAndPassword: ${e.message}")
-            AuthResult.Failure("L'email è già associata a un altro account.")
-        } catch (e: Exception) {
-            AuthResult.Failure("Errore nella registrazione: ${e.message}")
+        return if (networkManager.isNetworkConnected()){
+            try {
+                auth.createUserWithEmailAndPassword(email, password).await()
+                AuthResult.Success
+            } catch (e: FirebaseAuthUserCollisionException) {
+                Log.e("AuthViewModel", "createUserWithEmailAndPassword: ${e.message}")
+                AuthResult.Failure("L'email è già associata a un altro account.")
+            } catch (e: Exception) {
+                AuthResult.Failure("Errore nella registrazione: ${e.message}")
+            }
+        } else{
+            AuthResult.Failure("Nessuna connessione ad internet")
         }
     }
     // Method to verify if fields are empty
@@ -97,15 +109,19 @@ class AuthViewModel : ViewModel() {
     }
     // Update user profile
     suspend fun updateUserProfile(displayName: String?, photoUrl: String?): AuthResult {
-        return try {
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .setPhotoUri(photoUrl?.let { android.net.Uri.parse(it) })
-                .build()
-            auth.currentUser?.updateProfile(profileUpdates)?.await()
-            AuthResult.Success
-        } catch (e: Exception) {
-            AuthResult.Failure(e.message ?: "An unknown error occurred")
+        return if (networkManager.isNetworkConnected()){
+            try {
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(displayName)
+                    .setPhotoUri(photoUrl?.let { android.net.Uri.parse(it) })
+                    .build()
+                auth.currentUser?.updateProfile(profileUpdates)?.await()
+                AuthResult.Success
+            } catch (e: Exception) {
+                AuthResult.Failure(e.message ?: "An unknown error occurred")
+            }
+        } else{
+            AuthResult.Failure("Nessuna connessione ad internet")
         }
     }
     // Get the current user's profile
@@ -147,16 +163,20 @@ class AuthViewModel : ViewModel() {
     }
     // Send a password reset email to the user
     fun sendPasswordResetEmail(email: String): AuthResult {
-        return try {
-            auth.sendPasswordResetEmail(email)
-            Log.d("AuthViewModel", "Password reset email sent to: $email")
-            AuthResult.Success
-        } catch (e: FirebaseAuthEmailException) {
-            Log.e("AuthViewModel", "sendPasswordResetEmail: ${e.message}")
-            AuthResult.Failure("Email non valida")
-        } catch (e: Exception) {
-            Log.e("AuthViewModel", "sendPasswordResetEmail: ${e.message}")
-            AuthResult.Failure("Errore nell'invio dell'email")
+        return if (networkManager.isNetworkConnected()){
+            try {
+                auth.sendPasswordResetEmail(email)
+                Log.d("AuthViewModel", "Password reset email sent to: $email")
+                AuthResult.Success
+            } catch (e: FirebaseAuthEmailException) {
+                Log.e("AuthViewModel", "sendPasswordResetEmail: ${e.message}")
+                AuthResult.Failure("Email non valida")
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "sendPasswordResetEmail: ${e.message}")
+                AuthResult.Failure("Errore nell'invio dell'email")
+            }
+        } else{
+            AuthResult.Failure("Nessuna connessione ad internet")
         }
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,11 +38,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.voci.app.data.local.database.RequestStatus
 import com.voci.app.data.util.Resource
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.CustomFAB
-import com.voci.app.ui.components.requests.AddRequestDialog
+import com.voci.app.ui.components.requests.CustomRequestDialog
 import com.voci.app.ui.components.requests.RequestList
 import com.voci.app.ui.components.requests.SortButtons
 import com.voci.app.ui.components.requests.SortOption
@@ -73,6 +75,8 @@ fun RequestsScreen(
     var showAddRequestDialog by remember { mutableStateOf(false) }
     // Coroutine Scope for Snackbar
     val coroutineScope = rememberCoroutineScope()
+    // Navigation Variable
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     // Osserva uno stato del ViewModel per i messaggi Snackbar
     val message by requestViewModel.snackbarMessage.collectAsState(initial = "")
     // Mostra la Snackbar quando il messaggio cambia
@@ -80,11 +84,17 @@ fun RequestsScreen(
         if (message.isNotEmpty()) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
+                    actionLabel = "Chiudi",
                     message = message,
                     duration = SnackbarDuration.Short
                 )
-                requestViewModel.clearSnackbarMessage()
             }
+        }
+    }
+
+    DisposableEffect( key1 = currentBackStackEntry) {
+        onDispose {
+            requestViewModel.clearSnackbarMessage()
         }
     }
 
@@ -159,7 +169,7 @@ fun RequestsScreen(
             // This should not be possible.
             is Resource.Error -> {
                 Column {
-                    Text("Something went wrong. Please try again later.")
+                    Text("Qualcosa è andato storto. Riprova più tardi.")
                     Log.e("RequestDetailsScreen", "Error: ${activeRequests.message}")
                     Button(onClick = {
                         navController.popBackStack()
@@ -172,9 +182,13 @@ fun RequestsScreen(
 
         // Logic to show dialog when the floating button to add is pressed
         if (showAddRequestDialog) {
-            AddRequestDialog(
+            CustomRequestDialog(
                 onDismiss = { showAddRequestDialog = false },
                 navController = navController,
+                onConfirm = {
+                    requestViewModel.addRequest(it)
+                },
+                actionText = "Aggiungi"
             )
         }
     }

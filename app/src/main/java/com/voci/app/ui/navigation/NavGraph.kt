@@ -85,7 +85,7 @@ fun NavGraph(
             exitTransition = {
                 slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { it })
             }
-        ) { UserProfileScreen(navController) }
+        ) { UserProfileScreen(navController, snackbarHostState) }
         composable(
             route = "ProfileVolontario/{creatorId}",
             arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
@@ -107,6 +107,7 @@ fun NavGraph(
         }
         composable(route = "updateUserProfile") { UpdateUserProfileScreen(navController) }
 
+        composable(route = "ForgotPassword") {PasswordRecover(navController)}
 
         //---------- Requests screens ----------
         composable(
@@ -134,7 +135,7 @@ fun NavGraph(
             exitTransition = {
                 slideOutHorizontally(animationSpec = tween(navigationAnimationDuration), targetOffsetX = { it })
             }
-        ) { RequestsHistoryScreen(navController) }
+        ) { RequestsHistoryScreen(navController, snackbarHostState) }
         composable(
             route = "RequestDetailsScreen/{requestId}",
             arguments = listOf(navArgument("requestId") { type = NavType.StringType }),
@@ -153,46 +154,12 @@ fun NavGraph(
         ) {
             backStackEntry ->
             val requestId = backStackEntry.arguments?.getString("requestId")
-            RequestDetailsScreen(requestId.toString(), navController)
+            RequestDetailsScreen(requestId.toString(), navController, snackbarHostState)
         }
 
-        // Profile screens
-        composable(
-            route = "UserProfile",
-            enterTransition = {
-                slideInHorizontally(animationSpec = tween(600), initialOffsetX = { it })
-            },
-            exitTransition = {
-                slideOutHorizontally(animationSpec = tween(600), targetOffsetX = { it })
-            }
-        ) { UserProfileScreen(navController) }
+        //---------- Homeless Screens ----------
 
-        composable(route = "UpdateUserProfile") { UpdateUserProfileScreen(navController) }
 
-        composable(
-            route = "ProfileVolontario/{creatorId}",
-            arguments = listOf(navArgument("creatorId") { type = NavType.StringType }),
-            enterTransition = {
-                slideInHorizontally(
-                    animationSpec = tween(600),
-                    initialOffsetX = { it }
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    animationSpec = tween(600),
-                    targetOffsetX = { it }
-                )
-            }
-        ) { backStackEntry ->
-            val creatorId = backStackEntry.arguments?.getString("creatorId")
-            if (creatorId != null) {
-                ProfileVolunteerScreen(creatorId)
-            }
-        }
-
-        composable(route = "ForgotPassword") {PasswordRecover(navController)}
-        
         composable(
             route = "ProfileHomeless/{homelessId}",
             arguments = listOf(navArgument("homelessId") { type = NavType.StringType }),

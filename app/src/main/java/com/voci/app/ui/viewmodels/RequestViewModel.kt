@@ -60,7 +60,7 @@ class RequestViewModel @Inject constructor(
         }
     }
     // Get requests from the local database
-    fun getRequests() {
+    private fun getRequests() {
         requestRepository.getRequests()
             .onEach { result ->
                 _requests.value = result
@@ -118,10 +118,10 @@ class RequestViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = requestRepository.updateRequest(request)) {
                 is Resource.Success -> {
-                    getRequests()
+                    _snackbarMessage.value = "Richiesta aggiornata con successo!"
                 }
                 is Resource.Error -> {
-                    println("Error updating request: ${result.message}")
+                    _snackbarMessage.value = "Errore durante l'aggiunta della richiesta: ${result.message}"
                 }
                 is Resource.Loading -> {}
             }

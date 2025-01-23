@@ -21,11 +21,9 @@ import com.voci.app.ui.viewmodels.VolunteerViewModel
 class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     companion object {
         private lateinit var instance: ServiceLocator
-        private lateinit var authViewModel: AuthViewModel
 
         fun initialize(context: Context, firestore: FirebaseFirestore) {
             instance = ServiceLocator(context, firestore)
-            authViewModel = AuthViewModel()
         }
 
         fun getInstance(): ServiceLocator {
@@ -54,6 +52,8 @@ class ServiceLocator(context: Context, firestore: FirebaseFirestore) {
     )
 
     // Repositories and ViewModels
+
+    private val authViewModel: AuthViewModel = AuthViewModel(networkManager)
 
     private val mapboxRepository: MapboxRepository = MapboxRepository()
     private val mapboxViewModel: MapboxViewModel by lazy {
