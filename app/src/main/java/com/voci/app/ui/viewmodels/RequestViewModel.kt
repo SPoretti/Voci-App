@@ -60,7 +60,7 @@ class RequestViewModel @Inject constructor(
         }
     }
     // Get requests from the local database
-    private fun getRequests() {
+    fun getRequests() {
         requestRepository.getRequests()
             .onEach { result ->
                 _requests.value = result
