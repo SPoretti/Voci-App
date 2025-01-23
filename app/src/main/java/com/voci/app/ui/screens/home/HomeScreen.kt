@@ -49,7 +49,6 @@ fun HomeScreen(
     snackbarHostState: SnackbarHostState
 ) {
     //----- Region: Data Initialization -----
-
     val serviceLocator = LocalServiceLocator.current
     // Viewmodels
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()

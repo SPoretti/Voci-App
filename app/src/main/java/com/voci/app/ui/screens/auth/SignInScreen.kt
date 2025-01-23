@@ -1,8 +1,10 @@
 package com.voci.app.ui.screens.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -105,109 +108,111 @@ fun SignInScreen(
                     .padding(padding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.voci_logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier.height(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "Accedi",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    item{
+                        Image(
+                            painter = painterResource(id = R.drawable.voci_logo),
+                            contentDescription = "Logo",
+                            modifier = Modifier.height(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Accedi",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                .padding(horizontal = 16.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            AuthTextField(
-                                value = email,
-                                onValueChange = { email = it },
-                                label = "Email",
-                                icon = Icons.Default.Email,
-                                isLoggingIn = logging,
-                                colors = getTextFieldColors(isValid = validCredentials)
-                            )
-
-                            AuthTextField(
-                                value = password,
-                                onValueChange = { password = it },
-                                label = "Password",
-                                icon = Icons.Default.Lock,
-                                isLoggingIn = logging,
-                                isPassword = true,
-                                isPasswordVisible = passwordVisible,
-                                trailingIcon = {
-                                    IconButton(onClick = {
-                                        passwordVisible = !passwordVisible
-                                    }) {
-                                        Icon(
-                                            imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                            contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
-                                        )
-                                    }
-                                },
-                                colors = getTextFieldColors(isValid = validCredentials)
-                            )
-
-                            Box(
+                            Column(
                                 modifier = Modifier
-                                    .align(Alignment.End)
-                                    .offset(y = -(7).dp)
-                                    .background(Color.Transparent)
-                                    .clickable {
-                                        navController.navigate("forgotPassword")
-                                    }
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text(
-                                    "Password dimenticata?",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    style = MaterialTheme.typography.bodySmall
+                                AuthTextField(
+                                    value = email,
+                                    onValueChange = { email = it },
+                                    label = "Email",
+                                    icon = Icons.Default.Email,
+                                    isLoggingIn = logging,
+                                    colors = getTextFieldColors(isValid = validCredentials)
                                 )
-                            }
 
-                            Button(
-                                onClick = {
-                                    isSigningIn = true; logging = false
-                                },
-                                enabled = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
+                                AuthTextField(
+                                    value = password,
+                                    onValueChange = { password = it },
+                                    label = "Password",
+                                    icon = Icons.Default.Lock,
+                                    isLoggingIn = logging,
+                                    isPassword = true,
+                                    isPasswordVisible = passwordVisible,
+                                    trailingIcon = {
+                                        IconButton(onClick = {
+                                            passwordVisible = !passwordVisible
+                                        }) {
+                                            Icon(
+                                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                                            )
+                                        }
+                                    },
+                                    colors = getTextFieldColors(isValid = validCredentials)
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.End)
+                                        .offset(y = -(7).dp)
+                                        .background(Color.Transparent)
+                                        .clickable {
+                                            navController.navigate("forgotPassword")
+                                        }
+                                ) {
+                                    Text(
+                                        "Password dimenticata?",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        isSigningIn = true; logging = false
+                                    },
+                                    enabled = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Accedi", modifier = Modifier.padding(vertical = 8.dp))
+                                }
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    TextButton(
-                        onClick = { navController.navigate("signUp") }
-                    ) {
-                        Text(
-                            "Non hai un account? Registrati!",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                        )
+                        TextButton(
+                            onClick = { navController.navigate("signUp") }
+                        ) {
+                            Text(
+                                "Non hai un account? Registrati!",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                            )
+                        }
                     }
                 }
             }

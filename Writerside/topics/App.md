@@ -1,3 +1,2 @@
 # App
 
-Start typing here...

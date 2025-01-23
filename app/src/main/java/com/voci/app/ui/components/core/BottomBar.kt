@@ -72,7 +72,11 @@ fun BottomBar(
                 },
                 // Highlight the selected item in the bottom bar
                 selected = currentRoute == screen.route,
-                onClick = { navController.navigate(screen.route) },
+                onClick = {
+                    if(currentRoute != screen.route){
+                        navController.navigate(screen.route)
+                    }
+                },
                 colors = NavigationBarItemDefaults.colors(
                     unselectedTextColor = MaterialTheme.colorScheme.onSurface,
                     selectedTextColor = MaterialTheme.colorScheme.secondary,

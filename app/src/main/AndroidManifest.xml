@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.VociApp"
         tools:targetApi="31"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize|adjustPan">
 
         <activity
             android:name="com.voci.app.MainActivity"

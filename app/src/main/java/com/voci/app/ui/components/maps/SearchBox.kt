@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -113,29 +115,23 @@ fun SearchBox(
                 Log.d("SearchBox-AddLocationSearchBar", it)
             }
         )
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.SpaceBetween,
+        CustomFAB(
+            icon = Icons.Default.MyLocation,
+            onClick = {
+                Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
+                address = locationAddress.data ?: ""
+                mapboxViewmodel.forwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
+            },
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+        CustomFAB(
+            text = "Conferma",
+            icon = Icons.Default.Check,
+            onClick = {
+                showLocationSelectionDialog = true
+            },
             modifier = Modifier.align(Alignment.BottomEnd)
-        ){
-            // Button to save current location - TOP
-            CustomFAB(
-                icon = Icons.Default.LocationOn,
-                onClick = {
-                    Log.d("SearchBox", "button: ${locationAddress.data.toString()}")
-                    address = locationAddress.data ?: ""
-                    mapboxViewmodel.forwardGeocoding(address, proximity = "${currentLocation?.second},${currentLocation?.first}")
-                },
-            )
-            // Button to save the selected location - BOTTOM
-            CustomFAB(
-                text = "Conferma",
-                icon = Icons.Default.Check,
-                onClick = {
-                    showLocationSelectionDialog = true
-                },
-            )
-        }
+        )
     }
 
     if (showLocationSelectionDialog) {
