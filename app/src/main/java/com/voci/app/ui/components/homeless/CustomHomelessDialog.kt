@@ -109,6 +109,7 @@ fun CustomHomelessDialog(
                         onClick = {
                             isAddingHomeless = true
                             onConfirm(homeless)
+                            onDismiss()
                         },
                         text = actionText
                     )

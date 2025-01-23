@@ -14,11 +14,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -28,38 +30,40 @@ import com.voci.app.data.local.database.Request
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.ConfirmButton
 import com.voci.app.ui.components.core.DismissButton
+import com.voci.app.ui.components.core.hapticFeedback
 import com.voci.app.ui.components.homeless.HomelessDialogList
 import com.voci.app.ui.components.homeless.HomelessItemUiState
 import com.voci.app.ui.components.homeless.HomelessListItem
 
 @Composable
-fun ModifyRequestDialog(
-    onDismiss: () -> Unit,              // Called when the dialog is dismissed
-    navController: NavHostController,   // Navigation controller for navigation
-    request: Request                    // Request to be modified
+fun CustomRequestDialog(
+    onDismiss: () -> Unit,                  // Callback to dismiss the dialog
+    onConfirm: (Request) -> Unit,          // Callback to add (or modify) the request to the database
+    navController: NavHostController,       // Navigation controller for navigation
+    request: Request = Request(),           // Request object to modify or add
+    actionText: String                      // Text to display on the confirm button e.g. "Aggiungi" or "Modifica"
 ) {
     //----- Region: Data Initialization -----
-
     val serviceLocator = LocalServiceLocator.current
     // Viewmodels
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
-    val requestViewModel = serviceLocator.obtainRequestViewModel()
+    // Variable used to control the current display of data to modify
+    // 1 -> Homeless selection
+    // 2 -> Add title, description and icon
+    var step by remember { mutableIntStateOf(1) }
+    // Homeless Selection Data
+    var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
+    LaunchedEffect(Unit) {
+        homelessViewModel.updateSearchQuery("")
+    }
     // Request Data
     var requestTitle by remember { mutableStateOf(request.title) }
     var requestDescription by remember { mutableStateOf(request.description) }
-    val homelessID by remember { mutableStateOf(request.homelessID) }
     var selectedIconCategory by remember { mutableStateOf(request.iconCategory) }
-    // Homeless Selection Data
-    var selectedHomeless by remember { mutableStateOf<Homeless?>(null) }
     // Variable used to disable the confirm button during add to database
     var isAddingRequest by remember { mutableStateOf(false) }
-    // Variable used to control the current display of data to modify
-    // 1 -> Homeless selection
-    // 2 -> Modify title and description
-    var step by remember { mutableIntStateOf(1) }
 
     //----- Region: View Composition -----
-
     AlertDialog(
         // Called when the user tries to dismiss the Dialog by pressing the back button.
         // This is not called when the dismiss button is clicked.
@@ -77,20 +81,20 @@ fun ModifyRequestDialog(
         shape = RoundedCornerShape(0.dp),
         containerColor = MaterialTheme.colorScheme.background,
         textContentColor = MaterialTheme.colorScheme.onBackground,
-        // Title of the dialog
+        // Title
         title = {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Modifica Richiesta",
+                    text = "$actionText Richiesta",
                     style = MaterialTheme.typography.labelMedium,
-                )
+                    )
             }
         },
-        // Content
+        // Main Content
         text = {
             // Display based on step state
-            when(step){
-                // Selection of the homeless
+            when (step) {
+                // Homeless Selection
                 1 -> {
                     selectedHomeless = null
 
@@ -99,7 +103,15 @@ fun ModifyRequestDialog(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        // Searchbar for homeless selection
+                        Text(
+                            text = "Seleziona il ricevente",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
                         DialogSearchBar(
                             onSearch = { homelessViewModel.updateSearchQuery(it) },
                             placeholderText = "Cerca..."
@@ -107,10 +119,9 @@ fun ModifyRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // List of homelesses to select, updates based on search query
-                        // Goes to next step on selection
                         HomelessDialogList(
                             onListItemClick = { homeless ->
+                                request.homelessID = homeless.id
                                 selectedHomeless = homeless
                                 step++
                             },
@@ -118,7 +129,7 @@ fun ModifyRequestDialog(
                         )
                     }
                 }
-                // Modify title and description
+                // Add or Modify title, description and icon
                 2 -> {
                     Column(
                         modifier = Modifier
@@ -135,10 +146,12 @@ fun ModifyRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Modify title starts with the current title
                         OutlinedTextField(
                             value = requestTitle,
-                            onValueChange = { requestTitle = it },
+                            onValueChange = {
+                                requestTitle = it
+                                request.title = it
+                            },
                             label = { Text("Titolo") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -149,10 +162,12 @@ fun ModifyRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Modify description starts with the current description
                         OutlinedTextField(
                             value = requestDescription,
-                            onValueChange = { requestDescription = it },
+                            onValueChange = {
+                                requestDescription = it
+                                request.description = it
+                            },
                             label = { Text("Descrizione") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -163,9 +178,9 @@ fun ModifyRequestDialog(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Modify icon starts with the current icon
                         IconSelector(
                             onIconSelected = { iconCategory ->
+                                request.iconCategory = iconCategory
                                 selectedIconCategory = iconCategory
                             },
                             selectedIconCategory = selectedIconCategory
@@ -173,48 +188,41 @@ fun ModifyRequestDialog(
                     }
                 }
             }
-
         },
         confirmButton = {
-            // Confirm button based on step
-            when(step){
+            // Confirm button based on step state
+            when(step) {
                 1 -> {
                     // No need for a confirm button in this step since it moves on the next step
                     // by clicking on a homeless
                 }
-                // Modify button
+                // Add button
                 2 -> {
                     ConfirmButton(
                         onClick = {
-                            // Update request in the database
-
                             // Disable the button while the request is being added
                             isAddingRequest = true
 
-                            // modify the current request with the updated data
-                            request.title = requestTitle
-                            request.description = requestDescription
-                            request.homelessID = selectedHomeless?.id ?: homelessID
-
-                            // Update the databases
-                            requestViewModel.updateRequest(request)
-
+                            // Add or Update request to the database
+                            onConfirm(request)
+                            // Dismiss the dialog
                             onDismiss()
                         },
+                        modifier = Modifier
+                            .hapticFeedback(),
+                        enabled =
                         // Enabled only if the request is not being added
                         // and the title and description are not empty
-                        enabled =
                         !isAddingRequest and
                                 requestTitle.isNotEmpty() and
                                 requestDescription.isNotEmpty(),
-                        text = "Modifica"
+                        text = actionText
                     )
                 }
             }
-
         },
         dismissButton = {
-            // Dismiss button based on step
+            // Dismiss button based on step state
             when(step) {
                 // On first step the dismiss button closes the dialog
                 1 -> {
@@ -225,7 +233,8 @@ fun ModifyRequestDialog(
                 // On second step the button sends back to first step
                 2 -> {
                     DismissButton(
-                        onClick = { step-- }
+                        onClick = { step-- },
+                        text = "Indietro"
                     )
                 }
             }

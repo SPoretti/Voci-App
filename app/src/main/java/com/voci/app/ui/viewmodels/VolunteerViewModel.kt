@@ -23,6 +23,7 @@ class VolunteerViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _snackbarMessage = MutableStateFlow("")
+    val snackbarMessage: StateFlow<String> = _snackbarMessage
 
     private val _specificVolunteer = MutableStateFlow<Resource<Volunteer?>>(Resource.Loading())
     val specificVolunteer: StateFlow<Resource<Volunteer?>> = _specificVolunteer.asStateFlow()
@@ -117,9 +118,10 @@ class VolunteerViewModel @Inject constructor(
             when (val result = volunteerRepository.updateVolunteer(volunteer)) {
                 is Resource.Success -> {
                     getVolunteerById(volunteer.id)
+                    _snackbarMessage.value = "Profilo aggiornato"
                 }
                 is Resource.Error -> {
-                    println("Errore nella modifica dell'utente: ${result.message}")
+                    _snackbarMessage.value = "Errore nella modifica dell'utente: ${result.message}"
                 }
                 is Resource.Loading -> println("Loading")
             }
@@ -188,5 +190,9 @@ class VolunteerViewModel @Inject constructor(
                 }
             }
         }
+    }
+    // Clear the snackbar message
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = ""
     }
 }

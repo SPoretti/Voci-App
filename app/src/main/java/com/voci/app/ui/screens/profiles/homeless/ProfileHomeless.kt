@@ -210,7 +210,6 @@ fun ProfileHomelessScreen(
                 },
                 onConfirm = {
                     homelessViewModel.updateHomeless(it)
-                    showModifyHomelessDialog = false
                 },
                 homeless = specificHomeless.data!!,
                 actionText = "Modifica"

@@ -28,14 +28,18 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.voci.app.data.local.database.Request
 import com.voci.app.data.local.database.RequestStatus
 import com.voci.app.data.util.DateTimeFormatter
@@ -58,14 +63,16 @@ import com.voci.app.ui.components.core.CustomChip
 import com.voci.app.ui.components.core.StatusLED
 import com.voci.app.ui.components.core.SwipeDirection
 import com.voci.app.ui.components.core.SwipeableScreen
+import com.voci.app.ui.components.requests.CustomRequestDialog
 import com.voci.app.ui.components.requests.DeleteRequestDialog
-import com.voci.app.ui.components.requests.ModifyRequestDialog
 import com.voci.app.ui.components.requests.iconCategoryMap
+import kotlinx.coroutines.launch
 
 @Composable
 fun RequestDetailsScreen(
-    requestId: String,                  // ID of the request to display
-    navController: NavHostController    // Navigation controller for navigation
+    requestId: String,                        // ID of the request to display
+    navController: NavHostController,         // Navigation controller for navigation
+    snackbarHostState: SnackbarHostState      // Snackbar host state for displaying messages
 ) {
 
     //----- Region: Data Initialization -----
@@ -88,6 +95,31 @@ fun RequestDetailsScreen(
     val homelessViewModel = serviceLocator.obtainHomelessViewModel()
     val names = homelessViewModel.homelessNames.collectAsState().value
     var requestForDialog: Request? by remember { mutableStateOf(null) }
+
+    // Coroutine Scope for Snackbar
+    val coroutineScope = rememberCoroutineScope()
+    // Navigation Variable
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    // Osserva uno stato del ViewModel per i messaggi Snackbar
+    val message by requestViewModel.snackbarMessage.collectAsState(initial = "")
+    // Mostra la Snackbar quando il messaggio cambia
+    LaunchedEffect(message) {
+        if (message.isNotEmpty()) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    actionLabel = "Chiudi",
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
+
+    DisposableEffect( key1 = currentBackStackEntry) {
+        onDispose {
+            requestViewModel.clearSnackbarMessage()
+        }
+    }
 
     SwipeableScreen(
         navController = navController,
@@ -374,10 +406,12 @@ fun RequestDetailsScreen(
 
     // Logic to show dialog when the floating button to modify is pressed
     if (showModifyDialog && requestForDialog != null) {
-        ModifyRequestDialog(
+        CustomRequestDialog(
             request = requestForDialog!!,
             onDismiss = { showModifyDialog = false },
-            navController = navController
+            navController = navController,
+            actionText = "Modifica",
+            onConfirm = { requestViewModel.updateRequest(it) }
         )
     }
 

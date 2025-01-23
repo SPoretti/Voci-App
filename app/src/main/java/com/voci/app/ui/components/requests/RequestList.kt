@@ -59,6 +59,7 @@ fun RequestList(
         requests.data.orEmpty().filter { it.status == filterOption }
             .sortedWith(sortOption.comparator)
     }
+
     //----- Region: View Composition -----
     Box(modifier = Modifier.fillMaxWidth()) {
         // Display based on Resource status
@@ -77,7 +78,7 @@ fun RequestList(
                     )
                 } else { // Display the list of requests
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),       // One column
+                        columns = GridCells.Fixed(1), // One column
                         modifier = Modifier.fillMaxSize()
                     ) {
                         // Iterate through the filtered requests and display them
@@ -112,14 +113,14 @@ fun RequestList(
                                     if(request.status == RequestStatus.TODO){
                                         // Swipe to complete request
                                         requestViewModel.requestDone(request)
-                                        requestViewModel.getRequests()
                                     }
                                     // History page
                                     else {
                                         requestViewModel.deleteRequest(request)
-                                        requestViewModel.getRequests()
                                     }
                                 }
+                                // Reset the SwipeToDismissBoxState
+                                swipeState.reset()
                             }
 
                             // SwipeToDismissBox with swipe gestures
