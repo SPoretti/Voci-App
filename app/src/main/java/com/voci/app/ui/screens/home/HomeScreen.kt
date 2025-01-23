@@ -20,6 +20,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.voci.app.di.LocalServiceLocator
 import com.voci.app.ui.components.core.CustomFAB
 import com.voci.app.ui.components.core.DrawerContent
@@ -65,8 +67,11 @@ fun HomeScreen(
         }
     // Dialog Variable
     var showAddHomelessDialog by remember { mutableStateOf(false) }
-    // PullToRefresh Variables
+    // Coroutine scope variable
     val coroutineScope = rememberCoroutineScope()
+    // Navigation Variable
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    // PullToRefresh Variables
     val refreshState = rememberPullToRefreshState()
     val isRefreshing = remember { mutableStateOf(false) }
     // Drawer Variable
@@ -78,17 +83,23 @@ fun HomeScreen(
         if (message.isNotEmpty()) {
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(
+                    actionLabel = "Chiudi",
                     message = message,
                     duration = SnackbarDuration.Short
                 )
-                homelessViewModel.clearSnackbarMessage()
             }
+        }
+    }
+
+    DisposableEffect( key1 = currentBackStackEntry) {
+        onDispose {
+            homelessViewModel.clearSnackbarMessage()
+            homelessViewModel.updateSearchQuery("")
         }
     }
     // Initial Setup
     LaunchedEffect(Unit) {
         homelessViewModel.getHomelesses()
-        homelessViewModel.updateSearchQuery("")
     }
 
     //----- Region: View Composition -----
@@ -176,7 +187,6 @@ fun HomeScreen(
                     },
                     onConfirm = {
                         homelessViewModel.addHomeless(it)
-                        showAddHomelessDialog = false
                     },
                     actionText = "Aggiungi"
                 )
