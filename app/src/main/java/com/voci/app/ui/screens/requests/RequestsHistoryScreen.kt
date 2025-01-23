@@ -108,13 +108,11 @@ fun RequestsHistoryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-
                         SortButtons(
                             sortOptions = sortOptions,
                             selectedSortOption = selectedSortOption,
                             onSortOptionSelected = { selectedSortOption = it }
                         )
-
                     }
                     // Main Component : Requests list
                     RequestList(

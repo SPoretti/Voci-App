@@ -6,6 +6,7 @@
                   name="Voci App Documentation" start-page="README.md">
 
     <toc-element topic="README.md"/>
+    <toc-element topic="Jetpack-Compose-vs-Views.md"/>
     <toc-element topic="App.md">
         <toc-element topic="Main-Activity.md"/>
         <toc-element topic="Voci-App-Application.md"/>

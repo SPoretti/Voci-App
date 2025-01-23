@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -214,136 +215,179 @@ fun SignUpScreen(
                     .padding(padding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    when (step) {
-                        // 1 -> Sign Up Screen
-                        1 -> {
-                            Image(
-                                painter = painterResource(id = R.drawable.voci_logo),
-                                contentDescription = "Logo",
-                                modifier = Modifier.height(64.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                "Registrati",
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                    item{
+                        when (step) {
+                            // 1 -> Sign Up Screen
+                            1 -> {
+                                Image(
+                                    painter = painterResource(id = R.drawable.voci_logo),
+                                    contentDescription = "Logo",
+                                    modifier = Modifier.height(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    "Registrati",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                                shape = RoundedCornerShape(16.dp)
-                            ) {
-                                Column(
+                                Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(24.dp),
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                        .padding(horizontal = 16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                    shape = RoundedCornerShape(16.dp)
                                 ) {
-
-                                    AuthTextField(
-                                        value = email,
-                                        onValueChange = { email = it },
-                                        label = "Email",
-                                        icon = Icons.Default.Email,
-                                        isLoggingIn = logging,
-                                        colors = getTextFieldColors(isValid = isEmailValid)
-                                    )
-
-                                    AuthTextField(
-                                        value = password,
-                                        onValueChange = { password = it },
-                                        label = "Password",
-                                        icon = Icons.Default.Lock,
-                                        isLoggingIn = logging,
-                                        isPassword = true,
-                                        isPasswordVisible = passwordVisible,
-                                        trailingIcon = {
-                                            IconButton(onClick = {
-                                                passwordVisible = !passwordVisible
-                                            }) {
-                                                Icon(
-                                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                                    contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
-                                                )
-                                            }
-                                        },
+                                    Column(
                                         modifier = Modifier
-                                            .onFocusChanged { focusState ->
-                                                isPasswordFieldFocused = focusState.isFocused
-                                            },
-                                        colors = getTextFieldColors(isValid = isPasswordValid)
-                                    )
-
-                                    if (isPasswordFieldFocused) {
-                                        PasswordPopup(
-                                            onDismiss = {
-                                                isPasswordFieldFocused = false
-                                            }
-                                        )
-                                    }
-
-                                    AuthTextField(
-                                        value = confirmPassword,
-                                        onValueChange = { confirmPassword = it },
-                                        label = "Conferma Password",
-                                        icon = Icons.Default.Lock,
-                                        isLoggingIn = logging,
-                                        isPassword = true,
-                                        isPasswordVisible = passwordVisible,
-                                        colors = getTextFieldColors(isValid = isPasswordValid),
-                                        trailingIcon = null
-                                    )
-
-                                    Button(
-                                        onClick = { isSigningUp = true; logging = false },
-                                        enabled = true,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(8.dp)
+                                            .fillMaxWidth()
+                                            .padding(24.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        Text(
-                                            "Registrati",
-                                            modifier = Modifier.padding(vertical = 8.dp)
+
+                                        AuthTextField(
+                                            value = email,
+                                            onValueChange = { email = it },
+                                            label = "Email",
+                                            icon = Icons.Default.Email,
+                                            isLoggingIn = logging,
+                                            colors = getTextFieldColors(isValid = isEmailValid)
                                         )
+
+                                        AuthTextField(
+                                            value = password,
+                                            onValueChange = { password = it },
+                                            label = "Password",
+                                            icon = Icons.Default.Lock,
+                                            isLoggingIn = logging,
+                                            isPassword = true,
+                                            isPasswordVisible = passwordVisible,
+                                            trailingIcon = {
+                                                IconButton(onClick = {
+                                                    passwordVisible = !passwordVisible
+                                                }) {
+                                                    Icon(
+                                                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                        contentDescription = if (passwordVisible) "Nascondi password" else "Mostra password"
+                                                    )
+                                                }
+                                            },
+                                            modifier = Modifier
+                                                .onFocusChanged { focusState ->
+                                                    isPasswordFieldFocused = focusState.isFocused
+                                                },
+                                            colors = getTextFieldColors(isValid = isPasswordValid)
+                                        )
+
+                                        if (isPasswordFieldFocused) {
+                                            PasswordPopup(
+                                                onDismiss = {
+                                                    isPasswordFieldFocused = false
+                                                }
+                                            )
+                                        }
+
+                                        AuthTextField(
+                                            value = confirmPassword,
+                                            onValueChange = { confirmPassword = it },
+                                            label = "Conferma Password",
+                                            icon = Icons.Default.Lock,
+                                            isLoggingIn = logging,
+                                            isPassword = true,
+                                            isPasswordVisible = passwordVisible,
+                                            colors = getTextFieldColors(isValid = isPasswordValid),
+                                            trailingIcon = null
+                                        )
+
+                                        Button(
+                                            onClick = { isSigningUp = true; logging = false },
+                                            enabled = true,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(
+                                                "Registrati",
+                                                modifier = Modifier.padding(vertical = 8.dp)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                TextButton(
+                                    onClick = { navController.navigate("signIn") }
+                                ) {
+                                    Text(
+                                        "Hai già un account? Accedi",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                                    )
+                                }
+                            }
+
+                            // 2 -> Email Verification Screen
+                            2 -> {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(24.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        "Verifica la mail",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(24.dp),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Email,
+                                                contentDescription = "Email",
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier
+                                                    .size(78.dp)
+                                                    .align(Alignment.CenterHorizontally)
+                                            )
+                                            Text(
+                                                "Ti abbiamo inviato un link di verifica al seguente indirizzo email: ${user?.email}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
                                     }
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            TextButton(
-                                onClick = { navController.navigate("signIn") }
-                            ) {
+                            // 3 -> Complete Registration Screen
+                            3 -> {
                                 Text(
-                                    "Hai già un account? Accedi",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                                )
-                            }
-                        }
-
-                        // 2 -> Email Verification Screen
-                        2 -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(24.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    "Verifica la mail",
+                                    "Registrati",
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.primary
@@ -364,93 +408,52 @@ fun SignUpScreen(
                                             .padding(24.dp),
                                         verticalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Email,
-                                            contentDescription = "Email",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier
-                                                .size(78.dp)
-                                                .align(Alignment.CenterHorizontally)
+                                        AuthTextField(
+                                            value = name,
+                                            onValueChange = { name = it },
+                                            label = "Nome",
+                                            icon = Icons.Default.PersonOutline,
+                                            isLoggingIn = logging,
                                         )
-                                        Text(
-                                            "Ti abbiamo inviato un link di verifica al seguente indirizzo email: ${user?.email}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textAlign = TextAlign.Center
+
+                                        AuthTextField(
+                                            value = surname,
+                                            onValueChange = { surname = it },
+                                            label = "Cognome",
+                                            icon = Icons.Default.PersonOutline,
+                                            isLoggingIn = logging,
                                         )
-                                    }
-                                }
-                            }
-                        }
 
-                        // 3 -> Complete Registration Screen
-                        3 -> {
-                            Text(
-                                "Registrati",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                                shape = RoundedCornerShape(16.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(24.dp),
-                                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    AuthTextField(
-                                        value = name,
-                                        onValueChange = { name = it },
-                                        label = "Nome",
-                                        icon = Icons.Default.PersonOutline,
-                                        isLoggingIn = logging,
-                                    )
-
-                                    AuthTextField(
-                                        value = surname,
-                                        onValueChange = { surname = it },
-                                        label = "Cognome",
-                                        icon = Icons.Default.PersonOutline,
-                                        isLoggingIn = logging,
-                                    )
-
-                                    AuthTextField(
-                                        value = nickname,
-                                        onValueChange = { nickname = it },
-                                        label = if (nicknameAlreadyUsed) "Nickname già utilizzato" else "Nickname",
-                                        icon = Icons.Default.PersonOutline,
-                                        isLoggingIn = logging,
-                                        colors = getTextFieldColors(isValid = !nicknameAlreadyUsed)
-                                    )
-
-                                    AuthTextField(
-                                        value = phoneNumber,
-                                        onValueChange = { phoneNumber = it },
-                                        label = "Telefono",
-                                        icon = Icons.Default.Phone,
-                                        isLoggingIn = logging,
-                                        placeholder = "+39",
-                                        colors = getTextFieldColors(isValid = validPhoneNumber)
-                                    )
-
-                                    Button(
-                                        onClick = { isSigningUp = true; logging = false },
-                                        enabled = true,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text(
-                                            "Completa Registrazione",
-                                            modifier = Modifier.padding(vertical = 8.dp)
+                                        AuthTextField(
+                                            value = nickname,
+                                            onValueChange = { nickname = it },
+                                            label = if (nicknameAlreadyUsed) "Nickname già utilizzato" else "Nickname",
+                                            icon = Icons.Default.PersonOutline,
+                                            isLoggingIn = logging,
+                                            colors = getTextFieldColors(isValid = !nicknameAlreadyUsed)
                                         )
+
+                                        AuthTextField(
+                                            value = phoneNumber,
+                                            onValueChange = { phoneNumber = it },
+                                            label = "Telefono",
+                                            icon = Icons.Default.Phone,
+                                            isLoggingIn = logging,
+                                            placeholder = "+39",
+                                            colors = getTextFieldColors(isValid = validPhoneNumber)
+                                        )
+
+                                        Button(
+                                            onClick = { isSigningUp = true; logging = false },
+                                            enabled = true,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            shape = RoundedCornerShape(8.dp)
+                                        ) {
+                                            Text(
+                                                "Completa Registrazione",
+                                                modifier = Modifier.padding(vertical = 8.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }

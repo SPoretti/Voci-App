@@ -21,7 +21,7 @@ fun SwipeableScreen(
     content: @Composable () -> Unit
 ) {
     var offsetX by remember { mutableFloatStateOf(0f) }
-    val swipeThreshold = 60.dp.value
+    val swipeThreshold = 70.dp.value
 
     Box(
         modifier = Modifier

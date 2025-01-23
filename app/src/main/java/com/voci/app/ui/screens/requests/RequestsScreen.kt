@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -23,6 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -47,8 +51,10 @@ import com.voci.app.ui.components.requests.CustomRequestDialog
 import com.voci.app.ui.components.requests.RequestList
 import com.voci.app.ui.components.requests.SortButtons
 import com.voci.app.ui.components.requests.SortOption
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RequestsScreen(
     navController: NavHostController,       // Navigation controller for navigation
@@ -79,6 +85,9 @@ fun RequestsScreen(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     // Osserva uno stato del ViewModel per i messaggi Snackbar
     val message by requestViewModel.snackbarMessage.collectAsState(initial = "")
+    // PullToRefresh Variables
+    val refreshState = rememberPullToRefreshState()
+    val isRefreshing = remember { mutableStateOf(false) }
     // Mostra la Snackbar quando il messaggio cambia
     LaunchedEffect(message) {
         if (message.isNotEmpty()) {
@@ -149,13 +158,37 @@ fun RequestsScreen(
                             )
                         }
                     }
-                    // Main Component : Requests list
-                    RequestList(
-                        requests = activeRequests,
-                        filterOption = RequestStatus.TODO,
-                        sortOption = selectedSortOption,
-                        navController = navController
-                    )
+                    PullToRefreshBox(
+                        state = refreshState,
+                        onRefresh = {
+                            isRefreshing.value = true               // Set refreshing state to true
+                            // Launch a coroutine to fetch data
+                            coroutineScope.launch {
+                                serviceLocator.fetchAllData()       // Fetch all data (homelesses, requests, etc.)
+                                delay(150)                          // This delay is here because the refresh animation would break if it wasn't
+                                requestViewModel.getRequests()      // Refresh the data for this ui
+                                isRefreshing.value = false          // Set refreshing state to false
+                            }
+                        },
+                        isRefreshing = isRefreshing.value,
+                        indicator = {
+                            // Pre built indicator to show when refreshing
+                            Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = isRefreshing.value,
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                state = refreshState
+                            )
+                        }
+                    ){// Main Component : Requests list
+                        RequestList(
+                            requests = activeRequests,
+                            filterOption = RequestStatus.TODO,
+                            sortOption = selectedSortOption,
+                            navController = navController
+                        )
+                    }
                 }
                 // Add Request Floating Button
                 CustomFAB(
