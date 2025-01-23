@@ -25,10 +25,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.voci.app.data.util.Resource
 import com.voci.app.di.LocalServiceLocator
@@ -45,10 +51,12 @@ import com.voci.app.ui.components.core.SwipeDirection
 import com.voci.app.ui.components.core.SwipeableScreen
 import com.voci.app.ui.components.volunteers.ProfileInfoItem
 import com.voci.app.ui.components.volunteers.SnackbarManager
+import kotlinx.coroutines.launch
 
 @Composable
 fun UserProfileScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
 ) {
     val serviceLocator = LocalServiceLocator.current
     val authViewModel = serviceLocator.obtainAuthViewModel()
@@ -56,22 +64,37 @@ fun UserProfileScreen(
     val currentProfile = authViewModel.getCurrentUser()
     val loggedUser = volunteerViewModel.getCurrentUser()
 
-//    val currentVolunteer by volunteerViewModel.currentUser.collectAsState()
-
-//    LaunchedEffect(currentVolunteer) {
-//        if (currentVolunteer is Resource.Success) {
-//            Log.d("Home", "Utente loggato: ${currentVolunteer.toString()}")
-//        } else if (currentVolunteer is Resource.Error) {
-//            Log.d("Home", "Errore utente: ${(currentVolunteer as Resource.Error).message}")
-//            volunteerViewModel.fetchVolunteers()
-//        }
-//    }
-
     if (loggedUser != null) {
         volunteerViewModel.getVolunteerById(loggedUser.id)
     }
 
     val volunteerResource by volunteerViewModel.specificVolunteer.collectAsState()
+
+    // Coroutine scope variable
+    val coroutineScope = rememberCoroutineScope()
+
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    // Osserva uno stato del ViewModel per i messaggi Snackbar
+    val message by volunteerViewModel.snackbarMessage.collectAsState(initial = "")
+    // Mostra la Snackbar quando il messaggio cambia
+    LaunchedEffect(message) {
+        if (message.isNotEmpty()) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    actionLabel = "Chiudi",
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+                //volunteerViewModel.clearSnackbarMessage()
+            }
+        }
+    }
+
+    DisposableEffect( key1 = currentBackStackEntry) {
+        onDispose {
+            volunteerViewModel.clearSnackbarMessage()
+        }
+    }
 
     if (currentProfile != null) {
         Scaffold(

@@ -481,7 +481,8 @@ fun UpdateUserProfileScreen(
                                                             val result = authViewModel.signInWithEmailAndPassword(volunteer!!.email, password)
 
                                                             if (result is AuthResult.Failure) {
-                                                                isPasswordCorrect = false
+                                                                if (result.message == "Credenziali non valide")
+                                                                    isPasswordCorrect = false
                                                                 SnackbarManager.showSnackbar(result.message)
                                                                 isUpdating = false
                                                             } else {
